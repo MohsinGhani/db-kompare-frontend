@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  background: #EBF2FF
+}
+
+.db-row td:first-child {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
