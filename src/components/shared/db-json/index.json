@@ -1,0 +1,1014 @@
+{
+  "databases": [
+    {
+      "databaseId": "671a702268a4c01e9c833b92",
+      "databaseName": "Oracle",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 52,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 491183000
+          },
+          "bing": {
+            "total": 4386000
+          },
+          "popularity": 23452000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 252,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 485234000
+          },
+          "bing": {
+            "total": 4664000
+          },
+          "popularity": 36868000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 52,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 761183000
+          },
+          "bing": {
+            "total": 3336000
+          },
+          "popularity": 43252000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 1,
+            "totalAns": 1300
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 100,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 900000000
+          },
+          "bing": {
+            "total": 5000000
+          },
+          "popularity": 45000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 2,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 120,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 910000000
+          },
+          "bing": {
+            "total": 5100000
+          },
+          "popularity": 46000000
+        }
+      ]
+    },
+    {
+      "databaseId": "671b724d2ccf6705636d1003",
+      "databaseName": "MongoDB",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 31,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 135051700
+          },
+          "bing": {
+            "total": 2023000
+          },
+          "popularity": 49816000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 8,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 150,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 134129000
+          },
+          "bing": {
+            "total": 2034000
+          },
+          "popularity": 47268000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 8,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 150,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 124129000
+          },
+          "bing": {
+            "total": 1234000
+          },
+          "popularity": 87668000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 10,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 180,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 130000000
+          },
+          "bing": {
+            "total": 1300000
+          },
+          "popularity": 91000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 12,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 200,
+            "totalRepo": 2
+          },
+          "google": {
+            "total": 140000000
+          },
+          "bing": {
+            "total": 1500000
+          },
+          "popularity": 94000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728dd5fe2a35171ece523e8",
+      "databaseName": "MySQL",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 8,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 133,
+            "totalRepo": 7
+          },
+          "google": {
+            "total": 219062300
+          },
+          "bing": {
+            "total": 8877000
+          },
+          "popularity": 36816000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 7,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 5,
+            "totalIssues": 425,
+            "totalRepo": 4
+          },
+          "google": {
+            "total": 217098600
+          },
+          "bing": {
+            "total": 8954000
+          },
+          "popularity": 26260000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 7,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 5,
+            "totalIssues": 425,
+            "totalRepo": 4
+          },
+          "google": {
+            "total": 967098600
+          },
+          "bing": {
+            "total": 6754000
+          },
+          "popularity": 12260000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 9,
+            "totalAns": 1500
+          },
+          "github": {
+            "totalStars": 6,
+            "totalIssues": 450,
+            "totalRepo": 5
+          },
+          "google": {
+            "total": 1050000000
+          },
+          "bing": {
+            "total": 8500000
+          },
+          "popularity": 13000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 10,
+            "totalAns": 1600
+          },
+          "github": {
+            "totalStars": 7,
+            "totalIssues": 500,
+            "totalRepo": 6
+          },
+          "google": {
+            "total": 1100000000
+          },
+          "bing": {
+            "total": 9000000
+          },
+          "popularity": 15000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728de50e2a35171ece523ea",
+      "databaseName": "PostgreSQL",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 9,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 136,
+            "totalRepo": 9
+          },
+          "google": {
+            "total": 131012500
+          },
+          "bing": {
+            "total": 2375000
+          },
+          "popularity": 26780000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 21,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 501,
+            "totalRepo": 8
+          },
+          "google": {
+            "total": 134017300
+          },
+          "bing": {
+            "total": 2344000
+          },
+          "popularity": 37232000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 21,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 501,
+            "totalRepo": 8
+          },
+          "google": {
+            "total": 134017300
+          },
+          "bing": {
+            "total": 2344000
+          },
+          "popularity": 98232000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 23,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 550,
+            "totalRepo": 9
+          },
+          "google": {
+            "total": 140000000
+          },
+          "bing": {
+            "total": 2400000
+          },
+          "popularity": 100000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 25,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 3,
+            "totalIssues": 600,
+            "totalRepo": 10
+          },
+          "google": {
+            "total": 145000000
+          },
+          "bing": {
+            "total": 2500000
+          },
+          "popularity": 105000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728def6e2a35171ece523ec",
+      "databaseName": "Redis",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 2,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 147,
+            "totalRepo": 3
+          },
+          "google": {
+            "total": 111024200
+          },
+          "bing": {
+            "total": 3263000
+          },
+          "popularity": 36712000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 4,
+            "totalIssues": 609,
+            "totalRepo": 5
+          },
+          "google": {
+            "total": 111032400
+          },
+          "bing": {
+            "total": 3238000
+          },
+          "popularity": 6708000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 4,
+            "totalIssues": 609,
+            "totalRepo": 5
+          },
+          "google": {
+            "total": 222032400
+          },
+          "bing": {
+            "total": 4338000
+          },
+          "popularity": 8908000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 4,
+            "totalAns": 1350
+          },
+          "github": {
+            "totalStars": 5,
+            "totalIssues": 650,
+            "totalRepo": 6
+          },
+          "google": {
+            "total": 250000000
+          },
+          "bing": {
+            "total": 5100000
+          },
+          "popularity": 10000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 5,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 6,
+            "totalIssues": 700,
+            "totalRepo": 7
+          },
+          "google": {
+            "total": 260000000
+          },
+          "bing": {
+            "total": 5200000
+          },
+          "popularity": 12000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728dfcfe2a35171ece523ee",
+      "databaseName": "Snowflake",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 1,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 28,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 215170000
+          },
+          "bing": {
+            "total": 1997000
+          },
+          "popularity": 30836000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 147,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 214085700
+          },
+          "bing": {
+            "total": 2368000
+          },
+          "popularity": 17784000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 147,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 432085700
+          },
+          "bing": {
+            "total": 1268000
+          },
+          "popularity": 12784000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 1,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 160,
+            "totalRepo": 2
+          },
+          "google": {
+            "total": 500000000
+          },
+          "bing": {
+            "total": 1300000
+          },
+          "popularity": 15000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 1,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 180,
+            "totalRepo": 2
+          },
+          "google": {
+            "total": 510000000
+          },
+          "bing": {
+            "total": 1400000
+          },
+          "popularity": 16000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728e043e2a35171ece523f0",
+      "databaseName": "Elasticsearch",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 28,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 73908360
+          },
+          "bing": {
+            "total": 1416000
+          },
+          "popularity": 26624000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 136,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 74208430
+          },
+          "bing": {
+            "total": 1393000
+          },
+          "popularity": 17004000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 3,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 136,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 14208430
+          },
+          "bing": {
+            "total": 4493000
+          },
+          "popularity": 12004000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 4,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 150,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 145000000
+          },
+          "bing": {
+            "total": 4700000
+          },
+          "popularity": 13000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 5,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 160,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 150000000
+          },
+          "bing": {
+            "total": 4900000
+          },
+          "popularity": 14000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728e0c2e2a35171ece523f2",
+      "databaseName": "Microsoft SQL Server",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 9,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 181020200
+          },
+          "bing": {
+            "total": 5125000
+          },
+          "popularity": 3640000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 24,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 181025100
+          },
+          "bing": {
+            "total": 5203000
+          },
+          "popularity": 32864000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 24,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 581025100
+          },
+          "bing": {
+            "total": 3403000
+          },
+          "popularity": 76864000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 25,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 600000000
+          },
+          "bing": {
+            "total": 3503000
+          },
+          "popularity": 80000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 30,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 610000000
+          },
+          "bing": {
+            "total": 3603000
+          },
+          "popularity": 81000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728e12ce2a35171ece523f4",
+      "databaseName": "IBM Db2",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 0,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 9552960
+          },
+          "bing": {
+            "total": 3449000
+          },
+          "popularity": 10348000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 5,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 9634040
+          },
+          "bing": {
+            "total": 3430000
+          },
+          "popularity": 43680000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 5,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 1234040
+          },
+          "bing": {
+            "total": 3430000
+          },
+          "popularity": 45680000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 7,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 13000000
+          },
+          "bing": {
+            "total": 3500000
+          },
+          "popularity": 49000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 0,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 8,
+            "totalRepo": 0
+          },
+          "google": {
+            "total": 13500000
+          },
+          "bing": {
+            "total": 3600000
+          },
+          "popularity": 50000000
+        }
+      ]
+    },
+    {
+      "databaseId": "6728e18be2a35171ece523f6",
+      "databaseName": "SQLite",
+      "metrics": [
+        {
+          "date": "2024-11-03",
+          "stackoverflowdata": {
+            "totalQuestions": 2,
+            "totalAns": 793
+          },
+          "github": {
+            "totalStars": 0,
+            "totalIssues": 198,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 72005910
+          },
+          "bing": {
+            "total": 1661000
+          },
+          "popularity": 37700000
+        },
+        {
+          "date": "2024-11-04",
+          "stackoverflowdata": {
+            "totalQuestions": 4,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 599,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 72007190
+          },
+          "bing": {
+            "total": 1814000
+          },
+          "popularity": 19344000
+        },
+        {
+          "date": "2024-11-05",
+          "stackoverflowdata": {
+            "totalQuestions": 4,
+            "totalAns": 1327
+          },
+          "github": {
+            "totalStars": 1,
+            "totalIssues": 599,
+            "totalRepo": 1
+          },
+          "google": {
+            "total": 45007190
+          },
+          "bing": {
+            "total": 2814000
+          },
+          "popularity": 55544000
+        },
+        {
+          "date": "2024-11-06",
+          "stackoverflowdata": {
+            "totalQuestions": 5,
+            "totalAns": 1400
+          },
+          "github": {
+            "totalStars": 2,
+            "totalIssues": 650,
+            "totalRepo": 2
+          },
+          "google": {
+            "total": 46000000
+          },
+          "bing": {
+            "total": 2900000
+          },
+          "popularity": 57000000
+        },
+        {
+          "date": "2024-11-07",
+          "stackoverflowdata": {
+            "totalQuestions": 6,
+            "totalAns": 1450
+          },
+          "github": {
+            "totalStars": 3,
+            "totalIssues": 700,
+            "totalRepo": 3
+          },
+          "google": {
+            "total": 47000000
+          },
+          "bing": {
+            "total": 3000000
+          },
+          "popularity": 58000000
+        }
+      ]
+    }
+  ]
+}
