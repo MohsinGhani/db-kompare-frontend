@@ -9,30 +9,57 @@ import dbJsonData from "../shared/db-json/index.json";
 const { Option } = Select;
 
 const DBChart = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState(["popularity"]);
+
   const { RangePicker } = DatePicker;
-  const getMetricData = (metricKeys) => {
+
+  // Helper function to check if a date is within the selected range
+  const isDateInRange = (date, startDate, endDate) => {
+    const metricDate = new Date(date);
+    return (
+      !startDate ||
+      !endDate ||
+      (metricDate >= new Date(startDate) && metricDate <= new Date(endDate))
+    );
+  };
+
+  // Helper function to calculate the total metric value for a metric key
+  const calculateMetricValue = (metric, metricKeys) => {
+    return metricKeys.reduce((sum, metricKey) => {
+      const metricValue = metric[metricKey];
+      if (!metricValue) return sum;
+
+      if (typeof metricValue === "object") {
+        // Sum the values of the object
+        return (
+          sum +
+          Object.values(metricValue).reduce(
+            (objSum, value) => objSum + value,
+            0
+          )
+        );
+      } else {
+        return sum + metricValue;
+      }
+    }, 0);
+  };
+
+  // Function to get filtered metric data for each database
+  const getMetricData = (metricKeys, selectedDate) => {
     return dbJsonData.databases.map((db) => {
-      const totalDataForDatabase = db.metrics.map((metric) => {
-        return metricKeys.reduce((sum, metricKey) => {
-          const metricValue = metric[metricKey];
-          if (metricValue) {
-            if (typeof metricValue === "object") {
-              return (
-                sum +
-                Object.values(metricValue).reduce(
-                  (objSum, value) => objSum + value,
-                  0
-                )
-              );
-            } else {
-              return sum + metricValue;
-            }
+      const totalDataForDatabase = db.metrics
+        .map((metric) => {
+          if (
+            selectedDate[0] &&
+            selectedDate[1] &&
+            !isDateInRange(metric.date, selectedDate[0], selectedDate[1])
+          ) {
+            return null;
           }
-          return sum;
-        }, 0);
-      });
+          return calculateMetricValue(metric, metricKeys);
+        })
+        .filter((item) => item !== null);
 
       return {
         databaseName: db.databaseName,
@@ -41,67 +68,80 @@ const DBChart = () => {
     });
   };
 
-  const filteredData = getMetricData(selectedMetricKeys);
+  // Function to generate X-Axis categories based on the selected date range
 
-  const options = {
-    chart: {
-      type: "line",
-      alignTicks: false,
-      borderRadius: 24,
-      height: 600,
-    },
-    title: {
-      text: "Database Metrics over Time",
-    },
-    yAxis: {
-      title: null,
-    },
-    xAxis: {
-      categories:
-        filteredData.length > 0 && filteredData[0].data.length > 0
-          ? dbJsonData.databases[0].metrics.map((metric) => metric.date)
-          : [],
-    },
-    series: filteredData.map((db) => ({
-      name: db.databaseName,
-      data: db.data,
-    })),
-    responsive: {
-      rules: [
-        {
-          condition: {
-            maxWidth: 500,
-          },
-          chartOptions: {
-            legend: {
-              layout: "horizontal",
-              align: "center",
-              verticalAlign: "bottom",
+  const getXAxisCategories = (selectedDate) => {
+    const allMetrics = dbJsonData.databases[0]?.metrics || [];
+    return allMetrics
+      .map((metric) => metric.date)
+      .filter((date) => isDateInRange(date, selectedDate[0], selectedDate[1]));
+  };
+
+  // Options for the chart configuration
+  const getChartOptions = (filteredData, selectedDate) => {
+    return {
+      chart: {
+        type: "line",
+        alignTicks: false,
+        borderRadius: 24,
+        height: 600,
+      },
+      title: {
+        text: "Database Metrics over Time",
+      },
+      yAxis: {
+        title: null,
+      },
+      xAxis: {
+        categories:
+          filteredData.length > 0 && filteredData[0].data.length > 0
+            ? getXAxisCategories(selectedDate)
+            : [],
+      },
+      series: filteredData.map((db) => ({
+        name: db.databaseName,
+        data: db.data,
+      })),
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500,
+            },
+            chartOptions: {
+              legend: {
+                layout: "horizontal",
+                align: "center",
+                verticalAlign: "bottom",
+              },
             },
           },
-        },
-      ],
-    },
-    credits: false,
+        ],
+      },
+      credits: false,
+    };
   };
 
-  const handleDateChange = (date, dateString) => {
-    console.log(date, dateString);
-    setSelectedDate(dateString);
+  // Date change handler
+  const handleDateChange = (dates) => {
+    setSelectedDate(dates);
   };
+
+  // Metric change handler
   const handleMetricChange = (value) => {
-    if (
-      value.includes("popularity") &&
-      value[value.length - 1] === "popularity"
-    ) {
-      setSelectedMetricKeys(["popularity"]);
-    } else if (value.includes("popularity")) {
-      setSelectedMetricKeys(value.filter((v) => v !== "popularity"));
+    if (value.includes("popularity")) {
+      const newMetricKeys =
+        value[value.length - 1] === "popularity"
+          ? ["popularity"]
+          : value.filter((v) => v !== "popularity");
+
+      setSelectedMetricKeys(newMetricKeys);
     } else {
       setSelectedMetricKeys(value);
     }
   };
 
+  // Dropdown options for metrics
   const dropdownOptions = [
     { value: "github", label: "Github" },
     { value: "stackoverflowdata", label: "Stack Overflow" },
@@ -109,6 +149,12 @@ const DBChart = () => {
     { value: "bing", label: "Bing Search" },
     { value: "popularity", label: "All" },
   ];
+
+  // Fetch the filtered data based on selected metric keys
+  const filteredData = getMetricData(selectedMetricKeys, selectedDate);
+
+  // Get chart options
+  const options = getChartOptions(filteredData, selectedDate);
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
@@ -127,10 +173,8 @@ const DBChart = () => {
               </Option>
             ))}
           </Select>
-
           <RangePicker placeholder="Select Date" onChange={handleDateChange} />
         </div>
-
         <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
     </div>

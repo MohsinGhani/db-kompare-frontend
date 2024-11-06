@@ -130,7 +130,7 @@
             "totalRepo": 0
           },
           "google": {
-            "total": 676932000
+            "total": 526932000
           },
           "bing": {
             "total": 4550000
@@ -605,7 +605,7 @@
             "totalRepo": 1
           },
           "google": {
-            "total": 600000000
+            "total": 540000000
           },
           "bing": {
             "total": 5100000
@@ -1011,12 +1011,12 @@
             "totalRepo": 2
           },
           "google": {
-            "total": 549750000
+            "total": 54975000
           },
           "bing": {
             "total": 3475000
           },
-          "popularity": 58400000
+          "popularity": 5780000
         },
         {
           "date": "2024-10-28",
