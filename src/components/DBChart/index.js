@@ -89,14 +89,14 @@ const DBChart = () => {
     console.log(date, dateString);
     setSelectedDate(dateString);
   };
-
   const handleMetricChange = (value) => {
-    if (value.includes("popularity")) {
-      if (value.length > 1) {
-        setSelectedMetricKeys(value.filter((v) => v !== "popularity"));
-      } else {
-        setSelectedMetricKeys(["popularity"]);
-      }
+    if (
+      value.includes("popularity") &&
+      value[value.length - 1] === "popularity"
+    ) {
+      setSelectedMetricKeys(["popularity"]);
+    } else if (value.includes("popularity")) {
+      setSelectedMetricKeys(value.filter((v) => v !== "popularity"));
     } else {
       setSelectedMetricKeys(value);
     }
