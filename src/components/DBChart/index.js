@@ -2,29 +2,46 @@
 
 import React, { useState } from "react";
 import Highcharts from "highcharts";
-import HighchartsExporting from "highcharts/modules/exporting";
 import HighchartsReact from "highcharts-react-official";
 import { Select, DatePicker } from "antd";
 import dbJsonData from "../shared/db-json/index.json";
-
-if (typeof Highcharts === "object") {
-  HighchartsExporting(Highcharts);
-}
 
 const { Option } = Select;
 
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMetric, setSelectedMetric] = useState("popularity");
+  const [selectedMetricKeys, setSelectedMetricKeys] = useState(["popularity"]);
+  const { RangePicker } = DatePicker;
+  const getMetricData = (metricKeys) => {
+    return dbJsonData.databases.map((db) => {
+      const totalDataForDatabase = db.metrics.map((metric) => {
+        return metricKeys.reduce((sum, metricKey) => {
+          const metricValue = metric[metricKey];
+          if (metricValue) {
+            if (typeof metricValue === "object") {
+              return (
+                sum +
+                Object.values(metricValue).reduce(
+                  (objSum, value) => objSum + value,
+                  0
+                )
+              );
+            } else {
+              return sum + metricValue;
+            }
+          }
+          return sum;
+        }, 0);
+      });
 
-  const filteredData = dbJsonData.databases.map((db) => {
-    return {
-      databaseName: db.databaseName,
-      data: db.metrics.filter((metric) =>
-        selectedDate ? metric.date === selectedDate : true
-      ),
-    };
-  });
+      return {
+        databaseName: db.databaseName,
+        data: totalDataForDatabase,
+      };
+    });
+  };
+
+  const filteredData = getMetricData(selectedMetricKeys);
 
   const options = {
     chart: {
@@ -34,7 +51,7 @@ const DBChart = () => {
       height: 600,
     },
     title: {
-      text: "Popularity of Databases Over Time",
+      text: "Database Metrics over Time",
     },
     yAxis: {
       title: null,
@@ -42,15 +59,12 @@ const DBChart = () => {
     xAxis: {
       categories:
         filteredData.length > 0 && filteredData[0].data.length > 0
-          ? filteredData[0].data.map((metric) => metric.date)
+          ? dbJsonData.databases[0].metrics.map((metric) => metric.date)
           : [],
     },
     series: filteredData.map((db) => ({
       name: db.databaseName,
-      data:
-        db.data.length > 0
-          ? db.data.map((metric) => metric[selectedMetric])
-          : [],
+      data: db.data,
     })),
     responsive: {
       rules: [
@@ -72,19 +86,28 @@ const DBChart = () => {
   };
 
   const handleDateChange = (date, dateString) => {
+    console.log(date, dateString);
     setSelectedDate(dateString);
   };
 
   const handleMetricChange = (value) => {
-    setSelectedMetric(value);
+    if (value.includes("popularity")) {
+      if (value.length > 1) {
+        setSelectedMetricKeys(value.filter((v) => v !== "popularity"));
+      } else {
+        setSelectedMetricKeys(["popularity"]);
+      }
+    } else {
+      setSelectedMetricKeys(value);
+    }
   };
 
   const dropdownOptions = [
-    { value: "all", label: "All" },
     { value: "github", label: "Github" },
     { value: "stackoverflowdata", label: "Stack Overflow" },
     { value: "google", label: "Google Search" },
     { value: "bing", label: "Bing Search" },
+    { value: "popularity", label: "All" },
   ];
 
   return (
@@ -92,10 +115,10 @@ const DBChart = () => {
       <div className="w-full">
         <div className="flex justify-center gap-4 mb-4">
           <Select
-            mode="tags"
+            mode="multiple"
             className="w-96"
-            defaultValue="all"
-            placeholder="Please select a metric"
+            value={selectedMetricKeys}
+            placeholder="Please select metrics"
             onChange={handleMetricChange}
           >
             {dropdownOptions.map((option) => (
@@ -105,7 +128,7 @@ const DBChart = () => {
             ))}
           </Select>
 
-          <DatePicker placeholder="Select Date" onChange={handleDateChange} />
+          <RangePicker placeholder="Select Date" onChange={handleDateChange} />
         </div>
 
         <HighchartsReact highcharts={Highcharts} options={options} />
