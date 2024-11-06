@@ -69,8 +69,10 @@ const DBChart = () => {
   };
 
   // Function to generate X-Axis categories based on the selected date range
-
   const getXAxisCategories = (selectedDate) => {
+    if (!selectedDate[0] || !selectedDate[1]) {
+      return [];
+    }
     const allMetrics = dbJsonData.databases[0]?.metrics || [];
     return allMetrics
       .map((metric) => metric.date)
@@ -87,7 +89,7 @@ const DBChart = () => {
         height: 600,
       },
       title: {
-        text: "Database Metrics over Time",
+        text: "Popularity of Databases Over Time",
       },
       yAxis: {
         title: null,
@@ -124,20 +126,24 @@ const DBChart = () => {
 
   // Date change handler
   const handleDateChange = (dates) => {
-    setSelectedDate(dates);
+    setSelectedDate(dates || [null, null]);
   };
 
   // Metric change handler
   const handleMetricChange = (value) => {
-    if (value.includes("popularity")) {
-      const newMetricKeys =
-        value[value.length - 1] === "popularity"
-          ? ["popularity"]
-          : value.filter((v) => v !== "popularity");
-
-      setSelectedMetricKeys(newMetricKeys);
+    if (value.length === 0) {
+      setSelectedMetricKeys(["popularity"]);
     } else {
-      setSelectedMetricKeys(value);
+      if (value.includes("popularity")) {
+        const newMetricKeys =
+          value[value.length - 1] === "popularity"
+            ? ["popularity"]
+            : value.filter((v) => v !== "popularity");
+
+        setSelectedMetricKeys(newMetricKeys);
+      } else {
+        setSelectedMetricKeys(value);
+      }
     }
   };
 
@@ -156,6 +162,12 @@ const DBChart = () => {
   // Get chart options
   const options = getChartOptions(filteredData, selectedDate);
 
+  // Reset both the date picker and metrics
+  const handleGoToGraph = () => {
+    setSelectedDate([null, null]);
+    setSelectedMetricKeys(["popularity"]);
+  };
+
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="w-full">
@@ -173,9 +185,26 @@ const DBChart = () => {
               </Option>
             ))}
           </Select>
-          <RangePicker placeholder="Select Date" onChange={handleDateChange} />
+          <RangePicker
+            placeholder="Select Date"
+            value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
+            onChange={handleDateChange}
+          />
         </div>
-        <HighchartsReact highcharts={Highcharts} options={options} />
+
+        {filteredData.every((db) => db.data.length === 0) ? (
+          <div className="text-red-500 text-center">
+            No data available for the selected date range
+            <button
+              className="text-black ml-3 underline"
+              onClick={handleGoToGraph}
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <HighchartsReact highcharts={Highcharts} options={options} />
+        )}
       </div>
     </div>
   );
