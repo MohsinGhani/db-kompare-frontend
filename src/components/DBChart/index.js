@@ -69,61 +69,51 @@ const DBChart = () => {
   };
 
   // Function to generate X-Axis categories based on the selected date range
-  const getXAxisCategories = (selectedDate) => {
-    if (!selectedDate[0] || !selectedDate[1]) {
-      return [];
-    }
-    const allMetrics = dbJsonData.databases[0]?.metrics || [];
-    return allMetrics
-      .map((metric) => metric.date)
-      .filter((date) => isDateInRange(date, selectedDate[0], selectedDate[1]));
-  };
+
+  const filteredData = getMetricData(selectedMetricKeys, selectedDate);
 
   // Options for the chart configuration
-  const getChartOptions = (filteredData, selectedDate) => {
-    return {
-      chart: {
-        type: "line",
-        alignTicks: false,
-        borderRadius: 24,
-        height: 600,
-      },
-      title: {
-        text: "Popularity of Databases Over Time",
-      },
-      yAxis: {
-        title: null,
-      },
-      xAxis: {
-        categories:
-          filteredData.length > 0 && filteredData[0].data.length > 0
-            ? getXAxisCategories(selectedDate)
-            : [],
-      },
-      series: filteredData.map((db) => ({
-        name: db.databaseName,
-        data: db.data,
-      })),
-      responsive: {
-        rules: [
-          {
-            condition: {
-              maxWidth: 500,
-            },
-            chartOptions: {
-              legend: {
-                layout: "horizontal",
-                align: "center",
-                verticalAlign: "bottom",
-              },
+  const options = {
+    chart: {
+      type: "line",
+      alignTicks: false,
+      borderRadius: 24,
+      height: 600,
+    },
+    title: {
+      text: "Database Metrics over Time",
+    },
+    yAxis: {
+      title: null,
+    },
+    xAxis: {
+      categories:
+        filteredData.length > 0 && filteredData[0].data.length > 0
+          ? dbJsonData.databases[0].metrics.map((metric) => metric.date)
+          : [],
+    },
+    series: filteredData.map((db) => ({
+      name: db.databaseName,
+      data: db.data,
+    })),
+    responsive: {
+      rules: [
+        {
+          condition: {
+            maxWidth: 500,
+          },
+          chartOptions: {
+            legend: {
+              layout: "horizontal",
+              align: "center",
+              verticalAlign: "bottom",
             },
           },
-        ],
-      },
-      credits: false,
-    };
+        },
+      ],
+    },
+    credits: false,
   };
-
   // Date change handler
   const handleDateChange = (dates) => {
     setSelectedDate(dates || [null, null]);
@@ -156,13 +146,6 @@ const DBChart = () => {
     { value: "popularity", label: "All" },
   ];
 
-  // Fetch the filtered data based on selected metric keys
-  const filteredData = getMetricData(selectedMetricKeys, selectedDate);
-
-  // Get chart options
-  const options = getChartOptions(filteredData, selectedDate);
-
-  // Reset both the date picker and metrics
   const handleGoToGraph = () => {
     setSelectedDate([null, null]);
     setSelectedMetricKeys(["popularity"]);
