@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import Highcharts from "highcharts";
+import React, { useEffect, useState } from "react";
+import Highcharts, { wrap } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { Select, DatePicker } from "antd";
 import dbJsonData from "../shared/db-json/index.json";
-
+import "./style.scss";
 const { Option } = Select;
 
 const DBChart = () => {
@@ -46,6 +46,7 @@ const DBChart = () => {
   };
 
   // Function to get filtered metric data for each database
+
   const getMetricData = (metricKeys, selectedDate) => {
     return dbJsonData.databases.map((db) => {
       const totalDataForDatabase = db.metrics
@@ -68,8 +69,6 @@ const DBChart = () => {
     });
   };
 
-  // Function to generate X-Axis categories based on the selected date range
-
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
 
   // Options for the chart configuration
@@ -79,6 +78,44 @@ const DBChart = () => {
       alignTicks: false,
       borderRadius: 24,
       height: 600,
+      events: {
+        render: function () {
+          const chart = this;
+          const chartWidth = chart.chartWidth;
+          const chartHeight = chart.chartHeight;
+
+          if (filteredData.every((db) => db.data.length === 0)) {
+            const errorMessage = "No data available on these dates";
+
+            if (!this.errorMessage) {
+              this.errorMessage = chart.renderer
+                .text(errorMessage, 0, 0)
+                .css({
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "red",
+                })
+                .add();
+
+              const textWidth = this.errorMessage.getBBox().width;
+              const textHeight = this.errorMessage.getBBox().height;
+
+              const xPosition = (chartWidth - textWidth) / 2;
+              const yPosition = (chartHeight + textHeight) / 2;
+
+              this.errorMessage.attr({
+                x: xPosition,
+                y: yPosition,
+              });
+            }
+          } else {
+            if (this.errorMessage) {
+              this.errorMessage.destroy();
+              this.errorMessage = null;
+            }
+          }
+        },
+      },
     },
     title: {
       text: "Database Metrics over Time",
@@ -92,15 +129,18 @@ const DBChart = () => {
           ? dbJsonData.databases[0].metrics.map((metric) => metric.date)
           : [],
     },
-    series: filteredData.map((db) => ({
-      name: db.databaseName,
-      data: db.data,
-    })),
+    series:
+      filteredData.length > 0 && filteredData[0].data.length > 0
+        ? filteredData.map((db) => ({
+            name: db.databaseName,
+            data: db.data,
+          }))
+        : [],
     responsive: {
       rules: [
         {
           condition: {
-            maxWidth: 500,
+            maxWidth: 520,
           },
           chartOptions: {
             legend: {
@@ -114,6 +154,7 @@ const DBChart = () => {
     },
     credits: false,
   };
+
   // Date change handler
   const handleDateChange = (dates) => {
     setSelectedDate(dates || [null, null]);
@@ -121,7 +162,7 @@ const DBChart = () => {
 
   // Metric change handler
   const handleMetricChange = (value) => {
-    if (value.length === 0) {
+    if (value.length === 0 || value.length === dropdownOptions.length - 1) {
       setSelectedMetricKeys(["popularity"]);
     } else {
       if (value.includes("popularity")) {
@@ -146,18 +187,13 @@ const DBChart = () => {
     { value: "popularity", label: "All" },
   ];
 
-  const handleGoToGraph = () => {
-    setSelectedDate([null, null]);
-    setSelectedMetricKeys(["popularity"]);
-  };
-
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="w-full">
-        <div className="flex justify-center gap-4 mb-4">
+        <div className="md:flex justify-center gap-4 mb-4">
           <Select
             mode="multiple"
-            className="w-96"
+            className="md:w-96 w-full mt-2"
             value={selectedMetricKeys}
             placeholder="Please select metrics"
             onChange={handleMetricChange}
@@ -168,26 +204,15 @@ const DBChart = () => {
               </Option>
             ))}
           </Select>
+
           <RangePicker
             placeholder="Select Date"
+            className="md:w-96 w-full mt-2 dateRange"
             value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
             onChange={handleDateChange}
           />
         </div>
-
-        {filteredData.every((db) => db.data.length === 0) ? (
-          <div className="text-red-500 text-center">
-            No data available for the selected date range
-            <button
-              className="text-black ml-3 underline"
-              onClick={handleGoToGraph}
-            >
-              Reset Filters
-            </button>
-          </div>
-        ) : (
-          <HighchartsReact highcharts={Highcharts} options={options} />
-        )}
+        <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
     </div>
   );
