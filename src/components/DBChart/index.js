@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Highcharts, { wrap } from "highcharts";
+import React, { useState } from "react";
+import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { Select, DatePicker } from "antd";
 import dbJsonData from "../shared/db-json/index.json";
 import "./style.scss";
 const { Option } = Select;
-
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState(["popularity"]);
@@ -195,7 +194,6 @@ const DBChart = () => {
             mode="multiple"
             className="md:w-96 w-full mt-2"
             value={selectedMetricKeys}
-            placeholder="Please select metrics"
             onChange={handleMetricChange}
           >
             {dropdownOptions.map((option) => (
@@ -204,7 +202,6 @@ const DBChart = () => {
               </Option>
             ))}
           </Select>
-
           <RangePicker
             placeholder="Select Date"
             className="md:w-96 w-full mt-2 dateRange"
