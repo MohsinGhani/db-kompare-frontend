@@ -7,6 +7,7 @@ import { Select, DatePicker } from "antd";
 import dbJsonData from "../shared/db-json/index.json";
 import "./style.scss";
 const { Option } = Select;
+
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState(["popularity"]);
@@ -69,6 +70,16 @@ const DBChart = () => {
   };
 
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
+  const getXAxisCategories = (selectedDate) => {
+    const allMetrics = dbJsonData.databases[0]?.metrics || [];
+    if (!selectedDate[0] || !selectedDate[1]) {
+      // If no date range is selected, show all dates
+      return allMetrics.map((metric) => metric.date);
+    }
+    return allMetrics
+      .map((metric) => metric.date)
+      .filter((date) => isDateInRange(date, selectedDate[0], selectedDate[1]));
+  };
 
   // Options for the chart configuration
   const options = {
@@ -125,7 +136,7 @@ const DBChart = () => {
     xAxis: {
       categories:
         filteredData.length > 0 && filteredData[0].data.length > 0
-          ? dbJsonData.databases[0].metrics.map((metric) => metric.date)
+          ? getXAxisCategories(selectedDate)
           : [],
     },
     series:
@@ -194,6 +205,7 @@ const DBChart = () => {
             mode="multiple"
             className="md:w-96 w-full mt-2"
             value={selectedMetricKeys}
+            placeholder="Please select metrics"
             onChange={handleMetricChange}
           >
             {dropdownOptions.map((option) => (
@@ -202,6 +214,7 @@ const DBChart = () => {
               </Option>
             ))}
           </Select>
+
           <RangePicker
             placeholder="Select Date"
             className="md:w-96 w-full mt-2 dateRange"
