@@ -15,7 +15,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body className={`${inter.className} max-w-7xl m-auto px-6`}>
+      <body className={`${inter.className} bg-white `}>
         {mount ? (
           <>{children}</>
         ) : (
