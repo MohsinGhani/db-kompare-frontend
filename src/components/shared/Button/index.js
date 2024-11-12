@@ -14,9 +14,9 @@ const CommonButton = ({
   classes,
   ...props
 }) => {
-  // Default button style
   const buttonStyle = {
-    width: "201.92px",
+    // width: "201.92px",
+    width: "100%",
     height: "54px",
     padding: "13px 40.92px 13px 41px",
     gap: "0px",
@@ -26,7 +26,6 @@ const CommonButton = ({
     border: "1px solid black",
   };
 
-  // Merge default button style with custom style from props
   const mergedStyle = { ...buttonStyle, ...style };
 
   return (
@@ -35,8 +34,8 @@ const CommonButton = ({
       onClick={onClick}
       loading={loading}
       disabled={disabled}
-      style={mergedStyle} // Apply merged style
-      className={classes} // Optionally apply additional CSS classes
+      style={mergedStyle}
+      className={classes}
       {...props}
     >
       {children}
