@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Button } from "antd";
-import { color } from "highcharts";
 
 const CommonButton = ({
   type,
@@ -15,8 +14,7 @@ const CommonButton = ({
   ...props
 }) => {
   const buttonStyle = {
-    // width: "201.92px",
-    width: "100%",
+    // width: "100%",
     height: "54px",
     padding: "13px 40.92px 13px 41px",
     gap: "0px",
@@ -35,7 +33,8 @@ const CommonButton = ({
       loading={loading}
       disabled={disabled}
       style={mergedStyle}
-      className={classes}
+      // className={classes}
+      className="bg-blue-500 hover:bg-blue-400 text-white border-none"
       {...props}
     >
       {children}

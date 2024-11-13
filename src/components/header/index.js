@@ -4,21 +4,24 @@ import Image from "next/image";
 import logo from "../../../public/assets/images/dbLogo.png";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { usePathname } from "next/navigation";
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
   const path = usePathname();
-  console.log(path);
+
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/leader-board", label: "DB Leaderboard" },
+    { href: "/db-comparison", label: "DB Comparison" },
+  ];
 
   return (
     <div
       className={`w-full h-20 fixed z-10 ${
-        path === "/" ? "bg-transparent" : "bg-custom-gradient"
+        path === "/" ? "lg:bg-none bg-custom-gradient" : "bg-custom-gradient"
       }`}
     >
-      <div className="lg:w-[75%] w-full lg:px-28 pl-10 flex justify-between items-center">
+      <div className="2xl:w-[65%] lg:w-4/5 w-full lg:px-28 px-3 flex justify-between items-center">
         <Image
           src={logo}
           alt="DB Logo"
@@ -27,56 +30,52 @@ export default function Navbar() {
           className="object-contain"
         />
 
-        <button
-          data-collapse-toggle="navbar-default"
-          type="button"
-          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-          aria-controls="navbar-default"
-          aria-expanded={isOpen ? "true" : "false"}
-          onClick={toggleMenu}
-        >
-          <span className="sr-only">Open main menu</span>
+        <div className="hidden md:flex space-x-8">
+          {links.map((link, index) => (
+            <a
+              key={index}
+              href={link.href}
+              className={`py-2 px-3 ${
+                path === link.href ? "font-semibold text-black" : "text-black"
+              } hover:font-semibold`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
 
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          aria-expanded={isOpen ? "true" : "false"}
+        >
           {isOpen ? (
             <CloseOutlined style={{ fontSize: "25px" }} />
           ) : (
             <MenuOutlined style={{ fontSize: "25px" }} />
           )}
         </button>
+      </div>
 
-        <div
-          className={`${
-            isOpen ? "block bg-white" : "hidden"
-          } w-full md:block md:w-auto bg-black 2xl:transparent md:bg-transparent rounded-md`}
-          id="navbar-default"
-        >
-          <ul className=" text-black  text-lg font-normal gap-3 flex flex-col p-4 md:p-0 border border-gray-100 rounded-lg  md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-            <li>
+      <div
+        className={`${
+          isOpen ? "block" : "hidden"
+        } md:hidden fixed top-20 left-0 w-full bg-white z-30 transition-all duration-300 ease-in-out`}
+      >
+        <ul className="text-black text-lg font-normal gap-3 flex flex-col p-4 md:p-0 h-auto justify-start items-start">
+          {links.map((link, index) => (
+            <li key={index}>
               <a
-                href="/"
-                className="block  py-2 px-3 hover:font-semibold text-black bg-white rounded md:bg-transparent md:text-black md:p-0 "
+                href={link.href}
+                className={`block py-2 px-3 ${
+                  path === link.href ? "font-semibold text-black" : "text-black"
+                } hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:p-0`}
               >
-                Home{" "}
+                {link.label}
               </a>
             </li>
-            <li>
-              <a
-                href="/leader-board"
-                className="block py-2 px-3 hover:font-semibold text-black bg-white rounded md:bg-transparent md:text-black md:p-0 "
-              >
-                DB Leaderboard
-              </a>
-            </li>
-            <li>
-              <a
-                href="/db-comparison"
-                className="block py-2 px-3 hover:font-semibold text-black bg-white rounded md:bg-transparent md:text-black md:p-0 "
-              >
-                DB Comparison
-              </a>
-            </li>
-          </ul>
-        </div>
+          ))}
+        </ul>
       </div>
     </div>
   );

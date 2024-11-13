@@ -12,7 +12,7 @@ export default function Page() {
         paragraph2="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across forums."
         imageAlt="blue line"
       >
-        <div className="w-full mt-14">
+        <div className="w-full mt-16">
           <DBChart />
         </div>
       </ContentSection>

@@ -91,7 +91,7 @@ const DBChart = () => {
       borderWidth: 1,
       spacing: 30,
       borderColor: "#D9D9D9",
-      height: 700,
+      height: 600,
       events: {
         render: function () {
           const chart = this;
@@ -208,7 +208,7 @@ const DBChart = () => {
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="w-full">
-        <div className="md:flex p-6 justify-center gap-4 py-4  mb-4 border rounded-2xl flex-col border-[#D9D9D9]">
+        <div className="md:flex p-6 justify-center gap-4 py-6  mb-4 border rounded-2xl flex-col border-[#D9D9D9]">
           <div className="flex justify-between">
             <CommonTypography type="text" classes="text-2xl font-bold">
               Filters{" "}
@@ -225,16 +225,19 @@ const DBChart = () => {
           </div>
           <div className="md:flex justify-between gap-5">
             <div className="w-full ">
-              <CommonTypography type="text" classes="text-lg font-medium">
+              <CommonTypography type="text" classes="text-lg font-medium my-2">
                 Database Resources
               </CommonTypography>
 
-              <div className="flex  flex-wrap  md:gap-10 mt-3">
+              <div className="flex  flex-wrap  md:gap-6  md:mt-3">
                 {dropdownOptions.map((option, index) => (
                   <div className="flex items-center mt-2" key={index}>
                     <input
                       type="checkbox"
-                      style={{ width: "1rem", height: "1rem" }}
+                      style={{
+                        width: "1rem",
+                        height: "1rem",
+                      }}
                       id={option.value}
                       name={option.value}
                       value={option.value}
@@ -256,7 +259,7 @@ const DBChart = () => {
                     />
                     <label
                       htmlFor={option.value}
-                      className="mx-2 text-base font-medium"
+                      className="mx-2 md:text-lg text-base font-medium text-black"
                     >
                       {option.label}
                     </label>
@@ -265,12 +268,11 @@ const DBChart = () => {
               </div>
             </div>
             <div className="w-full">
-              <CommonTypography type="text" classes="text-lg font-medium">
+              <CommonTypography type="text" classes="text-lg font-medium my-2">
                 Select Date
               </CommonTypography>
               <RangePicker
-                placeholder="Select Date"
-                className=" w-full mt-2 dateRange h-9 mt-3"
+                className=" w-full  dateRange h-9 mt-3"
                 value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
                 onChange={handleDateChange}
               />

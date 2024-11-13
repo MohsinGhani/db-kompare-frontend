@@ -1,23 +1,16 @@
 "use client";
 
-import Navbar from "@/components/header";
 import CommonButton from "@/components/shared/Button";
 import Image from "next/image";
 import React from "react";
 import chart from "../../public/assets/images/Base Chart.png";
 import arrowIcon from "../../public/assets/images/arrow.png";
 import blueline from "../../public/assets/images/blue line.png";
-import Footer from "@/components/footer";
-import { useRouter } from "next/navigation";
 function Home() {
-  const router = useRouter();
-  // const changepath = () => {
-  //   router.push("/leader-board");
-  // };
   return (
     <div className="lg:pl-28 bg-[url('/assets/images/homebg.png')] bg-cover bg-center h-screen ">
-      <div className="flex justify-between items-center h-full px-4 text-black md:pt-32">
-        <div className="flex justify-between -mt-28 ">
+      <div className="flex justify-between items-center h-full px-4 text-black md:pt-32 ">
+        <div className="flex justify-between -mt-28 ml-2 ">
           <div className="md:w-3/5 w-full flex flex-col items-center xl:items-start xl:text-start text-center justify-center space-y-4">
             <h1 className="font-extrabold text-3xl 2xl:text-5xl 2xl:leading-[67.52px] tracking-[-1%]">
               Offer technology
@@ -31,13 +24,12 @@ function Home() {
             </p>
             <div className="md:flex md:space-x-4">
               <CommonButton
-                className="bg-black mt-3 text-white text-lg hover:bg-pink-300 hover:text-black transition-all duration-300"
+                className="bg-black md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
                 style={{ color: "white" }}
-                // onClick={changepath()}
               >
                 DB Leaderboard
               </CommonButton>
-              <CommonButton className="bg-transparent mt-3 text-black text-lg border border-black">
+              <CommonButton className="bg-transparent lg:w-52 md:w-40 w-full mt-3 text-black md:text-base text-lg border border-black">
                 DB Comparison
               </CommonButton>
             </div>
