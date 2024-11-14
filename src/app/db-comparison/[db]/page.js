@@ -1,42 +1,61 @@
 "use client";
-import { DatabaseOption } from "@/components/data/data";
+import { useRouter } from "next/navigation";
+import { DatabaseOption, rowLabels } from "@/components/data/data";
 import CommonButton from "@/components/shared/Button";
 import CommonTypography from "@/components/shared/Typography";
-import { Checkbox, Select, Table, Typography } from "antd";
+import { Select, Table } from "antd";
 import { useEffect, useState } from "react";
-
+import compareDBData from "@/components/shared/db-json/index.json";
 const { Option } = Select;
 
 const Comparison = ({ params }) => {
-  const { db } = params || {};
-  const [selectedDatabases, setSelectedDatabases] = useState([db || ""]);
-  const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([
-    db || "",
-  ]);
+  const router = useRouter();
+  const { db } = params;
 
+  const decodedDb = db ? decodeURIComponent(db) : "";
+  const [dbData, setDbData] = useState(null);
+  const [selectedDatabases, setSelectedDatabases] = useState([]);
+  const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = compareDBData.comparedb;
+      setDbData(data);
+      console.log("dbData", dbData);
+    };
+
+    fetchData();
+  }, []);
   const onChange = (checkedValues) => {
+    console.log("checked = ", checkedValues);
     setSelectedDatabasesOptions(checkedValues);
   };
 
-  const rowLabels = [
-    "Description",
-    "Primary Database Model",
-    "DB_Engines Ranking",
-    "Website",
-    "Developer",
-    "Initial Release",
-  ];
-
   const generateDataForDatabase = (db) => {
     const dbName = db || "Unknown";
-    return {
-      Description: `${dbName} is a popular database solution.`,
-      "Primary Database Model": "Relational/NoSQL",
-      "DB_Engines Ranking": Math.floor(Math.random() * 100) + 1,
-      Website: `https://${dbName.toLowerCase().replace(/\s+/g, "")}.com`,
-      Developer: `${dbName} Developer`,
-      "Initial Release": `${2000 + Math.floor(Math.random() * 20)}`,
-    };
+
+    if (dbData && dbData.length > 0) {
+      const data = dbData[0][dbName.toLowerCase()];
+
+      if (data) {
+        return {
+          Description: data.description || "No description available",
+          "Primary Database Model": data.primary_database_model,
+          "DB_Engines Ranking": data.db_compare_ranking.rank.join(", "),
+          Website: data.website,
+          Developer: data.developer,
+          "Initial Release": data.initial_release,
+          "Current Release": data.current_release,
+          License: data.license,
+          "Supported Operating Systems":
+            data.server_operating_systems.join(", "),
+          "Supported Programming Languages":
+            data.supported_programming_languages.join(", "),
+          "Partitioning Methods": data.partitioning_methods.join(", "),
+          "Replication Methods": data.replication_methods.join(", "),
+        };
+      }
+    }
+    return null;
   };
 
   const data = rowLabels.map((label) => {
@@ -46,12 +65,19 @@ const Comparison = ({ params }) => {
     });
     return row;
   });
-
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
+    {
+      // fixed: "left",
+
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      rowScope: "row",
+      render: (text) => <div style={{ minWidth: "200px" }}>{text}</div>,
+    },
     ...selectedDatabases.map((db) => ({
       title: (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center  justify-between gap-2">
           <span>{db}</span>
           {selectedDatabases.length > 1 && (
             <svg
@@ -74,6 +100,17 @@ const Comparison = ({ params }) => {
           )}
         </div>
       ),
+      render: (text) => (
+        <div
+          style={{
+            padding: "5px",
+            fontSize: "13px",
+            fontWeight: "400",
+          }}
+        >
+          <span dangerouslySetInnerHTML={{ __html: text }} />
+        </div>
+      ),
       dataIndex: db,
       key: db,
     })),
@@ -83,54 +120,69 @@ const Comparison = ({ params }) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
     setSelectedDatabasesOptions(updatedDatabases);
+
+    const newDbQuery = encodeURIComponent(updatedDatabases.join("-"));
+    router.push(`/db-comparison/${newDbQuery}`);
+  };
+
+  const handleCompareClick = () => {
+    const newDbQuery = encodeURIComponent(selectedDatabasesOptions.join("-"));
+    router.push(`/db-comparison/${newDbQuery}`);
   };
 
   useEffect(() => {
-    if (db) {
-      setSelectedDatabases([db]);
+    if (decodedDb) {
+      const databases = decodedDb
+        .split("-")
+        .map((db) => decodeURIComponent(db));
+      setSelectedDatabases(databases);
+      setSelectedDatabasesOptions(databases);
     }
-  }, [db]);
+  }, [decodedDb]);
 
   const noDatabasesSelected = selectedDatabases.length === 0;
+
   return (
-    <div className="w-full flex flex-col items-center gap-4 py-4">
-      <div className="lg:px-56 w-full bg-custom-gradient  h-full">
-        <div className="flex justify-between items-center h-full text-black md:pt-32">
-          <div className="my-20 flex gap-7 justify-center text-center px-12 md:px-52 flex-col items-center w-full">
-            <h1 className="md:text-4xl text-2xl font-bold">
+    <>
+      <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
+        <div className="flex justify-center items-center h-full text-black md:pt-32">
+          <div className="my-20 flex gap-7 justify-center  text-center  flex-col items-center w-4/6">
+            <h1 className="md:text-5xl text-2xl text-center justify-center font-bold flex flex-wrap">
               {selectedDatabases.length === 1
                 ? `${selectedDatabases[0]} Properties`
                 : selectedDatabases.map((db, index) => (
-                    <>
+                    <span key={index} className="flex items-center">
                       {db}
                       {index < selectedDatabases.length - 1 && (
                         <span className="text-[#3E53D7] px-2 mx-1">VS</span>
                       )}
-                    </>
+                    </span>
                   ))}
             </h1>
           </div>
         </div>
       </div>
 
-      <div className="w-full h-auto p-20 px-12 md:px-28 flex flex-col gap-16 md:gap-10 items-center">
-        <div className="flex justify-between w-full">
-          <CommonTypography type="title">
+      <div className="w-full h-auto p-12 md:p-20 px-9 md:px-28 font-medium flex flex-col gap-16 md:gap-10 items-center">
+        <div className="flex md:flex-row gap-2 flex-col justify-between w-full">
+          <CommonTypography
+            type="text"
+            classes="md:text-4xl text-2xl font-medium"
+          >
             Editorial information provided by DB-Engines
           </CommonTypography>
 
-          <div className="flex">
+          <div className=" flex flex-col md:flex-row md:gap-0 gap-3 ">
             <Select
               disabled={selectedDatabasesOptions.length > 4}
               mode="multiple"
-              className="w-[450px] h-12"
+              className="2xl:w-[500px] w-full lg:w-full md:h-[47px] h-auto "
               value={selectedDatabasesOptions}
-              dropdownStyle={{ maxHeight: 300, overflow: "auto" }}
               placeholder="Select Database"
               onChange={onChange}
               style={{
                 borderRadius: "4px 0 0 4px",
-                height: "55px",
+
                 border: "none",
               }}
             >
@@ -144,12 +196,12 @@ const Comparison = ({ params }) => {
               disabled={selectedDatabases.length > 4}
               style={{
                 borderRadius: "0px 4px 4px 0px",
-                height: "55px",
+                height: "45px",
                 background: selectedDatabases.length > 4 ? "grey" : "#3E53D7",
                 border: "none",
                 color: "white",
               }}
-              onClick={() => setSelectedDatabases(selectedDatabasesOptions)}
+              onClick={handleCompareClick}
             >
               Compare
             </CommonButton>
@@ -157,21 +209,17 @@ const Comparison = ({ params }) => {
         </div>
 
         <div className="w-full overflow-auto">
-          {noDatabasesSelected ? (
-            <p>Please select at least one database to compare.</p>
-          ) : (
-            <Table
-              bordered
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              className="w-full mt-4"
-              rowClassName="db-row"
-            />
-          )}
+          <Table
+            bordered
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            className="w-full mt-4"
+            rowClassName="db-row"
+          />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

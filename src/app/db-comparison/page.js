@@ -1,14 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
-import { SearchOutlined } from "@ant-design/icons";
 import CommonButton from "@/components/shared/Button";
-import { Input } from "antd";
-import Link from "next/link";
+import SearchBar from "@/components/shared/searchInput";
+import { useRouter } from "next/navigation"; // Import useRouter hook from next/router
 
 export default function Page() {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDatabases, setSelectedDatabases] = useState([]); // To track selected databases
+  const router = useRouter(); // To programmatically navigate
 
   const databaseOptions = [
     "MySQL",
@@ -27,6 +28,22 @@ export default function Page() {
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDatabaseClick = (option) => {
+    setSelectedDatabases((prevSelected) =>
+      prevSelected.includes(option)
+        ? prevSelected.filter((db) => db !== option)
+        : [...prevSelected, option]
+    );
+  };
+
+  const handleCompareClick = () => {
+    if (selectedDatabases.length > 0) {
+      const newDbQuery = encodeURIComponent(selectedDatabases.join("-"));
+
+      router.push(`/db-comparison/${newDbQuery}`);
+    }
+  };
+
   return (
     <div>
       <ContentSection
@@ -36,52 +53,54 @@ export default function Page() {
         paragraph2="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across forums."
         imageAlt="blue line"
       >
-        <div className="w-full md:px-20 flex flex-col gap-10 ">
-          {/* Search Bar */}
-          <div className="relative">
-            <Input
-              placeholder="Search database"
-              className="pr-10 py-2 rounded-md border border-[#D9D9D9] w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onPressEnter={() => onSearch(searchTerm)}
-            />
-            <div className="absolute inset-y-0 -right-[2px] flex items-center border border-[#D9D9D9] rounded-md p-2 w-10 justify-center">
-              <SearchOutlined className="text-[#D9D9D9]" />
-            </div>
-          </div>
+        <div className="w-full md:px-20 flex flex-col gap-10">
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-          {/* Filtered Database Options */}
           <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
             {filteredOptions.map((option, index) => (
               <div key={index}>
-                <Link
-                  href={`/db-comparison/${option}
-              `}
-                  passHref
+                <CommonButton
+                  style={{
+                    width: "100%",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    border: selectedDatabases.includes(option)
+                      ? "1px solid #3E53D7"
+                      : "1px solid #D9D9D9",
+                    height: "60px",
+                    // background: selectedDatabases.includes(option)
+                    //   ? "#3E53D7"
+                    //   : "transparent",
+                    background: "transparent",
+
+                    borderRadius: "16px",
+                  }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                  onClick={() => handleDatabaseClick(option)}
                 >
-                  <CommonButton
-                    style={{
-                      width: "100%",
-                      fontWeight: "600",
-                      fontSize: "16px",
-                      border:
-                        hoverIndex === index
-                          ? "1px solid #3E53D7"
-                          : "1px solid #D9D9D9",
-                      height: "60px",
-                      background: "hover:bg-blue-500",
-                      background: "transparent",
-                      borderRadius: "16px",
-                    }}
-                    onMouseEnter={() => setHoverIndex(index)}
-                    onMouseLeave={() => setHoverIndex(null)}
-                  >
-                    {option}
-                  </CommonButton>
-                </Link>
+                  {option}
+                </CommonButton>
               </div>
             ))}
+          </div>
+
+          <div className="flex justify-end items-end">
+            <CommonButton
+              style={{
+                width: "280px",
+                fontSize: "16px",
+                border: "1px solid #D9D9D9",
+                height: "60px",
+                background: "#3E53D7",
+                color: "white",
+                borderRadius: "16px",
+              }}
+              onClick={handleCompareClick}
+              disabled={selectedDatabases.length === 0}
+            >
+              Compare
+            </CommonButton>
           </div>
         </div>
       </ContentSection>

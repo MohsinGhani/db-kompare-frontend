@@ -1,64 +1,48 @@
-import React from "react";
 import Image from "next/image";
 import logo from "../../../public/assets/images/dbLogo.png";
 
+const socialLinks = [
+  { href: "/assets/icons/facebook.svg", alt: "Facebook" },
+  { href: "/assets/icons/instagram.svg", alt: "Instagram" },
+  { href: "/assets/icons/linkedin.svg", alt: "LinkedIn" },
+];
+
 export default function Footer() {
   return (
-    <div className="h-80 bg-custom-gradient px-10 flex flex-col justify-center items-center">
+    <div className="md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
       <Image
         src={logo}
         alt="DB Logo"
         width={200}
         height={100}
-        className="object-contain "
+        className="object-contain"
       />
 
       <div className="flex flex-col justify-center items-center border-b w-full border-[#DFDFDF] py-5">
         <ul className="flex gap-8 mb-6 text-sm font-normal">
-          <li>
-            <a href="/" className="text-[#535353] hover:font-semibold">
-              Home
-            </a>
-          </li>
-          <li>
-            <a
-              href="/leader-board"
-              className="text-[#535353] hover:font-semibold"
-            >
-              DB Leaderboard
-            </a>
-          </li>
-          <li>
-            <a
-              href="/db-comparison"
-              className="text-[#535353] hover:font-semibold"
-            >
-              DB Comparison
-            </a>
-          </li>
+          {["Home", "DB Leaderboard", "DB Comparison"].map((label, idx) => (
+            <li key={idx}>
+              <a
+                href={`/${label.toLowerCase().replace(" ", "-")}`}
+                className="text-[#535353] hover:font-semibold"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
         </ul>
 
         <div className="flex gap-8">
-          <Image
-            src="/assets/icons/facebook.svg"
-            alt="Facebook"
-            width={25}
-            height={25}
-          />
-
-          <Image
-            src="/assets/icons/instagram.svg"
-            alt="Instagram"
-            width={25}
-            height={25}
-          />
-
-          <Image
-            src="/assets/icons/linkedin.svg"
-            alt="LinkedIn"
-            width={25}
-            height={25}
-          />
+          {socialLinks.map(({ href, alt }, idx) => (
+            <Image
+              key={idx}
+              src={href}
+              alt={alt}
+              width={25}
+              height={25}
+              style={{ cursor: "pointer" }}
+            />
+          ))}
         </div>
       </div>
 
