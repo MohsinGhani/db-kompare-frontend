@@ -10,9 +10,11 @@ export default function Navbar() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/leader-board", label: "DB Leaderboard" },
-    { href: "/db-comparison", label: "DB Comparison" },
+    { href: "/db-comparisons/list", label: "DB Comparison" },
   ];
-  const isDbComparisonPage = path?.startsWith("/db-comparison");
+  const isDbComparisonPage = path?.startsWith(
+    "/db-comparison" || "/db-comparisons"
+  );
   return (
     <div
       className={`w-full h-20 fixed z-10 ${
@@ -67,7 +69,7 @@ export default function Navbar() {
                 href={link.href}
                 className={`block py-2 px-3 ${
                   path === link.href ||
-                  (isDbComparisonPage && link.href === "/db-comparison")
+                  (isDbComparisonPage && link.href === "/db-comparisons")
                     ? "font-semibold text-black"
                     : "text-black"
                 } hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:p-0`}

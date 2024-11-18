@@ -9,13 +9,14 @@ import { DatabaseOptions } from "@/components/data/data";
 import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
 
-export default function Page() {
+export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [dbData, setDbData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,6 +29,19 @@ export default function Page() {
 
     fetchData();
   }, []);
+
+  const { list } = params;
+
+  const decodedDb = list ? decodeURIComponent(list) : "";
+
+  const decodedDbArray = decodedDb ? decodedDb.split("-") : [];
+
+  useEffect(() => {
+    if (decodedDbArray.length > 0) {
+      setSelectedDatabases(decodedDbArray);
+    }
+  }, []);
+
   const filteredOptions = dbData.filter((option) =>
     option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -70,7 +84,7 @@ export default function Page() {
         <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
           {filteredOptions.map((option, index) => (
             <CommonButton
-              key={option}
+              key={option.name}
               style={{
                 width: "100%",
                 fontWeight: "600",
@@ -108,8 +122,7 @@ export default function Page() {
               fontSize: "16px",
               border: "1px solid #D9D9D9",
               height: "60px",
-              background: "#3E53D7",
-              background: selectedDatabases <= 0 ? "grey" : "#3E53D7",
+              background: selectedDatabases.length <= 0 ? "grey" : "#3E53D7",
               color: "white",
               borderRadius: "16px",
             }}

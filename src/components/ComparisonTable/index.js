@@ -53,7 +53,6 @@ const ComparisonTable = ({
     const newDbQuery = encodeURIComponent(updatedDatabases.join("-"));
     router.push(`/db-comparison/${newDbQuery}`);
   };
-
   const columns = [
     {
       title: "Name",
@@ -103,7 +102,7 @@ const ComparisonTable = ({
       ),
       dataIndex: db,
       render: (text, record) => {
-        console.log("record", record);
+        // console.log("record", record);
         const isSupportedLanguages =
           record?.name === "Supported Programming Languages";
 
@@ -116,7 +115,7 @@ const ComparisonTable = ({
               fontWeight: "400",
             }}
             dangerouslySetInnerHTML={{
-              __html: processText(text, isSupportedLanguages),
+              __html: processText(text),
             }}
           />
         );
