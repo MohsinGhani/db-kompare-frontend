@@ -2,7 +2,7 @@ import { Table, Tooltip } from "antd"; // Import Tooltip from Ant Design
 import { InfoCircleOutlined } from "@ant-design/icons"; // Import the info icon
 import { useRouter } from "next/navigation";
 import { rowLabels } from "../data/data";
-import { processText } from "@/utils/databaseUtils";
+import ProcessDataHtml from "@/utils/ProcessHtml";
 
 const ComparisonTable = ({
   dbData,
@@ -55,19 +55,23 @@ const ComparisonTable = ({
   };
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      rowScope: "row",
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      rowScope: 'row',
       render: (text) => {
         const rowLabel = rowLabels.find((label) => label.label === text);
         return (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ minWidth: "200px" }}>{text}</span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ minWidth: '200px' }}>{text}</span>
             {rowLabel?.tooltipText && (
               <Tooltip title={rowLabel.tooltipText}>
                 <InfoCircleOutlined
-                  style={{ marginLeft: 8, color: "#3E53D7", cursor: "pointer" }}
+                  style={{
+                    marginLeft: 8,
+                    color: '#3E53D7',
+                    cursor: 'pointer',
+                  }}
                 />
               </Tooltip>
             )}
@@ -102,26 +106,22 @@ const ComparisonTable = ({
       ),
       dataIndex: db,
       render: (text, record) => {
-        // console.log("record", record);
-        const isSupportedLanguages =
-          record?.name === "Supported Programming Languages";
-
         return (
           <div
             style={{
-              padding: "5px",
-              minWidth: "200px",
-              fontSize: "14px",
-              fontWeight: "400",
+              padding: '5px',
+              minWidth: '200px',
+              fontSize: '14px',
+              fontWeight: '400',
             }}
-            dangerouslySetInnerHTML={{
-              __html: processText(text),
-            }}
-          />
+          >
+            <ProcessDataHtml htmlString={text} />
+          </div>
         );
       },
     })),
   ];
+  
 
   return (
     <Table
