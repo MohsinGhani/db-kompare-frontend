@@ -3,7 +3,7 @@ import CommonTypography from "../shared/Typography";
 import Image from "next/image";
 import knowledgeIcon from "@/../public/assets/icons/knowlege.png";
 import comparisonIcon from "@/../public/assets/icons/comparisonTools.png";
-import realTimeIcon from "@/../public/assets/icons/realTimeUpdate.png";
+import realTimeIcon from "@/../public/assets/icons/realTimeUpdate.svg";
 const MakeUsUnique = () => {
   const uniqueSectionData = [
     {
@@ -27,31 +27,22 @@ const MakeUsUnique = () => {
   ];
 
   return (
-    <div className=" rounded-lg  text-5xl shadow-md text-center px-24 py-20 w-full">
-      {/* <CommonTypography classes="text-[42px] font-bold">
+    <div className="  text-5xl  text-center xl:px-32 lg:px-4 px-9  py-10 md:py-24 w-full">
+
+      <CommonTypography classes="md:text-5xl text-2xl font-bold">
         What Makes Us Unique
       </CommonTypography>
-      <h1>
-
-      <CommonTypography classes="text-base font-normal text-[#565758]">
+      <br />
+      <h2 className="my-4 md:text-base text-sm font-normal text-[#565758]">
         Revolutionizing How You Discover and Compare Knowledge
-      </CommonTypography> */}
-      <CommonTypography classes="text-5xl font-bold">
-        What Makes Us Unique
-      </CommonTypography>
+      </h2>
 
-      <h2></h2>
-      <CommonTypography classes="text-base font-normal text-[#565758]">
-        Revolutionizing How You Discover and Compare Knowledge
-      </CommonTypography>
-
-      <div className="flex justify-between items-center mt-8">
+      <div className="lg:flex justify-between items-center mt-8">
         {uniqueSectionData.map((item, index) => (
           <div
             key={index}
-            className={`p-4 flex flex-col gap-5 pl-7 px-10 text-start w-1/3 ${
-              index === 0 ? "" : "border-l border-[#E4E4E7]"
-            } ${index === uniqueSectionData.length - 1 ? "" : "border-r"}`}
+            className={`p-4 flex flex-col gap-5 md:pl-14 md:px-10 text-start lg:w-1/3 lg:${index === 0 ? "" : "border-l border-[#E4E4E7]"
+              } lg:${index === uniqueSectionData.length - 1 ? "" : "border-r"}`}
           >
             <Image src={item.icon} alt={item.title} />
             <h3 className="text-black text-2xl font-bold mb-2">{item.title}</h3>

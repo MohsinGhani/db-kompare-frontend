@@ -10,31 +10,34 @@ import WhyUs from "@/components/Homepage/WhyUs";
 import ExperiencePage from "@/components/Homepage/WhyUs";
 import ExperienceSection from "@/components/Homepage/ExperienceSection";
 import MakeUsUnique from "@/components/Homepage/uniqueSection";
+import HomepageCards from "@/components/Homepage/cards";
+import HomepageSlider from "@/components/Homepage/Slider";
 function Home() {
   return (
     <div>
-      <div className="lg:pl-28 bg-[url('/assets/images/homebg.png')] bg-cover bg-center h-screen ">
-        <div className="flex justify-between items-center h-full px-4 text-black md:pt-32 ">
-          <div className="flex justify-between -mt-28 ml-2 ">
+      <div className="lg:pl-28 bg-[url('/assets/images/homebg.png')] bg-cover  bg-center md:h-[90vh] h-[70vh] ">
+        <div className="flex justify-between gap-5 items-center h-full px-4 text-black md:pt-32 ">
+          <div className="flex justify-between ml-2 ">
             <div className="md:w-3/5 w-full flex flex-col items-center xl:items-start xl:text-start text-center justify-center space-y-4">
               <h1 className="font-extrabold text-3xl 2xl:text-5xl 2xl:leading-[67.52px] tracking-[-1%]">
-                Offer technology
+                Discover, Learn, Compare
                 <br />
-                and software solutions
+                <span className="text-[#3E53D7]">All in One Place</span>
               </h1>
               <Image src={blueline} alt="blue line" width={300} height={50} />
               <p className="xl:text-lg xl:text-start text-center font-normal mb-3">
-                Accounting is a more diverse profession stability of a long with
-                huge Profitability than it is often given creditand.
+                Unlock the power of integrated knowledge from GitHub, Stack
+                Overflow, Google, Bing, and beyond. Compare, analyze, and choose
+                the best resources for your needs.
               </p>
               <div className="md:flex md:space-x-4">
                 <CommonButton
-                  className="bg-black md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
+                  className="bg-[#3E53D7] md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
                   style={{ color: "white" }}
                 >
                   DB Leaderboard
                 </CommonButton>
-                <CommonButton className="bg-transparent lg:w-52 md:w-40 w-full mt-3 text-black md:text-base text-lg border border-black">
+                <CommonButton className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-[#3E53D7] md:text-base text-lg ">
                   DB Comparison
                 </CommonButton>
               </div>
@@ -50,10 +53,11 @@ function Home() {
         </div>
       </div>
       <div>
+        <HomepageSlider />
         <WhyUs />
-
         <ExperienceSection />
         <MakeUsUnique />
+        <HomepageCards />
       </div>
     </div>
   );

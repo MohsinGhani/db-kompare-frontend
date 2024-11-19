@@ -17,8 +17,16 @@ body {
     hyphens: auto;
   }
 }
-/* For Ant Design Outlined and Dashed Button */
 
 .ant-table-cell {
   vertical-align: sub;
+}
+:where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-prev, :where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-next {
+  color: black;
+}
+
+.ant-btn:hover {
+  background-color: none !important;
+color: #000 !important; /* Ensure the text is readable */
+
 }

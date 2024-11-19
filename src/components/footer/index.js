@@ -1,5 +1,6 @@
 import Image from "next/image";
-import logo from "../../../public/assets/images/dbLogo.png";
+import logo from "../../../public/assets/icons/logo.gif";
+import CommonTypography from "../shared/Typography";
 
 const socialLinks = [
   { href: "/assets/icons/facebook.svg", alt: "Facebook" },
@@ -10,13 +11,19 @@ const socialLinks = [
 export default function Footer() {
   return (
     <div className="md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
-      <Image
-        src={logo}
-        alt="DB Logo"
-        width={200}
-        height={100}
-        className="object-contain"
-      />
+   <div className="flex items-center gap-1 justify-center">
+        
+        <Image
+          src={logo}
+          alt="DB Logo"
+          width={40}
+          height={100}
+          className="object-contain"
+        />
+        <CommonTypography className="text-2xl font-semibold text-black">
+          DB Kompare
+        </CommonTypography>
+      </div>
 
       <div className="flex flex-col justify-center items-center border-b w-full border-[#DFDFDF] py-5">
         <ul className="flex gap-8 mb-6 text-sm font-normal">

@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         {mount ? (
           <>
             <Navbar />
-            <div className="md:pt-0 pt-10">{children}</div>
+            <div>{children}</div>
             <Footer />
           </>
         ) : (

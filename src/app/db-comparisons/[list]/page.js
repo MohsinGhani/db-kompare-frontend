@@ -8,6 +8,7 @@ import SearchBar from "@/components/shared/searchInput";
 import { DatabaseOptions } from "@/components/data/data";
 import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
+import { color } from "highcharts";
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -88,7 +89,7 @@ export default function Page({ params }) {
               style={{
                 width: "100%",
                 fontWeight: "600",
-                fontSize: "18px",
+                fontSize: "16px",
                 border:
                   selectedDatabases.includes(option.name) ||
                   hoverIndex === index
@@ -96,6 +97,9 @@ export default function Page({ params }) {
                     : "2px solid #D9D9D9",
                 height: "60px",
                 background: "transparent",
+                color: selectedDatabases.includes(option.name) || hoverIndex === index
+                  ? "#3E53D7"
+                  : "black",
                 borderRadius: "16px",
               }}
               onMouseEnter={() => setHoverIndex(index)}

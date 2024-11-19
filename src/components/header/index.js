@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import logo from "../../../public/assets/images/dbLogo.png";
+import logo from "../../../public/assets/icons/logo.gif";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { usePathname } from "next/navigation";
+import CommonTypography from "../shared/Typography";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
@@ -17,18 +18,26 @@ export default function Navbar() {
   );
   return (
     <div
-      className={`w-full h-20 fixed z-10 ${
-        path === "/" ? "lg:bg-none bg-custom-gradient" : "bg-custom-gradient"
+   
+      className={`w-full h-20 pt-4  z-10 ${
+        path === "/" ? " lg:bg-[url('/assets/images/homebg.png')] w-full bg-cover bg-custom-gradient" : "fixed bg-custom-gradient"
       }`}
     >
+
       <div className="2xl:w-[65%] lg:w-4/5 w-full lg:px-28 px-3 flex justify-between items-center">
+      <div className="flex items-center gap-2 justify-center">
+        
         <Image
           src={logo}
           alt="DB Logo"
-          width={200}
+          width={50}
           height={100}
           className="object-contain"
         />
+        <CommonTypography className="text-2xl font-semibold text-black">
+          DB Kompare
+        </CommonTypography>
+      </div>
         <div className="hidden md:flex space-x-8">
           {links.map((link, index) => (
             <a
