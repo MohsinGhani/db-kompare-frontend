@@ -1,7 +1,8 @@
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import CommonTypography from "../shared/Typography";
-
+import { useRouter } from "next/navigation";
+import { Navlinks } from "@/utils/navLinks";
 const socialLinks = [
   { href: "/assets/icons/facebook.svg", alt: "Facebook" },
   { href: "/assets/icons/instagram.svg", alt: "Instagram" },
@@ -9,10 +10,10 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const router = useRouter();
   return (
     <div className="md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
-   <div className="flex items-center gap-1 justify-center">
-        
+      <div className="flex items-center gap-1 justify-center">
         <Image
           src={logo}
           alt="DB Logo"
@@ -27,14 +28,14 @@ export default function Footer() {
 
       <div className="flex flex-col justify-center items-center border-b w-full border-[#DFDFDF] py-5">
         <ul className="flex gap-8 mb-6 text-sm font-normal">
-          {["Home", "DB Leaderboard", "DB Comparison"].map((label, idx) => (
+          {Navlinks.map((link, idx) => (
             <li key={idx}>
-              <a
-                href={`/${label.toLowerCase().replace(" ", "-")}`}
+              <button
+                onClick={() => router.push(link.href)}
                 className="text-[#535353] hover:font-semibold"
               >
-                {label}
-              </a>
+                {link.label}
+              </button>
             </li>
           ))}
         </ul>
