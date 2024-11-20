@@ -112,7 +112,7 @@ export default function Page({ params }) {
         </div>
 
         <div
-          className="flex justify-between items-end"
+          className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center bg-pink-900"
           style={{ justifyContent: errorMessage ? "space-between" : "end" }}
         >
           {errorMessage && (
@@ -120,7 +120,7 @@ export default function Page({ params }) {
               {errorMessage}
             </CommonTypography>
           )}
-          <CommonButton
+          <CommonButton 
             style={{
               width: "280px",
               fontSize: "16px",

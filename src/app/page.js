@@ -7,7 +7,6 @@ import chart from "../../public/assets/images/Base Chart.png";
 import arrowIcon from "../../public/assets/images/arrow.png";
 import blueline from "../../public/assets/images/blue line.png";
 import WhyUs from "@/components/Homepage/WhyUs";
-import ExperiencePage from "@/components/Homepage/WhyUs";
 import ExperienceSection from "@/components/Homepage/ExperienceSection";
 import MakeUsUnique from "@/components/Homepage/uniqueSection";
 import HomepageCards from "@/components/Homepage/cards";

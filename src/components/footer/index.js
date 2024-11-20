@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import CommonTypography from "../shared/Typography";

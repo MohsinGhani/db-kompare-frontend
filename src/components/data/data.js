@@ -197,7 +197,6 @@ export const rowLabels = [
     tooltipText: "This is a description of the database",
   },
   { label: "Primary Database Model", key: "primary_database_model" },
-  { label: "Secondary Database Models", key: "secondary_database_models" },
   {
     label: "DB Comapre Ranking",
     key: "db_compare_ranking",

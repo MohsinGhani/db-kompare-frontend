@@ -1,5 +1,5 @@
 import React from "react";
-import parse, { domToReact } from "html-react-parser";
+import parse from "html-react-parser";
 import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
@@ -37,6 +37,10 @@ const ProcessDataHtml = ({ htmlString }) => {
       },
     });
   };
+
+  if (!htmlString) {
+    return null;
+  }
 
   return <div>{processHtml(htmlString)}</div>;
 };

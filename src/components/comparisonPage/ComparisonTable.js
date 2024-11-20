@@ -17,7 +17,7 @@ const ComparisonTable = ({
     const data = dbData?.find(
       (database) => database.name.toLowerCase() === dbName.toLowerCase()
     );
-
+    // const result =  fetchDatabaseByIds();
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
         acc[label] =
