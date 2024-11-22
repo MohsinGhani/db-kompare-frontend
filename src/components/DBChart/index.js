@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import dbJsonData from "../shared/db-json/index.json";
-import "./style.scss";
+import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
+import "./style.scss";
 
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
-  const [selectedMetricKeys, setSelectedMetricKeys] = useState(["popularity"]);
+  const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
+  const [metricsData, setMetricsData] = useState([]);
+
 
   const isDateInRange = (date, startDate, endDate) =>
     !startDate ||
@@ -17,35 +19,60 @@ const DBChart = () => {
     (new Date(date) >= new Date(startDate) &&
       new Date(date) <= new Date(endDate));
 
-  const calculateMetricValue = (metric, metricKeys) =>
-    metricKeys.reduce((sum, key) => {
-      const value = metric[key];
-      if (!value) return sum;
-      return (
-        sum +
-        (typeof value === "object"
-          ? Object.values(value).reduce((objSum, v) => objSum + v, 0)
-          : value)
-      );
-    }, 0);
 
-  const getMetricData = (metricKeys, dateRange) =>
-    dbJsonData.databases.map((db) => ({
+      useEffect(() => {
+        if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
+          setSelectedMetricKeys(["totalScore"]);
+        }
+
+      }, [selectedMetricKeys]); 
+      const calculateMetricValue = (metric, metricKeys) => {
+        return metricKeys?.reduce((sum, key) => {
+          const value = metric.popularity[key];
+          if (value === undefined || value === null) {
+            console.warn(`Key "${key}" does not exist for metric:`, metric);
+            return sum;
+          }
+          return (
+            sum +
+            (typeof value === "object"
+              ? Object.values(value).reduce((objSum, v) => objSum + (v || 0), 0)
+              : value)
+          );
+        }, 0);
+      };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const startDate = "2024-11-17"; 
+        const endDate = "2024-11-22"; 
+
+        const data = await fetchMetricsData(startDate, endDate);
+        setMetricsData(data.data);
+      } catch (error) {
+        console.error("Error fetching metrics data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+ const getMetricData = (metricKeys, dateRange) =>
+    metricsData.map((db) => ({
       databaseName: db.databaseName,
       data: db.metrics
-        .filter(
-          (metric) =>
-            !dateRange[0] ||
-            !dateRange[1] ||
-            isDateInRange(metric.date, dateRange[0], dateRange[1])
+        .filter((metric) =>
+          isDateInRange(metric.date, dateRange[0], dateRange[1])
         )
         .map((metric) => calculateMetricValue(metric, metricKeys)),
     }));
 
   const getXAxisCategories = (dateRange) => {
-    const allMetrics = dbJsonData.databases[0]?.metrics || [];
-    if (!dateRange[0] || !dateRange[1])
+    const allMetrics = metricsData[0]?.metrics || [];
+    if (!dateRange[0] || !dateRange[1]) {
       return allMetrics.map((metric) => metric.date);
+    }
     return allMetrics
       .filter((metric) =>
         isDateInRange(metric.date, dateRange[0], dateRange[1])
@@ -58,7 +85,6 @@ const DBChart = () => {
   const chartOptions = {
     chart: {
       type: "spline",
-      // type: "line",
       alignTicks: false,
       borderRadius: 16,
       borderWidth: 1,
@@ -99,6 +125,12 @@ const DBChart = () => {
     xAxis: {
       categories:
         filteredData.length > 0 ? getXAxisCategories(selectedDate) : [],
+    },
+    tooltip: {
+      formatter: function () {
+        const roundedValue = this.y.toFixed(2);
+        return `<b>${this.series.name}</b><br/>${this.x}: ${roundedValue}`;
+      },
     },
     series:
       filteredData.length > 0

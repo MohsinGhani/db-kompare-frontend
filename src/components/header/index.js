@@ -6,7 +6,7 @@ import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import CommonTypography from "../shared/Typography";
-import { Navlinks } from "@/utils/navLinks";
+import { Navlinks } from "@/utils/const";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();

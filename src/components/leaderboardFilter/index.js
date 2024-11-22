@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CommonTypography from "../shared/Typography";
 import { DatePicker } from "antd";
+import { DropdownOptions } from "@/utils/const";
 
 const { RangePicker } = DatePicker;
 
@@ -10,24 +11,38 @@ export default function LeaderboardFilter({
   selectedMetricKeys,
   setSelectedMetricKeys,
 }) {
-  const dropdownOptions = [
-    { value: "github", label: "Github" },
-    { value: "stackoverflowdata", label: "Stack Overflow" },
-    { value: "google", label: "Google Search" },
-    { value: "bing", label: "Bing Search" },
-  ];
-  const handleDateChange = (dates) => setSelectedDate(dates || [null, null]);
+  const [check, setCheck] = React.useState(false);
+
+  useEffect(() => {
+    if (
+      selectedMetricKeys.length === 0 ||
+      selectedMetricKeys.length === DropdownOptions.length
+    ) {
+      setCheck(true);
+    }
+  }, [selectedMetricKeys]);
 
   const handleMetricChange = (value) => {
-    if (value.length === 0 || value.length === dropdownOptions.length - 1) {
-      setSelectedMetricKeys(["popularity"]);
+    setCheck(false);
+
+    let allMetricKeys = DropdownOptions.map((option) => option.value);
+    let newSelectedKeys = [...selectedMetricKeys];
+
+    if (newSelectedKeys.includes("totalScore")) {
+      let filteredMetricKeys = allMetricKeys.filter((key) => key !== value);
+      setSelectedMetricKeys(filteredMetricKeys);
     } else {
-      const updatedKeys = value.includes("popularity")
-        ? value.filter((v) => v !== "popularity")
-        : value;
-      setSelectedMetricKeys(updatedKeys);
+      if (newSelectedKeys.includes(value)) {
+        newSelectedKeys = newSelectedKeys.filter((key) => key !== value);
+      } else {
+        newSelectedKeys.push(value);
+      }
+
+      setSelectedMetricKeys(newSelectedKeys);
     }
   };
+
+  const handleDateChange = (dates) => setSelectedDate(dates || [null, null]);
 
   return (
     <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 border rounded-2xl flex-col border-[#D9D9D9]">
@@ -39,7 +54,7 @@ export default function LeaderboardFilter({
           className="text-[#3E53D7] text-base font-medium underline"
           onClick={() => {
             setSelectedDate([null, null]);
-            setSelectedMetricKeys(["popularity"]);
+            setSelectedMetricKeys([]);
           }}
         >
           Clear filter
@@ -51,21 +66,13 @@ export default function LeaderboardFilter({
             Database Resources
           </CommonTypography>
           <div className="flex flex-wrap md:gap-6 md:mt-3">
-            {dropdownOptions.map((option, index) => (
+            {DropdownOptions.map((option, index) => (
               <div className="flex items-center mt-2" key={index}>
                 <input
                   type="checkbox"
                   id={option.value}
-                  checked={selectedMetricKeys.includes(option.value)}
-                  onChange={(e) =>
-                    handleMetricChange(
-                      e.target.checked
-                        ? [...selectedMetricKeys, option.value]
-                        : selectedMetricKeys.filter(
-                            (key) => key !== option.value
-                          )
-                    )
-                  }
+                  checked={selectedMetricKeys.includes(option.value) || check}
+                  onChange={() => handleMetricChange(option.value)}
                 />
                 <label
                   htmlFor={option.value}

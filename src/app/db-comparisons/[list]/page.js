@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import ContentSection from "@/components/shared/ContentSection/page";
 import CommonButton from "@/components/shared/Button";
 import SearchBar from "@/components/shared/searchInput";
-import { DatabaseOptions } from "@/components/data/data";
-import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
-import { color } from "highcharts";
+import CommonTypography from "@/components/shared/Typography";
+import { fetchDatabaseByIds } from "@/utils/databaseUtils"; 
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -17,6 +16,8 @@ export default function Page({ params }) {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [dbData, setDbData] = useState([]);
+  const [dbSelectedId, setDbSelectedId] = useState([]); 
+  const [dbDetails, setDbDetails] = useState([]); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,9 +33,7 @@ export default function Page({ params }) {
   }, []);
 
   const { list } = params;
-
   const decodedDb = list ? decodeURIComponent(list) : "";
-
   const decodedDbArray = decodedDb ? decodedDb.split("-") : [];
 
   useEffect(() => {
@@ -46,6 +45,20 @@ export default function Page({ params }) {
   const filteredOptions = dbData.filter((option) =>
     option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  useEffect(() => {
+    if (dbSelectedId.length > 0) {
+      const fetchSelectedDatabases = async () => {
+        try {
+          const response = await fetchDatabaseByIds(dbSelectedId);
+          setDbDetails(response.data); 
+        } catch (error) {
+          console.error("Error fetching database details:", error);
+        }
+      };
+      fetchSelectedDatabases();
+    }
+  }, [dbSelectedId]);
 
   const handleDatabaseClick = (option) => {
     if (
@@ -60,6 +73,13 @@ export default function Page({ params }) {
           ? prevSelected.filter((db) => db !== option.name)
           : [...prevSelected, option.name]
       );
+
+      setDbSelectedId((prevSelectedIds) => {
+        const newIds = prevSelectedIds.includes(option.id)
+          ? prevSelectedIds.filter((id) => id !== option.id)
+          : [...prevSelectedIds, option.id];
+        return newIds;
+      });
     }
   };
 
@@ -112,7 +132,7 @@ export default function Page({ params }) {
         </div>
 
         <div
-          className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center bg-pink-900"
+          className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center "
           style={{ justifyContent: errorMessage ? "space-between" : "end" }}
         >
           {errorMessage && (
@@ -136,6 +156,8 @@ export default function Page({ params }) {
             Compare
           </CommonButton>
         </div>
+
+        
       </div>
     </ContentSection>
   );

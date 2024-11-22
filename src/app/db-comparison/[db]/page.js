@@ -5,6 +5,7 @@ import { fetchDatabases } from "@/utils/databaseUtils";
 import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
+import CommonButton from "@/components/shared/Button";
  
 // import {Metadata} from 'next'
 
@@ -29,6 +30,11 @@ const Comparison = ({ params }) => {
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
 
+
+  useEffect(() => {
+    const newDbQuery = encodeURIComponent(decodedDb);
+    router.push(`/db-comparison/${newDbQuery}`);
+  }, [decodedDb]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,6 +75,27 @@ const Comparison = ({ params }) => {
           setSelectedDatabasesOptions={setSelectedDatabasesOptions}
           handleCompareClick={handleCompareClick}
         />
+               <div className="w-full text-end flex justify-end">
+          {" "}
+          <CommonButton
+            style={{
+              borderRadius: "12px",
+              padding: "0 40px",
+              height: "50px",
+              background: selectedDatabases.length > 4 ? "grey" : "#3E53D7",
+              border: "none",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: "bold",
+              // width: "200px",
+            }}
+            onClick={() => {
+              router.push(`/db-comparisons/${newDbQuery}`);
+            }}
+          >
+            Add another system
+          </CommonButton>
+        </div>
         <div className="w-full overflow-auto">
           <ComparisonTable
             setSelectedDatabases={setSelectedDatabases}
