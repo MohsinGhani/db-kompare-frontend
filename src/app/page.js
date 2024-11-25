@@ -6,11 +6,11 @@ import React from "react";
 import chart from "../../public/assets/images/Base Chart.png";
 import arrowIcon from "../../public/assets/images/arrow.png";
 import blueline from "../../public/assets/images/blue line.png";
-import WhyUs from "@/components/homepage/whyUs.js";
-import ExperienceSection from "@/components/homepage/experienceSection.js";
-import MakeUsUnique from "@/components/homepage/uniqueSection.js";
-import HomepageCards from "@/components/homepage/cards.js";
-import HomepageSlider from "@/components/homepage/slider.js";
+import WhyUs from "@/components/homepage/WhyUs";
+import ExperienceSection from "@/components/homepage/ExperienceSection";
+import MakeUsUnique from "@/components/homepage/UniqueSection";
+import HomepageCards from "@/components/homepage/Cards";
+import HomepageSlider from "@/components/homepage/Slider";
 function Home() {
   return (
     <div>
