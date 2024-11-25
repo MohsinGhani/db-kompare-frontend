@@ -32,27 +32,16 @@ const contentStyle = {
   background: "#364d79",
 };
 
-
 const HomepageSlider = () => {
   return (
     <div className="md:p-10 p-3 text-center ">
-        <CommonTypography classes="md:text-2xl text-lg font-bold ">
-         Lorem ipsum dolor sit amet, consectetur adipiscing elit
-        </CommonTypography>
-      <Carousel
-        arrows
-        slidesToShow={4} 
-        infinite={false}
-        dots={false}
-      >
+      <CommonTypography classes="md:text-2xl text-lg font-bold ">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit
+      </CommonTypography>
+      <Carousel arrows slidesToShow={4} infinite={false} dots={false}>
         {logos.map((logo, index) => (
           <div key={index} style={contentStyle} className="my-7 px-4 md:px-10">
-            <Image
-              key={index}
-              src={logo.src}
-              alt={logo.alt}
-              // style={{ width: "25%", height: "25%" }}
-            />
+            <Image key={index} src={logo.src} alt={logo.alt} />
           </div>
         ))}
       </Carousel>
