@@ -6,11 +6,12 @@ import React from "react";
 import chart from "../../public/assets/images/Base Chart.png";
 import arrowIcon from "../../public/assets/images/arrow.png";
 import blueline from "../../public/assets/images/blue line.png";
-import WhyUs from "../components/homepage/whyUs";
-import ExperienceSection from "../components/homepage/experienceSection";
-import MakeUsUnique from "../components/homepage/uniqueSection";
-import HomepageCards from "../components/homepage/cards";
-import HomepageSlider from "../components/homepage/slider";
+import HomepageSlider from "@/components/homepage/slider";
+import WhyUs from "@/components/homepage/whyUs";
+import ExperienceSection from "@/components/homepage/experienceSection";
+import MakeUsUnique from "@/components/homepage/uniqueSection";
+import HomepageCards from "@/components/homepage/cards";
+
 function Home() {
   return (
     <div>
