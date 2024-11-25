@@ -8,33 +8,29 @@ export const fetchDatabases = async () => {
 
 export const fetchDatabaseByIds = async (ids) => {
   try {
-    // Prepare the request body
-    const body = JSON.stringify({ ids }); // IDs array is passed here
+    const body = JSON.stringify({ ids });
     const options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body, // Send the body with the array of IDs
+      body,
     };
 
-    // Call your API with the request options
     const response = await fetch(
       "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-database-by-ids",
       options
     );
 
-    // Ensure the response is OK
     if (!response.ok) {
       throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
 
-    // Parse and return the JSON data from the response
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error fetching database by IDs:", error);
-    throw error; // Rethrow the error for further handling
+    throw error;
   }
 };
 

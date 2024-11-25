@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ContentSection from "@/components/shared/ContentSection/page";
 import CommonButton from "@/components/shared/Button";
-import SearchBar from "@/components/shared/SearchInput";
-import { fetchDatabases } from "@/utils/databaseUtils";
+import SearchBar from "@/components/shared/SearchInput/index";
+import { fetchDatabases } from "@/utils/databaseUtils.js";
 import CommonTypography from "@/components/shared/Typography";
-import { fetchDatabaseByIds } from "@/utils/databaseUtils";
+import { fetchDatabaseByIds } from "@/utils/databaseUtils.js";
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
