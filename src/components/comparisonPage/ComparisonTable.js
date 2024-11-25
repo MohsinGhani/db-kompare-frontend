@@ -2,21 +2,23 @@ import { Table, Tooltip } from "antd"; // Import Tooltip from Ant Design
 import { InfoCircleOutlined } from "@ant-design/icons"; // Import the info icon
 import { useRouter } from "next/navigation";
 import { rowLabels } from "../data/data";
-import ProcessDataHtml from "@/utils/ProcessHtml";
+import ProcessDataHtml from "@/utils/processHtml";
 
 const ComparisonTable = ({
   dbData,
+  filterData,
   selectedDatabases,
   setSelectedDatabases,
   setSelectedDatabasesOptions,
 }) => {
   const router = useRouter();
-
+console.log(filterData,'filterData');
   const generateDataForDatabase = (db) => {
     const dbName = db || "Unknown";
     const data = dbData?.find(
       (database) => database.name.toLowerCase() === dbName.toLowerCase()
     );
+    console.log(data,'data');
     // const result =  fetchDatabaseByIds();
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
@@ -44,7 +46,7 @@ const ComparisonTable = ({
     });
     return row;
   });
-
+console.log(data,'data');
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -106,6 +108,7 @@ const ComparisonTable = ({
       ),
       dataIndex: db,
       render: (text, record) => {
+
         return (
           <div
             style={{
@@ -115,7 +118,7 @@ const ComparisonTable = ({
               fontWeight: '400',
             }}
           >
-            <ProcessDataHtml htmlString={text} />
+            <ProcessDataHtml htmlString={text}  />
           </div>
         );
       },

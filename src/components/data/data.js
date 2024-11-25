@@ -202,6 +202,11 @@ export const rowLabels = [
     key: "db_compare_ranking",
     tooltipText: "This is a ranking of the database",
   },
+  {
+    label:"AI Compatibility",
+    key:"ai_compatibility",
+  },
+  { label: "Pricing", key: "pricing" },
   { label: "Website", key: "website" },
   { label: "Developer", key: "developer" },
   { label: "Initial Release", key: "initial_release" },
@@ -292,4 +297,9 @@ export const rowLabels = [
     key: "user_concepts",
     tooltipText: "This is a user concepts of the database",
   },
+  {
+    label:"Db Komapre View",
+    key:"db_kompare_view",
+
+  }
 ];

@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ContentSection from "@/components/shared/ContentSection/page";
 import CommonButton from "@/components/shared/Button";
-import SearchBar from "@/components/shared/searchInput";
+import SearchBar from "@/components/shared/SearchInput";
 import { fetchDatabases } from "@/utils/databaseUtils";
 import CommonTypography from "@/components/shared/Typography";
-import { fetchDatabaseByIds } from "@/utils/databaseUtils"; 
+import { fetchDatabaseByIds } from "@/utils/databaseUtils";
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -16,8 +16,8 @@ export default function Page({ params }) {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const [dbData, setDbData] = useState([]);
-  const [dbSelectedId, setDbSelectedId] = useState([]); 
-  const [dbDetails, setDbDetails] = useState([]); 
+  const [dbSelectedId, setDbSelectedId] = useState([]);
+  const [dbDetails, setDbDetails] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +51,7 @@ export default function Page({ params }) {
       const fetchSelectedDatabases = async () => {
         try {
           const response = await fetchDatabaseByIds(dbSelectedId);
-          setDbDetails(response.data); 
+          setDbDetails(response.data);
         } catch (error) {
           console.error("Error fetching database details:", error);
         }
@@ -117,9 +117,11 @@ export default function Page({ params }) {
                     : "2px solid #D9D9D9",
                 height: "60px",
                 background: "transparent",
-                color: selectedDatabases.includes(option.name) || hoverIndex === index
-                  ? "#3E53D7"
-                  : "black",
+                color:
+                  selectedDatabases.includes(option.name) ||
+                  hoverIndex === index
+                    ? "#3E53D7"
+                    : "black",
                 borderRadius: "16px",
               }}
               onMouseEnter={() => setHoverIndex(index)}
@@ -140,7 +142,7 @@ export default function Page({ params }) {
               {errorMessage}
             </CommonTypography>
           )}
-          <CommonButton 
+          <CommonButton
             style={{
               width: "280px",
               fontSize: "16px",
@@ -156,8 +158,6 @@ export default function Page({ params }) {
             Compare
           </CommonButton>
         </div>
-
-        
       </div>
     </ContentSection>
   );

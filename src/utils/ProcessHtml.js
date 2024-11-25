@@ -19,6 +19,21 @@ const ProcessDataHtml = ({ htmlString }) => {
 
     return parse(styledHtml, {
       replace: (domNode) => {
+        if (domNode.name === "span") {
+          if (domNode.attribs?.class === "bold") {
+            return (
+              <span style={{ fontWeight: "bold" }}>
+                {domNode.children?.[0]?.data}
+              </span>
+            );
+          } else if (domNode.attribs?.class === "danger") {
+            return (
+              <span style={{ color: "red", fontWeight: "600" }}>
+                {domNode.children?.[0]?.data}
+              </span>
+            );
+          }
+        }
         if (domNode.name === "span" && domNode.attribs?.["title"]) {
           const tooltipContent = domNode.attribs["title"];
 
@@ -35,6 +50,7 @@ const ProcessDataHtml = ({ htmlString }) => {
           );
         }
       },
+
     });
   };
 

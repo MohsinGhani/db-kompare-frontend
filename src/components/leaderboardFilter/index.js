@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CommonTypography from "../shared/Typography";
 import { DatePicker } from "antd";
 import { DropdownOptions } from "@/utils/const";
@@ -24,7 +24,6 @@ export default function LeaderboardFilter({
 
   const handleMetricChange = (value) => {
     setCheck(false);
-
     let allMetricKeys = DropdownOptions.map((option) => option.value);
     let newSelectedKeys = [...selectedMetricKeys];
 
@@ -98,3 +97,5 @@ export default function LeaderboardFilter({
     </div>
   );
 }
+
+

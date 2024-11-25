@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchDatabases } from "@/utils/databaseUtils";
+import { fetchDatabaseByIds, fetchDatabases } from "@/utils/databaseUtils";
 import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
@@ -25,12 +25,11 @@ const Comparison = ({ params }) => {
   const { db } = params;
   const removedb = db.includes("list-") ? db.replace("list-", "") : db;
   const decodedDb = removedb ? decodeURIComponent(removedb) : "";
-
+const [selectedDatabaseIds, setSelectedDatabaseIds] = useState([]);
   const [dbData, setDbData] = useState([]);
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
-
-
+const [filterData, setFilterData] = useState([]);
   useEffect(() => {
     const newDbQuery = encodeURIComponent(decodedDb);
     router.push(`/db-comparison/${newDbQuery}`);
@@ -46,6 +45,19 @@ const Comparison = ({ params }) => {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    if (selectedDatabaseIds.length > 0) {
+      const fetchSelectedDatabases = async () => {
+        try {
+          const response = await fetchDatabaseByIds(selectedDatabaseIds);
+          setFilterData(response.data); 
+        } catch (error) {
+          console.error("Error fetching database details:", error);
+        }
+      };
+      fetchSelectedDatabases();
+    }
+  }, [selectedDatabaseIds]);
 
   useEffect(() => {
     if (decodedDb) {
@@ -70,6 +82,7 @@ const Comparison = ({ params }) => {
         <DatabaseSelect
           dbData={dbData}
           selectedDatabases={selectedDatabases}
+          setSelectedDatabaseIds={setSelectedDatabaseIds}
           setSelectedDatabases={setSelectedDatabases}
           selectedDatabasesOptions={selectedDatabasesOptions}
           setSelectedDatabasesOptions={setSelectedDatabasesOptions}
@@ -98,6 +111,7 @@ const Comparison = ({ params }) => {
         </div>
         <div className="w-full overflow-auto">
           <ComparisonTable
+          filterData={filterData}
             setSelectedDatabases={setSelectedDatabases}
             dbData={dbData}
             selectedDatabases={selectedDatabases}

@@ -6,12 +6,12 @@ import HighchartsReact from "highcharts-react-official";
 import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
+import { calculateChartWeightedValue } from "@/utils/const";
 
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
-
 
   const isDateInRange = (date, startDate, endDate) =>
     !startDate ||
@@ -19,37 +19,15 @@ const DBChart = () => {
     (new Date(date) >= new Date(startDate) &&
       new Date(date) <= new Date(endDate));
 
-
-      useEffect(() => {
-        if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
-          setSelectedMetricKeys(["totalScore"]);
-        }
-
-      }, [selectedMetricKeys]); 
-      const calculateMetricValue = (metric, metricKeys) => {
-        return metricKeys?.reduce((sum, key) => {
-          const value = metric.popularity[key];
-          if (value === undefined || value === null) {
-            console.warn(`Key "${key}" does not exist for metric:`, metric);
-            return sum;
-          }
-          return (
-            sum +
-            (typeof value === "object"
-              ? Object.values(value).reduce((objSum, v) => objSum + (v || 0), 0)
-              : value)
-          );
-        }, 0);
-      };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const startDate = "2024-11-17"; 
-        const endDate = "2024-11-22"; 
+        const endDate = "2024-11-25"; 
 
         const data = await fetchMetricsData(startDate, endDate);
         setMetricsData(data.data);
+        console.log(data.data);
       } catch (error) {
         console.error("Error fetching metrics data:", error);
       }
@@ -58,14 +36,22 @@ const DBChart = () => {
     fetchData();
   }, []);
 
- const getMetricData = (metricKeys, dateRange) =>
+  useEffect(() => {
+    if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
+      setSelectedMetricKeys(["totalScore"]);
+    }
+  }, [selectedMetricKeys]);
+
+ 
+
+  const getMetricData = (metricKeys, dateRange) =>
     metricsData.map((db) => ({
       databaseName: db.databaseName,
       data: db.metrics
         .filter((metric) =>
           isDateInRange(metric.date, dateRange[0], dateRange[1])
         )
-        .map((metric) => calculateMetricValue(metric, metricKeys)),
+        .map((metric) => calculateChartWeightedValue(metric, metricKeys)),
     }));
 
   const getXAxisCategories = (dateRange) => {
@@ -173,3 +159,4 @@ const DBChart = () => {
 };
 
 export default DBChart;
+

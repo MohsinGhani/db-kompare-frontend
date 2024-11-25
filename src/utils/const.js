@@ -11,3 +11,39 @@ export const Navlinks = [
     { value: "googleScore", label: "Google Search" },
     { value: "bingScore", label: "Bing Search" },
   ];
+
+
+export const calculateChartWeightedValue = (metric, metricKeys) => {
+
+    return metricKeys?.reduce((sum, key) => {
+      console.log(key,'key')
+      const value = metric.ui_popularity[key];
+      if (value === undefined || value === null) {
+        console.warn(`Key "${key}" does not exist for metric:`, metric);
+        return sum;
+      }
+
+      let weightedValue = 0;
+
+      switch (key) {
+        case "googleScore":
+          weightedValue = value * 0.2; 
+          break;
+        case "bingScore":
+          weightedValue = value * 0.1; 
+          break;
+        case "githubScore":
+          weightedValue = value * 0.4;
+          break;
+        case "stackoverflowScore":
+          weightedValue = value * 0.3; 
+          break;
+        default:
+          weightedValue = value; 
+          break;
+      }
+
+      return sum + weightedValue;
+    }, 0);
+  };
+
