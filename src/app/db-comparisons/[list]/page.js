@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ContentSection from "@/components/shared/ContentSection/page";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
+import CommonTypography from "@/components/shared/Typography";
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
