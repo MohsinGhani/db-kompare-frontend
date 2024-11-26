@@ -1,4 +1,5 @@
-const API_KEY = "HPEBPWFPNU5aP2sWiDsis74HI7uXTgtj7VuPsG2o";
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+
 export const fetchDatabases = async () => {
   const response = await fetch(
     "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases",
@@ -27,7 +28,6 @@ export const fetchDatabaseByIds = async (ids) => {
         "Content-Type": "application/json",
         "x-api-key": API_KEY,
       },
-      mode: "no-cors",
       body,
     };
 

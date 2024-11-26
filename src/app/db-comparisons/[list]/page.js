@@ -6,7 +6,7 @@ import ContentSection from "@/components/shared/ContentSection/page";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
 import CommonTypography from "@/components/shared/Typography";
-import { fetchDatabases } from "@/utils/databaseUtils";
+import { fetchDatabaseByIds, fetchDatabases } from "@/utils/databaseUtils";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
