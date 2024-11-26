@@ -1,20 +1,28 @@
 import React from "react";
 import CommonTypography from "../shared/Typography";
 import CommonButton from "../shared/Button";
-
+import { useRouter } from "next/navigation";
 const HomepageCards = () => {
+  const router = useRouter();
   const CardsData = [
     {
       title: "Discover Top Resources in Real-Time",
       description:
         "View the leading resources across platforms to find what’s trending and trusted",
-      link: "DB  Leaderboard",
+      link: {
+        href: "/leader-board",
+        text: "DB  Leaderboard ",
+      },
     },
     {
       title: "Compare Databases with Ease",
       description:
         "Compare codebases, solutions, and answers side-by-side to choose what fits your project or query best.",
-      link: "DB Comparison",
+      // link: "DB Comparison",
+      link: {
+        href: "/db-comparisons/list",
+        text: "DB Comparison",
+      },
     },
   ];
 
@@ -25,16 +33,14 @@ const HomepageCards = () => {
           <div
             key={index}
             className="bg-[#F8F9FD] flex w-full md:w-2/4 lg:px-10 px-8 2xl:px-32 xl:px-12 p-16 flex-col gap-8 text-center items-center rounded-2xl"
-            style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+            style={{ display: "flex", flexDirection: "column", height: "100%" }}
           >
-            <div >
+            <div>
               <CommonTypography className="text-black sm:text-lg text-2xl md:text-[40px] font-bold ">
                 {item.title}
               </CommonTypography>
-              <br/>
-              {/* <CommonTypography className="text-[#565758] text-base md:text-lg">
-                {item.description}
-              </CommonTypography> */}
+              <br />
+
               <h3 className="text-[#565758] text-base md:text-lg my-9">
                 {item.description}
               </h3>
@@ -42,8 +48,9 @@ const HomepageCards = () => {
             <CommonButton
               className="bg-[#3E53D7] border-none md:w-40 w-full lg:w-52  text-white text-lg md:text-base hover:text-black transition-all duration-300"
               style={{ color: "white", border: "none" }}
+              onClick={() => router.push(item.link.href)}
             >
-              {item.link}
+              {item.link.text}
             </CommonButton>
           </div>
         ))}

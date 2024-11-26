@@ -1,8 +1,10 @@
-import { Table, Tooltip } from "antd"; // Import Tooltip from Ant Design
-import { InfoCircleOutlined } from "@ant-design/icons"; // Import the info icon
+"use client";
+import { Skeleton, Table, Tooltip } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { rowLabels } from "../data/data";
 import ProcessDataHtml from "@/utils/processHtml";
+import { useState, useEffect } from "react";
+import { rowLabels } from "@/utils/rowLabels";
 
 const ComparisonTable = ({
   dbData,
@@ -11,15 +13,15 @@ const ComparisonTable = ({
   setSelectedDatabases,
   setSelectedDatabasesOptions,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-console.log(filterData,'filterData');
+
   const generateDataForDatabase = (db) => {
     const dbName = db || "Unknown";
     const data = dbData?.find(
       (database) => database.name.toLowerCase() === dbName.toLowerCase()
     );
-    console.log(data,'data');
-    // const result =  fetchDatabaseByIds();
+
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
         acc[label] =
@@ -36,6 +38,7 @@ console.log(filterData,'filterData');
     return null;
   };
 
+  // Data for the table rows based on the selected databases
   const data = rowLabels.map(({ label }) => {
     const row = { key: label, name: label };
     selectedDatabases.forEach((db) => {
@@ -46,7 +49,8 @@ console.log(filterData,'filterData');
     });
     return row;
   });
-console.log(data,'data');
+
+  // Remove database handler
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -55,24 +59,26 @@ console.log(data,'data');
     const newDbQuery = encodeURIComponent(updatedDatabases.join("-"));
     router.push(`/db-comparison/${newDbQuery}`);
   };
+
+  // Columns configuration for the table
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      rowScope: 'row',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      rowScope: "row",
       render: (text) => {
         const rowLabel = rowLabels.find((label) => label.label === text);
         return (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ minWidth: '200px' }}>{text}</span>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ minWidth: "200px" }}>{text}</span>
             {rowLabel?.tooltipText && (
               <Tooltip title={rowLabel.tooltipText}>
                 <InfoCircleOutlined
                   style={{
                     marginLeft: 8,
-                    color: '#3E53D7',
-                    cursor: 'pointer',
+                    color: "#3E53D7",
+                    cursor: "pointer",
                   }}
                 />
               </Tooltip>
@@ -108,33 +114,62 @@ console.log(data,'data');
       ),
       dataIndex: db,
       render: (text, record) => {
-
         return (
           <div
             style={{
-              padding: '5px',
-              minWidth: '200px',
-              fontSize: '14px',
-              fontWeight: '400',
+              padding: "5px",
+              minWidth: "200px",
+              fontSize: "14px",
+              fontWeight: "400",
             }}
           >
-            <ProcessDataHtml htmlString={text}  />
+            <ProcessDataHtml htmlString={text} />
           </div>
         );
       },
     })),
   ];
-  
+
+  useEffect(() => {
+    if (dbData && dbData.length > 0) {
+      setIsLoading(false);
+    }
+  }, [dbData]);
 
   return (
-    <Table
-      bordered
-      columns={columns}
-      dataSource={data}
-      pagination={false}
-      className="w-full mt-4"
-      rowClassName="db-row"
-    />
+    <>
+      {isLoading ? (
+        <Table
+          rowKey="key"
+          pagination={false}
+          dataSource={[...Array(5)].map((_, index) => ({
+            key: `key${index}`,
+          }))}
+          columns={columns.map((column) => ({
+            ...column,
+            render: function renderPlaceholder() {
+              return (
+                <Skeleton
+                  key={column.key}
+                  title
+                  active={false}
+                  paragraph={false}
+                />
+              );
+            },
+          }))}
+        />
+      ) : (
+        <Table
+          bordered
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          className="w-full mt-4"
+          rowClassName="db-row"
+        />
+      )}
+    </>
   );
 };
 

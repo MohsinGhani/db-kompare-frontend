@@ -19,6 +19,27 @@ const ProcessDataHtml = ({ htmlString }) => {
 
     return parse(styledHtml, {
       replace: (domNode) => {
+        if (domNode.name === "span" && domNode.attribs?.["title"]) {
+          const tooltipContent = domNode.attribs["title"];
+
+          const cleanTooltipContent = tooltipContent.replace(
+            /<br\s*\/?>/g,
+            " "
+          );
+
+          return (
+            <Tooltip title={cleanTooltipContent}>
+              <InfoCircleOutlined
+                style={{
+                  marginLeft: 8,
+                  color: "#3E53D7",
+                  cursor: "pointer",
+                }}
+              />
+            </Tooltip>
+          );
+        }
+
         if (domNode.name === "span") {
           if (domNode.attribs?.class === "bold") {
             return (
@@ -34,23 +55,7 @@ const ProcessDataHtml = ({ htmlString }) => {
             );
           }
         }
-        if (domNode.name === "span" && domNode.attribs?.["title"]) {
-          const tooltipContent = domNode.attribs["title"];
-
-          return (
-            <Tooltip title={tooltipContent}>
-              <InfoCircleOutlined
-                style={{
-                  marginLeft: 8,
-                  color: "#3E53D7",
-                  cursor: "pointer",
-                }}
-              />
-            </Tooltip>
-          );
-        }
       },
-
     });
   };
 

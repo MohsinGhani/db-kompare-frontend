@@ -7,6 +7,8 @@ import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
 import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export default function Page({ params }) {
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -17,14 +19,18 @@ export default function Page({ params }) {
   const [dbData, setDbData] = useState([]);
   const [dbSelectedId, setDbSelectedId] = useState([]);
   const [dbDetails, setDbDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const result = await fetchDatabases();
         setDbData(result.data);
+        setIsLoading(false);
       } catch (error) {
         console.log(error.message);
+        setIsLoading(false);
       }
     };
 
@@ -94,43 +100,54 @@ export default function Page({ params }) {
     <ContentSection
       heading1="Database management systems"
       heading2="Offer Technology"
-      paragraph1="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across technical forums, DB-Engines provides a comprehensive view of how different database systems are being used and perceived globally."
-      paragraph2="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity."
+      paragraph1="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across technical forums, DB-Kompare provides a comprehensive view of how different database systems are being used and perceived globally."
+      paragraph2="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity."
       imageAlt="blue line"
     >
       <div className="w-full md:px-20 flex flex-col gap-10">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-        <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
-          {filteredOptions.map((option, index) => (
-            <CommonButton
-              key={option.name}
-              style={{
-                width: "100%",
-                fontWeight: "600",
-                fontSize: "16px",
-                border:
-                  selectedDatabases.includes(option.name) ||
-                  hoverIndex === index
-                    ? "2px solid #3E53D7"
-                    : "2px solid #D9D9D9",
-                height: "60px",
-                background: "transparent",
-                color:
-                  selectedDatabases.includes(option.name) ||
-                  hoverIndex === index
-                    ? "#3E53D7"
-                    : "black",
-                borderRadius: "16px",
-              }}
-              onMouseEnter={() => setHoverIndex(index)}
-              onMouseLeave={() => setHoverIndex(null)}
-              onClick={() => handleDatabaseClick(option)}
-            >
-              {option.name}
-            </CommonButton>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="w-full flex justify-center items-center h-32">
+            {" "}
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 90 }} spin />}
+            />
+          </div>
+        ) : (
+          <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
+            <>
+              {filteredOptions.map((option, index) => (
+                <CommonButton
+                  key={option.name}
+                  style={{
+                    width: "100%",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    border:
+                      selectedDatabases.includes(option.name) ||
+                      hoverIndex === index
+                        ? "2px solid #3E53D7"
+                        : "2px solid #D9D9D9",
+                    height: "60px",
+                    background: "transparent",
+                    color:
+                      selectedDatabases.includes(option.name) ||
+                      hoverIndex === index
+                        ? "#3E53D7"
+                        : "black",
+                    borderRadius: "16px",
+                  }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                  onClick={() => handleDatabaseClick(option)}
+                >
+                  {option.name}
+                </CommonButton>
+              ))}
+            </>
+          </div>
+        )}
 
         <div
           className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center "

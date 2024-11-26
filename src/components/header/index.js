@@ -24,7 +24,12 @@ export default function Navbar() {
       }`}
     >
       <div className="2xl:w-[65%] lg:w-4/5 w-full lg:px-28 px-3 flex justify-between items-center">
-        <div className="flex items-center gap-2 justify-center">
+        <div
+          className="flex items-center gap-2 justify-center cursor-pointer"
+          onClick={() => {
+            router.push("/");
+          }}
+        >
           <Image
             src={logo}
             alt="DB Logo"

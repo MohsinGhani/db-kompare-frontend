@@ -1,7 +1,6 @@
 import React from "react";
 import { Carousel } from "antd";
 
-// Import logos
 import mongodbLogo from "@/../public/assets/icons/mongodb-icon-2 1.svg";
 import mysqlLogo from "@/../public/assets/icons/mysql.svg";
 import postgresqlLogo from "@/../public/assets/icons/postgresql.svg";
@@ -12,7 +11,6 @@ import sqliteLogo from "@/../public/assets/icons/sqlite.svg";
 import Image from "next/image";
 import CommonTypography from "../shared/Typography";
 
-// Create an array of logos with their names
 const logos = [
   { src: mongodbLogo, alt: "MongoDB" },
   { src: mysqlLogo, alt: "MySQL" },

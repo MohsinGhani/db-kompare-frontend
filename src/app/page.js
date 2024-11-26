@@ -11,8 +11,9 @@ import WhyUs from "@/components/homepage/whyUs";
 import ExperienceSection from "@/components/homepage/experienceSection";
 import MakeUsUnique from "@/components/homepage/uniqueSection";
 import HomepageCards from "@/components/homepage/cards";
-
+import { useRouter } from "next/navigation";
 function Home() {
+  const router = useRouter();
   return (
     <div>
       <div className="lg:pl-28 bg-[url('/assets/images/homebg.png')] bg-cover  bg-center md:h-[90vh] h-[70vh] ">
@@ -34,10 +35,14 @@ function Home() {
                 <CommonButton
                   className="bg-[#3E53D7] md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
                   style={{ color: "white" }}
+                  onClick={() => router.push("/leader-board")}
                 >
                   DB Leaderboard
                 </CommonButton>
-                <CommonButton className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-[#3E53D7] md:text-base text-lg ">
+                <CommonButton
+                  className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-[#3E53D7] md:text-base text-lg "
+                  onClick={() => router.push("/db-comparisons/list")}
+                >
                   DB Comparison
                 </CommonButton>
               </div>

@@ -7,42 +7,18 @@ import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
 import { calculateChartWeightedValue } from "@/utils/const";
+import { formatDate, isDateInRange } from "@/utils/chartUtils";
 
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
 
-  const isDateInRange = (date, startDate, endDate) =>
-    !startDate ||
-    !endDate ||
-    (new Date(date) >= new Date(startDate) &&
-      new Date(date) <= new Date(endDate));
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const startDate = "2024-11-17"; 
-        const endDate = "2024-11-25"; 
-
-        const data = await fetchMetricsData(startDate, endDate);
-        setMetricsData(data.data);
-        console.log(data.data);
-      } catch (error) {
-        console.error("Error fetching metrics data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
       setSelectedMetricKeys(["totalScore"]);
     }
   }, [selectedMetricKeys]);
-
- 
 
   const getMetricData = (metricKeys, dateRange) =>
     metricsData.map((db) => ({
@@ -67,7 +43,6 @@ const DBChart = () => {
   };
 
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
-
   const chartOptions = {
     chart: {
       type: "spline",
@@ -85,20 +60,33 @@ const DBChart = () => {
 
           if (filteredData.every((db) => db.data.length === 0)) {
             const errorMessage = "No data available on these dates";
+
             if (!this.errorMessage) {
               this.errorMessage = chart.renderer
                 .text(errorMessage, 0, 0)
-                .css({ fontSize: "20px", fontWeight: "bold", color: "red" })
+                .css({
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "red",
+                })
                 .add();
-              const { width: textWidth, height: textHeight } =
-                this.errorMessage.getBBox();
+
+              const textWidth = this.errorMessage.getBBox().width;
+              const textHeight = this.errorMessage.getBBox().height;
+
+              const xPosition = (chartWidth - textWidth) / 2;
+              const yPosition = (chartHeight + textHeight) / 2;
+
               this.errorMessage.attr({
-                x: (chartWidth - textWidth) / 2,
-                y: (chartHeight + textHeight) / 2,
+                x: xPosition,
+                y: yPosition,
               });
             }
           } else {
-            this.errorMessage?.destroy();
+            if (this.errorMessage) {
+              this.errorMessage.destroy();
+              this.errorMessage = null;
+            }
           }
         },
       },
@@ -139,6 +127,17 @@ const DBChart = () => {
     credits: false,
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const startDate = formatDate(selectedDate[0]) || "2024-11-17";
+      const endDate = formatDate(selectedDate[1]) || "2024-11-26";
+      const data = await fetchMetricsData(startDate, endDate);
+      setMetricsData(data.data);
+    };
+
+    fetchData();
+  }, [selectedDate]);
+
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="w-full">
@@ -159,4 +158,3 @@ const DBChart = () => {
 };
 
 export default DBChart;
-

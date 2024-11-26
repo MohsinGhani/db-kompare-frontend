@@ -1,8 +1,20 @@
+const API_KEY = "HPEBPWFPNU5aP2sWiDsis74HI7uXTgtj7VuPsG2o";
 export const fetchDatabases = async () => {
   const response = await fetch(
-    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases"
+    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases",
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
+    }
   );
-  if (!response.ok) throw new Error("Network response was not ok");
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
   return await response.json();
 };
 
@@ -13,7 +25,9 @@ export const fetchDatabaseByIds = async (ids) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": API_KEY,
       },
+      mode: "no-cors",
       body,
     };
 
@@ -35,12 +49,11 @@ export const fetchDatabaseByIds = async (ids) => {
 };
 
 export const fetchMetricsData = async (startDate, endDate) => {
-  console.log(startDate, endDate, "startDate, endDate");
   try {
     const body = JSON.stringify({ startDate, endDate });
     const options = {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
       body,
     };
 
