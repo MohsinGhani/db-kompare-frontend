@@ -10,34 +10,54 @@ import CommonButton from "@/components/shared/Button";
 const Comparison = ({ params }) => {
   const router = useRouter();
   const { db } = params;
-  const removedb = db.includes("list-") ? db.replace("list-", "") : db;
-  const decodedDb = removedb ? decodeURIComponent(removedb) : "";
+
   const [selectedDatabaseIds, setSelectedDatabaseIds] = useState([]);
   const [dbData, setDbData] = useState([]);
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
   const [filterData, setFilterData] = useState([]);
+
+  const decodedDb = decodeURIComponent(db.replace("list-", ""));
+
   useEffect(() => {
-    const newDbQuery = encodeURIComponent(decodedDb);
-    router.push(`/db-comparison/${newDbQuery}`);
+    if (decodedDb) {
+      router.push(`/db-comparison/${encodeURIComponent(decodedDb)}`);
+    }
   }, [decodedDb]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const result = await fetchDatabases();
         setDbData(result.data);
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (dbData.length === 0) return;
+
+    const newSelectedDatabaseIds = selectedDatabases
+      .map((dbName) => {
+        const dbOption = dbData.find(
+          (dbOption) => dbOption.name.toLowerCase() === dbName.toLowerCase()
+        );
+        return dbOption ? dbOption.id : null;
+      })
+      .filter((id) => id !== null);
+
+    setSelectedDatabaseIds(newSelectedDatabaseIds);
+  }, [dbData, selectedDatabases]);
+
   useEffect(() => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
         try {
-          const response = await fetchDatabaseByIds();
-          setFilterData(response.data);
+          const response = await fetchDatabaseByIds(selectedDatabaseIds);
+          setFilterData(response?.data || []);
         } catch (error) {
           console.error("Error fetching database details:", error);
         }
@@ -61,6 +81,15 @@ const Comparison = ({ params }) => {
   const handleCompareClick = () => {
     router.push(`/db-comparison/${newDbQuery}`);
   };
+
+  const handleAddSystemClick = () => {
+    if (selectedDatabasesOptions.length === 0) {
+      router.push(`/db-comparisons/list`);
+    } else {
+      router.push(`/db-comparisons/${newDbQuery}`);
+    }
+  };
+
   return (
     <>
       <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
@@ -77,7 +106,6 @@ const Comparison = ({ params }) => {
           handleCompareClick={handleCompareClick}
         />
         <div className="w-full text-end flex justify-end">
-          {" "}
           <CommonButton
             style={{
               borderRadius: "12px",
@@ -88,15 +116,8 @@ const Comparison = ({ params }) => {
               color: "white",
               fontSize: "14px",
               fontWeight: "bold",
-              // width: "200px",
             }}
-            onClick={() => {
-              if (selectedDatabasesOptions.length === 0) {
-                router.push(`/db-comparisons/list`);
-              } else {
-                router.push(`/db-comparisons/${newDbQuery}`);
-              }
-            }}
+            onClick={handleAddSystemClick}
           >
             Add another system
           </CommonButton>

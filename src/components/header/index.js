@@ -78,7 +78,10 @@ export default function Navbar() {
           {Navlinks.map((link, index) => (
             <li key={index}>
               <button
-                onClick={() => router.push(link.href)}
+                onClick={() => {
+                  router.push(link.href);
+                  setIsOpen(false);
+                }}
                 className={`block py-2 px-3 ${
                   path === link.href ||
                   (isDbComparisonPage && link.href === "/db-comparisons")

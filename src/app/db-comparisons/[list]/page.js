@@ -6,20 +6,20 @@ import ContentSection from "@/components/shared/ContentSection/page";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
 import CommonTypography from "@/components/shared/Typography";
-import { fetchDatabaseByIds, fetchDatabases } from "@/utils/databaseUtils";
+import { fetchDatabases } from "@/utils/databaseUtils";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
 export default function Page({ params }) {
-  const [hoverIndex, setHoverIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const { list } = params;
+
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter();
-  const [dbData, setDbData] = useState([]);
-  const [dbSelectedId, setDbSelectedId] = useState([]);
-  const [dbDetails, setDbDetails] = useState([]);
+  const [hoverIndex, setHoverIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dbData, setDbData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,7 +37,6 @@ export default function Page({ params }) {
     fetchData();
   }, []);
 
-  const { list } = params;
   const decodedDb = list ? decodeURIComponent(list) : "";
   const decodedDbArray = decodedDb ? decodedDb.split("-") : [];
 
@@ -51,39 +50,24 @@ export default function Page({ params }) {
     option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    if (dbSelectedId.length > 0) {
-      const fetchSelectedDatabases = async () => {
-        try {
-          const response = await fetchDatabaseByIds(dbSelectedId);
-          setDbDetails(response.data);
-        } catch (error) {
-          console.error("Error fetching database details:", error);
-        }
-      };
-      fetchSelectedDatabases();
-    }
-  }, [dbSelectedId]);
-
   const handleDatabaseClick = (option) => {
+    const cleanedSelectedDatabases = selectedDatabases.filter(
+      (db) => db !== "list"
+    );
+
     if (
-      selectedDatabases.length >= 5 &&
-      !selectedDatabases.includes(option.name)
+      cleanedSelectedDatabases.length >= 5 &&
+      !cleanedSelectedDatabases.includes(option.name)
     ) {
       setErrorMessage("You can select only up to 5 databases.");
     } else {
       setErrorMessage("");
-      setSelectedDatabases((prevSelected) =>
-        prevSelected.includes(option.name)
+      setSelectedDatabases((prevSelected) => {
+        const newSelected = prevSelected.includes(option.name)
           ? prevSelected.filter((db) => db !== option.name)
-          : [...prevSelected, option.name]
-      );
+          : [...prevSelected, option.name];
 
-      setDbSelectedId((prevSelectedIds) => {
-        const newIds = prevSelectedIds.includes(option.id)
-          ? prevSelectedIds.filter((id) => id !== option.id)
-          : [...prevSelectedIds, option.id];
-        return newIds;
+        return newSelected.filter((db) => db !== "list");
       });
     }
   };
@@ -115,7 +99,7 @@ export default function Page({ params }) {
             />
           </div>
         ) : (
-          <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
+          <div className="grid w-full grid-cols-1  sm:grid-cols-2  xl:grid-cols-5  md:grid-cols-3 gap-4 p-2">
             <>
               {filteredOptions.map((option, index) => (
                 <CommonButton
@@ -164,12 +148,19 @@ export default function Page({ params }) {
               fontSize: "16px",
               border: "1px solid #D9D9D9",
               height: "60px",
-              background: selectedDatabases.length <= 0 ? "grey" : "#3E53D7",
+              background:
+                selectedDatabases.includes("list") ||
+                selectedDatabases.length === 0
+                  ? "grey"
+                  : "#3E53D7",
               color: "white",
               borderRadius: "16px",
             }}
+            disabled={
+              selectedDatabases.includes("list") ||
+              selectedDatabases.length === 0
+            }
             onClick={handleCompareClick}
-            disabled={!selectedDatabases.length}
           >
             Compare
           </CommonButton>

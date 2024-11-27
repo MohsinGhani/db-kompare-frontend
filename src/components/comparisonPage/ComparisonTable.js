@@ -17,10 +17,9 @@ const ComparisonTable = ({
   const router = useRouter();
 
   const generateDataForDatabase = (db) => {
-    const dbName = db || "Unknown";
-    const data = dbData?.find(
-      (database) => database.name.toLowerCase() === dbName.toLowerCase()
-    );
+    const data = filterData?.find((database) => {
+      return database.name.toLowerCase() === db.toLowerCase();
+    });
 
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
@@ -35,10 +34,10 @@ const ComparisonTable = ({
         return acc;
       }, {});
     }
+
     return null;
   };
 
-  // Data for the table rows based on the selected databases
   const data = rowLabels.map(({ label }) => {
     const row = { key: label, name: label };
     selectedDatabases.forEach((db) => {
@@ -50,7 +49,6 @@ const ComparisonTable = ({
     return row;
   });
 
-  // Remove database handler
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -60,7 +58,6 @@ const ComparisonTable = ({
     router.push(`/db-comparison/${newDbQuery}`);
   };
 
-  // Columns configuration for the table
   const columns = [
     {
       title: "Name",
@@ -123,7 +120,7 @@ const ComparisonTable = ({
               fontWeight: "400",
             }}
           >
-            <ProcessDataHtml htmlString={text} />
+            <ProcessDataHtml htmlString={text} record={record} />
           </div>
         );
       },

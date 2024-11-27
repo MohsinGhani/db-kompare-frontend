@@ -20,6 +20,7 @@ export const fetchDatabases = async () => {
 };
 
 export const fetchDatabaseByIds = async (ids) => {
+  console.log(ids); // This will log the array of IDs
   try {
     const body = JSON.stringify({ ids });
     const options = {
@@ -69,6 +70,30 @@ export const fetchMetricsData = async (startDate, endDate) => {
     return await response.json();
   } catch (error) {
     console.error("Error fetching metrics data:", error);
+    throw error;
+  }
+};
+
+export const fetchDatabasesCount = async () => {
+  try {
+    const response = await fetch(
+      "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases-count",
+      {
+        method: "GET",
+        headers: {
+          "x-api-key": API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching databases count:", error);
     throw error;
   }
 };

@@ -52,15 +52,15 @@ const DatabaseSelect = ({
 
         <CommonButton
           disabled={
-            selectedDatabases.length > 4 ||
-            selectedDatabasesOptions.length === 0
+            selectedDatabases?.length > 4 ||
+            selectedDatabasesOptions?.length === 0
           }
           style={{
             borderRadius: "0px 4px 4px 0px",
             height: "45px",
             background:
-              selectedDatabases.length > 4 ||
-              selectedDatabasesOptions.length === 0
+              selectedDatabases?.length > 4 ||
+              selectedDatabasesOptions?.length === 0
                 ? "grey"
                 : "#3E53D7",
             border: "none",
