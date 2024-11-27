@@ -17,6 +17,7 @@ const Comparison = ({ params }) => {
   const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
   const [filterData, setFilterData] = useState([]);
 
+  // Decode db parameter and navigate to comparison page
   const decodedDb = decodeURIComponent(db.replace("list-", ""));
 
   useEffect(() => {
@@ -25,6 +26,7 @@ const Comparison = ({ params }) => {
     }
   }, [decodedDb]);
 
+  // Fetch database list on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -37,6 +39,7 @@ const Comparison = ({ params }) => {
     fetchData();
   }, []);
 
+  // Update selected database IDs based on selected database names
   useEffect(() => {
     if (dbData.length === 0) return;
 
@@ -52,6 +55,7 @@ const Comparison = ({ params }) => {
     setSelectedDatabaseIds(newSelectedDatabaseIds);
   }, [dbData, selectedDatabases]);
 
+  // Fetch details for selected databases
   useEffect(() => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
@@ -66,6 +70,7 @@ const Comparison = ({ params }) => {
     }
   }, [selectedDatabaseIds]);
 
+  // Set selected databases based on decoded URL parameter
   useEffect(() => {
     if (decodedDb) {
       const databases = decodedDb
@@ -78,10 +83,12 @@ const Comparison = ({ params }) => {
 
   const newDbQuery = encodeURIComponent(selectedDatabasesOptions.join("-"));
 
+  // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
     router.push(`/db-comparison/${newDbQuery}`);
   };
 
+  // Redirect to comparison or list page based on selected databases
   const handleAddSystemClick = () => {
     if (selectedDatabasesOptions.length === 0) {
       router.push(`/db-comparisons/list`);

@@ -4,6 +4,8 @@ import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ProcessDataHtml = ({ htmlString, record }) => {
+  // Process and display HTML content with specific styling and tooltips
+
   const processHtml = (html) => {
     if (typeof html !== "string") {
       console.error("Invalid HTML string:", html);

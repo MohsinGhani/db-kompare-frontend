@@ -21,6 +21,7 @@ export default function Page({ params }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [dbData, setDbData] = useState([]);
 
+  // Fetch and load database data with loading state handling
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -37,6 +38,7 @@ export default function Page({ params }) {
     fetchData();
   }, []);
 
+  // Decode 'list' query parameter to set selectedDatabases state
   const decodedDb = list ? decodeURIComponent(list) : "";
   const decodedDbArray = decodedDb ? decodedDb.split("-") : [];
 
@@ -46,10 +48,12 @@ export default function Page({ params }) {
     }
   }, []);
 
+  // Filter database options based on search term
   const filteredOptions = dbData.filter((option) =>
     option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Handle database selection with a limit of 5 and validation logic
   const handleDatabaseClick = (option) => {
     const cleanedSelectedDatabases = selectedDatabases.filter(
       (db) => db !== "list"
@@ -72,6 +76,7 @@ export default function Page({ params }) {
     }
   };
 
+  // Trigger navigation for database comparison with validation
   const handleCompareClick = () => {
     if (selectedDatabases.includes("list") || selectedDatabases.length === 0) {
       setErrorMessage("Please select at least one database to compare");

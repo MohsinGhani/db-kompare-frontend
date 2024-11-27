@@ -7,6 +7,7 @@ const ExperienceSection = () => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const sectionRef = useRef(null);
 
+  // Add useEffect to fetch databases count on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -19,12 +20,14 @@ const ExperienceSection = () => {
     fetchData();
   }, []);
 
+  // Add experienceData array with database count and experience years
   const experienceData = [
     { years: databasesCount, label: "Number of Databases" },
     { years: 12, label: "Years of experience" },
     { years: 7, label: "Years of experience" },
   ];
 
+  // Add IntersectionObserver to trigger animation when section is in view
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -47,6 +50,7 @@ const ExperienceSection = () => {
     };
   }, [hasAnimated, databasesCount]);
 
+  // Add countUp function to animate experience years counting
   const countUp = () => {
     const duration = 400;
     const stepTime = Math.abs(Math.floor(duration / experienceData.length));

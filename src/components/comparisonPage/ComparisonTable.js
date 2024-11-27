@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import { rowLabels } from "@/utils/rowLabels";
 
 const ComparisonTable = ({
-  dbData,
   filterData,
   selectedDatabases,
   setSelectedDatabases,
@@ -17,6 +16,7 @@ const ComparisonTable = ({
 
   const [isLoading, setIsLoading] = useState(true);
 
+  // Add generateDataForDatabase function to structure and format data for each database
   const generateDataForDatabase = (db) => {
     const data = filterData?.find((database) => {
       return database.name.toLowerCase() === db.toLowerCase();
@@ -39,6 +39,8 @@ const ComparisonTable = ({
     return null;
   };
 
+  // Generate data rows for selected databases using rowLabels and the generateDataForDatabase function
+
   const data = rowLabels.map(({ label }) => {
     const row = { key: label, name: label };
     selectedDatabases.forEach((db) => {
@@ -50,6 +52,7 @@ const ComparisonTable = ({
     return row;
   });
 
+  // Add handleRemoveDatabase function to handle removal of selected databases
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -59,6 +62,7 @@ const ComparisonTable = ({
     router.push(`/db-comparison/${newDbQuery}`);
   };
 
+  // Define columns for the comparison table with custom rendering and remove functionality
   const columns = [
     {
       title: "Name",
@@ -128,11 +132,12 @@ const ComparisonTable = ({
     })),
   ];
 
+  // Add useEffect to set loading state when dbData is loaded
   useEffect(() => {
-    if (dbData && dbData.length > 0) {
+    if (filterData && filterData.length > 0) {
       setIsLoading(false);
     }
-  }, [dbData]);
+  }, [filterData]);
 
   return (
     <>

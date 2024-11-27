@@ -6,20 +6,25 @@ import HighchartsReact from "highcharts-react-official";
 import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
-import { calculateChartWeightedValue } from "@/utils/const";
-import { formatDate, isDateInRange } from "@/utils/chartUtils";
+import {
+  calculateChartWeightedValue,
+  formatDate,
+  isDateInRange,
+} from "@/utils/chartUtils";
 
 const DBChart = () => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
 
+  // Add useEffect to set default metric key to 'totalScore' when no metrics are selected
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
       setSelectedMetricKeys(["totalScore"]);
     }
   }, [selectedMetricKeys]);
 
+  // Add getMetricData function to fetch and filter metrics based on date range
   const getMetricData = (metricKeys, dateRange) =>
     metricsData.map((db) => ({
       databaseName: db.databaseName,
@@ -30,6 +35,7 @@ const DBChart = () => {
         .map((metric) => calculateChartWeightedValue(metric, metricKeys)),
     }));
 
+  // Add getXAxisCategories function to filter metrics by date range
   const getXAxisCategories = (dateRange) => {
     const allMetrics = metricsData[0]?.metrics || [];
     if (!dateRange[0] || !dateRange[1]) {
@@ -42,6 +48,7 @@ const DBChart = () => {
       .map((metric) => metric.date);
   };
 
+  // Add chartOptions configuration with error handling and chart customization
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
   const chartOptions = {
     chart: {
@@ -127,6 +134,7 @@ const DBChart = () => {
     credits: false,
   };
 
+  // Add useEffect to fetch metrics data based on selected date range
   useEffect(() => {
     const fetchData = async () => {
       const startDate = formatDate(selectedDate[0]) || "2024-11-17";

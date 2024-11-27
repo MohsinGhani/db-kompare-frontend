@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import CommonTypography from "../shared/Typography";
 import { DatePicker } from "antd";
@@ -11,8 +13,9 @@ export default function LeaderboardFilter({
   selectedMetricKeys,
   setSelectedMetricKeys,
 }) {
-  const [check, setCheck] = React.useState(false);
+  const [check, setCheck] = useState(false);
 
+  // Add useEffect to manage 'check' state based on selected metrics
   useEffect(() => {
     if (
       selectedMetricKeys.length === 0 ||
@@ -21,6 +24,8 @@ export default function LeaderboardFilter({
       setCheck(true);
     }
   }, [selectedMetricKeys]);
+
+  // Add handler for metric selection with logic for 'totalScore'
 
   const handleMetricChange = (value) => {
     setCheck(false);
@@ -40,6 +45,8 @@ export default function LeaderboardFilter({
       setSelectedMetricKeys(newSelectedKeys);
     }
   };
+
+  // Add handler for updating selected date range
 
   const handleDateChange = (dates) => setSelectedDate(dates || [null, null]);
 
@@ -97,5 +104,3 @@ export default function LeaderboardFilter({
     </div>
   );
 }
-
-
