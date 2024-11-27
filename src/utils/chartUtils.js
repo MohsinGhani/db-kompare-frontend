@@ -17,3 +17,14 @@ export const isDateInRange = (date, startDate, endDate) => {
 
   return !startDate || !endDate || (d >= start && d <= end);
 };
+export const styleFirstWord = (title) => {
+  const words = title.split(" "); // Split the title by spaces
+  const firstWord = words[0]; // Get the first word
+  const restOfTheTitle = words.slice(1).join(" "); // Join the rest of the words
+
+  return (
+    <>
+      <span style={{ color: "#3E53D7" }}>{firstWord}</span> {restOfTheTitle}
+    </>
+  );
+};

@@ -13,8 +13,9 @@ const ComparisonTable = ({
   setSelectedDatabases,
   setSelectedDatabasesOptions,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const generateDataForDatabase = (db) => {
     const data = filterData?.find((database) => {
@@ -162,7 +163,7 @@ const ComparisonTable = ({
           columns={columns}
           dataSource={data}
           pagination={false}
-          className="w-full mt-4"
+          className="w-full mt-4 "
           rowClassName="db-row"
         />
       )}

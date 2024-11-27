@@ -1,6 +1,7 @@
 import React from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
 import DBChart from "@/components/DBChart";
+import RankingTable from "@/components/rankingPage.js/rankingTable";
 
 export default function Page() {
   return (
@@ -15,6 +16,7 @@ export default function Page() {
         <div className="w-full ">
           <DBChart />
         </div>
+        <RankingTable />
       </ContentSection>
     </div>
   );

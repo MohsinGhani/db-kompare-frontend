@@ -59,7 +59,7 @@ const DBChart = () => {
           const chartHeight = chart.chartHeight;
 
           if (filteredData.every((db) => db.data.length === 0)) {
-            const errorMessage = "No data available on these dates";
+            const errorMessage = "No data available";
 
             if (!this.errorMessage) {
               this.errorMessage = chart.renderer

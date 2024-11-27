@@ -107,6 +107,7 @@ const Comparison = ({ params }) => {
         />
         <div className="w-full text-end flex justify-end">
           <CommonButton
+            disabled={selectedDatabases.length > 4}
             style={{
               borderRadius: "12px",
               padding: "0 40px",

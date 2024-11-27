@@ -73,7 +73,9 @@ export default function Page({ params }) {
   };
 
   const handleCompareClick = () => {
-    if (selectedDatabases.length) {
+    if (selectedDatabases.includes("list") || selectedDatabases.length === 0) {
+      setErrorMessage("Please select at least one database to compare");
+    } else {
       router.push(
         `/db-comparison/${encodeURIComponent(selectedDatabases.join("-"))}`
       );
@@ -156,10 +158,10 @@ export default function Page({ params }) {
               color: "white",
               borderRadius: "16px",
             }}
-            disabled={
-              selectedDatabases.includes("list") ||
-              selectedDatabases.length === 0
-            }
+            // disabled={
+            //   selectedDatabases.includes("list") ||
+            //   selectedDatabases.length === 0
+            // }
             onClick={handleCompareClick}
           >
             Compare

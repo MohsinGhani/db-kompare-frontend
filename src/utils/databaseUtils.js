@@ -1,7 +1,23 @@
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
+// Helper function to fetch data from the API
+
+// This function is used by all other functions to send the request and handle the response
+
+const fetchAPI = async (url, options = {}) => {
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+// Function to fetch all databases
+
 export const fetchDatabases = async () => {
-  const response = await fetch(
+  return fetchAPI(
     "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases",
     {
       method: "GET",
@@ -11,89 +27,51 @@ export const fetchDatabases = async () => {
       },
     }
   );
-
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-
-  return await response.json();
 };
 
+// Function to fetch database by IDs'
+
 export const fetchDatabaseByIds = async (ids) => {
-  console.log(ids); // This will log the array of IDs
-  try {
-    const body = JSON.stringify({ ids });
-    const options = {
+  return fetchAPI(
+    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-database-by-ids",
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": API_KEY,
       },
-      body,
-    };
-
-    const response = await fetch(
-      "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-database-by-ids",
-      options
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.statusText}`);
+      body: JSON.stringify({ ids }),
     }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching database by IDs:", error);
-    throw error;
-  }
+  );
 };
+
+// Function to fetch metrics data
 
 export const fetchMetricsData = async (startDate, endDate) => {
-  try {
-    const body = JSON.stringify({ startDate, endDate });
-    const options = {
+  return fetchAPI(
+    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-metrices",
+    {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
-      body,
-    };
-
-    const response = await fetch(
-      "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-metrices",
-      options
-    );
-
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.statusText}`);
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY,
+      },
+      body: JSON.stringify({ startDate, endDate }),
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching metrics data:", error);
-    throw error;
-  }
+  );
 };
 
+// Function to fetch the count of databases
+
 export const fetchDatabasesCount = async () => {
-  try {
-    const response = await fetch(
-      "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases-count",
-      {
-        method: "GET",
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+  return fetchAPI(
+    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases-count",
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching databases count:", error);
-    throw error;
-  }
+  );
 };
