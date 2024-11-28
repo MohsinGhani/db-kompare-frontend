@@ -23,8 +23,8 @@ const ExperienceSection = () => {
   // Add experienceData array with database count and experience years
   const experienceData = [
     { years: databasesCount, label: "Number of Databases" },
-    { years: 12, label: "Years of experience" },
-    { years: 7, label: "Years of experience" },
+    { years: 30, label: " Data points collected for each database every day" },
+    { years: 24, label: "Years of experience" },
   ];
 
   // Add IntersectionObserver to trigger animation when section is in view

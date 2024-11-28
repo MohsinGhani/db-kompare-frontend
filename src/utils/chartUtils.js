@@ -64,3 +64,52 @@ export const calculateChartWeightedValue = (metric, metricKeys) => {
     return sum + weightedValue;
   }, 0);
 };
+
+// Utility function for getting previous day's date in YYYY-MM-DD format
+export const getPreviousDate = () => {
+  const today = new Date();
+  today.setDate(today.getDate() - 1);
+  return today.toISOString().split("T")[0];
+};
+
+// Utility function to get previous 3 days in UTC
+export const getPreviousThreeDays = () => {
+  const today = new Date();
+
+  const dates = [];
+  for (let i = 1; i <= 3; i++) {
+    const prevDate = new Date(today);
+    prevDate.setUTCDate(today.getUTCDate() - i);
+    dates.push(prevDate.toISOString().split("T")[0]);
+  }
+
+  return dates;
+};
+// Helper function to run a function  at 6 AM UTC
+
+export const scheduleLogAtUTC6AM = () => {
+  const now = new Date();
+
+  const targetHour = 6;
+  const targetMinute = 0;
+
+  const currentUTC = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const targetUTC = targetHour * 60 + targetMinute;
+
+  let timeToWait = targetUTC - currentUTC;
+
+  if (timeToWait <= 0) {
+    timeToWait += 24 * 60;
+  }
+
+  setTimeout(() => {
+    console.log("Running at 6 AM UTC!");
+
+    // Now repeat this every 24 hours (setInterval)
+    setInterval(() => {
+      console.log("Previous Three Days:", getPreviousThreeDays());
+
+      // return getPreviousThreeDays();
+    }, 24 * 60 * 60 * 1000);
+  }, timeToWait * 60 * 1000);
+};

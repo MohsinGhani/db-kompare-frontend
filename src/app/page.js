@@ -21,15 +21,17 @@ function Home() {
           <div className="flex justify-between ml-2 ">
             <div className="md:w-3/5 w-full flex flex-col items-center xl:items-start xl:text-start text-center justify-center space-y-4">
               <h1 className="font-extrabold text-3xl 2xl:text-5xl 2xl:leading-[67.52px] tracking-[-1%]">
-                Discover, Learn, Compare
+                Compare DBs and Discover
                 <br />
-                <span className="text-[#3E53D7]">All in One Place</span>
+                <span className="text-[#3E53D7]">DB Internals</span>
               </h1>
               <Image src={blueline} alt="blue line" width={300} height={50} />
               <p className="xl:text-lg xl:text-start text-center font-normal mb-3">
-                Unlock the power of integrated knowledge from GitHub, Stack
-                Overflow, Google, Bing, and beyond. Compare, analyze, and choose
-                the best resources for your needs.
+                COMPARE and RANK SQL , NOSQL , Graph Databases based on
+                popularity , features and PRICE We have noticed that most
+                comparisions focus on postives about a technology but we focus
+                on the NEGATIVES, DISADVANTAGES and LIMITATIONS of a
+                database/software product
               </p>
               <div className="md:flex md:space-x-4">
                 <CommonButton
@@ -53,7 +55,7 @@ function Home() {
           </div>
 
           <div className="md:flex hidden justify-center">
-            <Image src={chart} alt="chart" width={600} height={400} />
+            <Image src={chart} alt="chart" width={900} height={400} />
           </div>
         </div>
       </div>

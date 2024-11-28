@@ -6,30 +6,10 @@ import CustomSelect from "@/components/shared/CustomSelect";
 const DatabaseSelect = ({
   dbData,
   selectedDatabases,
-  setSelectedDatabaseIds,
   selectedDatabasesOptions,
   setSelectedDatabasesOptions,
   handleCompareClick,
 }) => {
-  const handleChange = (selectedValues) => {
-    if (Array.isArray(selectedValues)) {
-      const selectedIds = selectedValues
-        .map((option) => {
-          const selectedDb = dbData.find((db) => db.name === option);
-          return selectedDb ? selectedDb.id : null;
-        })
-        .filter((id) => id !== null);
-
-      setSelectedDatabaseIds(selectedIds);
-      const selectedDb = dbData.find((db) => db.name === selectedValues);
-      if (selectedDb) {
-        setSelectedDatabaseIds([selectedDb.id]);
-      }
-    }
-
-    setSelectedDatabasesOptions(selectedValues);
-  };
-
   return (
     <div className="flex 2xl:flex-row gap-4 flex-col justify-between w-full">
       <CommonTypography type="text" classes="md:text-4xl text-2xl font-medium">
@@ -39,7 +19,9 @@ const DatabaseSelect = ({
       <div className="flex flex-col md:flex-row md:gap-0 gap-3">
         <CustomSelect
           value={selectedDatabasesOptions}
-          onChange={(selectedValues) => handleChange(selectedValues)}
+          onChange={(selectedValues) =>
+            setSelectedDatabasesOptions(selectedValues)
+          }
           options={dbData.map((db) => ({
             id: db.id,
             label: db.name,

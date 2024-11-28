@@ -38,7 +38,6 @@ const ComparisonTable = ({
 
     return null;
   };
-
   // Generate data rows for selected databases using rowLabels and the generateDataForDatabase function
 
   const data = rowLabels.map(({ label }) => {
@@ -69,10 +68,17 @@ const ComparisonTable = ({
       dataIndex: "name",
       key: "name",
       rowScope: "row",
+
       render: (text) => {
         const rowLabel = rowLabels.find((label) => label.label === text);
         return (
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+
+              alignItems: "center",
+            }}
+          >
             <span style={{ minWidth: "200px" }}>{text}</span>
             {rowLabel?.tooltipText && (
               <Tooltip title={rowLabel.tooltipText}>
@@ -168,8 +174,10 @@ const ComparisonTable = ({
           columns={columns}
           dataSource={data}
           pagination={false}
-          className="w-full mt-4 "
-          rowClassName="db-row"
+          className="w-full mt-4 db-row"
+          rowClassName={(record, index) =>
+            index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+          }
         />
       )}
     </>

@@ -23,14 +23,12 @@ const RankingTable = () => {
         pagination={false}
         dataSource={JsonData.rantingData}
         rowKey="id"
-        style={{
-          borderRadius: "24px",
-          border: "1px solid #D9D9D9",
-          padding: "5px",
-        }}
+        bordered
         scroll={{ x: 400 }}
         className="my-5"
-        rowClassName="pl-5 text-base font-normal max-h-12"
+        rowClassName={(record, index) =>
+          index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+        }
       >
         <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
           <Column

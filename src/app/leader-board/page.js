@@ -1,19 +1,34 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
 import DBChart from "@/components/DBChart";
 import RankingTable from "@/components/rankingPage.js/rankingTable";
+import {
+  getPreviousThreeDays,
+  scheduleLogAtUTC6AM,
+  // scheduleLogEvery2Minutes,
+} from "@/utils/chartUtils";
 
 export default function Page() {
+  const [previousDays, setPreviousDays] = useState([]);
+
+  // Use useEffect to run once on mount and start the scheduling logic
+  useEffect(() => {
+    // Set up the scheduling logic to run at 6 AM UTC
+    scheduleLogAtUTC6AM(setPreviousDays); // Call the function that will update the state at 6 AM UTC
+  }, []);
   return (
     <div>
       <ContentSection
-        heading1="Offer Technology and Software Solution"
-        heading2="Offer Technology"
-        paragraph1="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across technical forums, DB-Kompare provides a comprehensive view of how different database systems are being used and perceived globally. This ranking serves as a valuable resource for anyone looking to understand trends in database technology and the current demand for various DBMS platforms."
-        paragraph2="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across forums."
+        heading1=" DB RANKING ALGORITHM"
+        heading2="TECH behind COMPARISION"
+        paragraph1="Database rankings are influenced by several key factors
+performance, scalability, industry adoption, feature set, whether they are open-source or proprietary and price"
+        paragraph2="DB Ranking is curated DAILY based on pros and cons of a particular database.
+We scrape github,stackoverflow, google search and bing search to present the BEST unbiased view. We use a wieghted matrix of above 4 sources to derive at final popularity i.e github is provided the highest wieght since the DEV community has actively spent time and effort on that topic. The wieghted matrix includes consideration on the limitations/chronic issues faced while using a database"
         imageAlt="blue line"
       >
-        <div className="w-full ">
+        <div className="w-full">
           <DBChart />
         </div>
         <RankingTable />

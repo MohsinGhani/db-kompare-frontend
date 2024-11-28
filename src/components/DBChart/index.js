@@ -9,6 +9,7 @@ import "./style.scss";
 import {
   calculateChartWeightedValue,
   formatDate,
+  getPreviousDate,
   isDateInRange,
 } from "@/utils/chartUtils";
 
@@ -137,8 +138,9 @@ const DBChart = () => {
   // Add useEffect to fetch metrics data based on selected date range
   useEffect(() => {
     const fetchData = async () => {
+      const formattedDate = getPreviousDate();
       const startDate = formatDate(selectedDate[0]) || "2024-11-17";
-      const endDate = formatDate(selectedDate[1]) || "2024-11-26";
+      const endDate = formatDate(selectedDate[1]) || formattedDate;
       const data = await fetchMetricsData(startDate, endDate);
       setMetricsData(data.data);
     };

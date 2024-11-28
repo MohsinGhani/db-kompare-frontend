@@ -30,7 +30,6 @@ export default function Page({ params }) {
         setDbData(result.data);
         setIsLoading(false);
       } catch (error) {
-        console.log(error.message);
         setIsLoading(false);
       }
     };
