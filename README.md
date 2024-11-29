@@ -23,6 +23,12 @@ To get started with DB Kompare, follow these steps:
 2. Install dependencies: `npm install`
 3. Start the development server: `npm run dev`
 
+## Acknowledgements
+
+- [Next.js](https://nextjs.org/)
+- [Ant Design](https://ant.design/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
 ## How to Run
 
 1. Clone the repository: `git clone https://github.com/MohsinGhani/easy-doc.git`
