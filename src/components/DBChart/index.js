@@ -6,14 +6,10 @@ import HighchartsReact from "highcharts-react-official";
 import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
-import {
-  calculateChartWeightedValue,
-  formatDate,
-  getPreviousDate,
-  isDateInRange,
-} from "@/utils/chartUtils";
+import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
+import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
 
-const DBChart = () => {
+const DBChart = ({ previousDays }) => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
@@ -135,12 +131,13 @@ const DBChart = () => {
     credits: false,
   };
 
-  // Add useEffect to fetch metrics data based on selected date range
+  // Add useEffect to fetch metrics data based on selected date range'
+
   useEffect(() => {
     const fetchData = async () => {
-      const formattedDate = getPreviousDate();
       const startDate = formatDate(selectedDate[0]) || "2024-11-17";
-      const endDate = formatDate(selectedDate[1]) || formattedDate;
+      const endDate = formatDate(selectedDate[1]) || previousDays[0];
+
       const data = await fetchMetricsData(startDate, endDate);
       setMetricsData(data.data);
     };

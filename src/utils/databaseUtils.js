@@ -75,3 +75,19 @@ export const fetchDatabasesCount = async () => {
     }
   );
 };
+
+// Function to fetch the ranking of databases
+
+export const fetchDatabaseRanking = async (startDate, endDate) => {
+  return fetchAPI(
+    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-rankings",
+    {
+      method: "POST",
+      headers: {
+        "x-api-key": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ startDate, endDate }),
+    }
+  );
+};
