@@ -10,10 +10,12 @@ DB Kompare is a platform that helps users compare different databases, view thei
 - **Graphical Representation**: Visualize database comparison data with tables and graphs for better insights.
 - **Detailed Analysis**: Get an in-depth analysis of databases, including their usage, rating, and other important factors.
 
-## Demo
+## How to Run
 
-You can check out the live version of DB Kompare here:  
-[https://db-comparison.vercel.app/](https://db-comparison.vercel.app/)
+1. Clone the repository: `git clone https://github.com/MohsinGhani/easy-doc.git`
+2. Install dependencies: `npm install`
+3. Create a `.env.local` file and add your environment variables.
+4. Start the development server: `npm run dev`
 
 ## Getting Started
 
@@ -28,10 +30,3 @@ To get started with DB Kompare, follow these steps:
 - [Next.js](https://nextjs.org/)
 - [Ant Design](https://ant.design/)
 - [Tailwind CSS](https://tailwindcss.com/)
-
-## How to Run
-
-1. Clone the repository: `git clone https://github.com/MohsinGhani/easy-doc.git`
-2. Install dependencies: `npm install`
-3. Create a `.env.local` file and add your environment variables.
-4. Start the development server: `npm run dev`
