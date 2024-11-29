@@ -41,6 +41,9 @@ body {
 :where(.css-apn68).ant-carousel .slick-next {
   color: black;
 }
+:where(.css-apn68).ant-carousel .slick-prev {
+  color: black;
+}
 :where(.css-apn68).ant-table-wrapper .ant-table-thead > tr > th,
 :where(.css-apn68).ant-table-wrapper .ant-table-thead > tr > td {
   background-color: #677af5;

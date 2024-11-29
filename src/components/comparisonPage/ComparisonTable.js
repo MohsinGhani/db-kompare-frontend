@@ -176,7 +176,7 @@ const ComparisonTable = ({
           pagination={false}
           className="w-full mt-4 db-row"
           rowClassName={(record, index) =>
-            index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+            index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
           }
         />
       )}

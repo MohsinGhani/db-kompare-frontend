@@ -30,7 +30,7 @@ export const getPreviousDate = () => {
 export function getPreviousDates() {
   const now = new Date();
   const referenceTime = new Date(now.toISOString());
-  referenceTime.setUTCHours(10, 0, 0, 0);
+  referenceTime.setUTCHours(12, 0, 0, 0);
 
   const adjustDate = (days) =>
     new Date(now.setUTCDate(now.getUTCDate() - days));

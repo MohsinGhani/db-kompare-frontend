@@ -7,9 +7,8 @@ import RankingTable from "@/components/rankingPage.js/rankingTable";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
 
 export default function Page() {
-  // Initialize previousDays as an empty array
   const [previousDays, setPreviousDays] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state to control the loading UI
+  const [loading, setLoading] = useState(true);
 
   // Fetch previousDays asynchronously
   useEffect(() => {

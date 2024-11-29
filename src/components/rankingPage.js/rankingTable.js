@@ -47,6 +47,15 @@ const RankingTable = ({ previousDays }) => {
         render={(rank, row) => {
           const status = row[`rank_status_${date}`];
 
+          // Check if rank is not available, if not show '-'
+          if (!rank) {
+            return (
+              <span style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ marginLeft: 25 }}>-</span>
+              </span>
+            );
+          }
+
           return (
             <span style={{ display: "flex", alignItems: "center" }}>
               {status === "INCREASED" ? (
@@ -74,19 +83,27 @@ const RankingTable = ({ previousDays }) => {
         title={<span style={columnStyle}>{formattedDate}</span>}
         dataIndex={`score_${date}`}
         render={(text) => {
-          const roundedText = parseFloat(text).toFixed(2);
+          const parsedText = parseFloat(text);
+
+          if (isNaN(parsedText)) {
+            return <span>-</span>;
+          }
+
+          // Round the number to 2 decimal places
+          const roundedText = parsedText.toFixed(2);
           const isLatestDate = date === previousDays[0];
 
           if (isLatestDate) {
             return <span>{roundedText}</span>;
           }
+
           return (
             <span
               style={{
-                color: roundedText > 0 ? "#00CC67" : "#E33C33",
+                color: parsedText > 0 ? "#00CC67" : "#E33C33",
               }}
             >
-              {roundedText > 0 ? `+${roundedText}` : roundedText}
+              {parsedText > 0 ? `+${roundedText}` : roundedText}
             </span>
           );
         }}
@@ -147,8 +164,9 @@ const RankingTable = ({ previousDays }) => {
         bordered
         scroll={{ x: 400 }}
         className="my-5"
+        style={{ background: "gray" }}
         rowClassName={(record, index) =>
-          index % 2 === 0 ? "bg-[#fafafa]" : "bg-white"
+          index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
         }
       >
         <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>

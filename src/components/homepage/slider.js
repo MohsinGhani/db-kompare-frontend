@@ -33,8 +33,8 @@ const contentStyle = {
 const HomepageSlider = () => {
   return (
     <div className="md:p-10 p-3 text-center ">
-      <CommonTypography classes="md:text-2xl text-lg font-bold ">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit
+      <CommonTypography classes="md:text-3xl mb-9 text-lg font-bold ">
+        Our Featured Databases
       </CommonTypography>
       <Carousel arrows slidesToShow={4} infinite={false} dots={false}>
         {logos.map((logo, index) => (
