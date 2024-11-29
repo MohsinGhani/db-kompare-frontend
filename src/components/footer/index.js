@@ -29,11 +29,17 @@ export default function Footer() {
       </div>
 
       <div className="flex flex-col justify-center items-center border-b w-full border-[#DFDFDF] py-5">
-        <ul className="flex gap-8 mb-6 text-sm font-normal">
+        <ul className="flex flex-wrap justify-center gap-2 md:gap-8 mb-6 text-sm font-normal">
           {Navlinks.map((link, idx) => (
             <li key={idx}>
               <button
-                onClick={() => router.push(link.href)}
+                onClick={() => {
+                  if (link.href.startsWith("http")) {
+                    window.open(link.href, "_blank");
+                  } else {
+                    router.push(link.href);
+                  }
+                }}
                 className="text-[#535353] hover:font-semibold"
               >
                 {link.label}

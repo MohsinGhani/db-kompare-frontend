@@ -44,7 +44,7 @@ export default function Navbar() {
             DB Kompare
           </CommonTypography>
         </div>
-        <div className="hidden md:flex space-x-8">
+        <div className="hidden  md:flex md:space-x-8">
           {Navlinks.map((link, index) => (
             <button
               key={index}
