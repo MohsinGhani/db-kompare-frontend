@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import CommonTypography from "../shared/Typography";
 import { Navlinks } from "@/utils/const";
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
@@ -15,16 +16,23 @@ export default function Navbar() {
   const isDbComparisonPage = path?.startsWith(
     "/db-comparison" || "/db-comparisons/list"
   );
+
   return (
     <div
-      className={`w-full h-20 pt-4  z-10 ${
+      className={`w-full h-20 pt-4 z-10 ${
         path === "/"
           ? " lg:bg-[url('/assets/images/homebg.png')] w-full bg-cover bg-custom-gradient"
           : "fixed bg-custom-gradient"
       }`}
     >
-      <div className="2xl:w-[65%] lg:w-4/5 w-full lg:px-28 px-3 flex justify-between items-center">
-        <div className="flex items-center gap-2 justify-center">
+      <div className="2xl:w-[75%] w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center">
+        <div
+          className="flex items-center gap-2 justify-center cursor-pointer"
+          onClick={() => {
+            router.push("/");
+            setIsOpen(false);
+          }}
+        >
           <Image
             src={logo}
             alt="DB Logo"
@@ -40,7 +48,13 @@ export default function Navbar() {
           {Navlinks.map((link, index) => (
             <button
               key={index}
-              onClick={() => router.push(link.href)}
+              onClick={() => {
+                if (link.href.startsWith("http")) {
+                  window.open(link.href, "_blank");
+                } else {
+                  router.push(link.href);
+                }
+              }}
               className={`py-2 px-3 ${
                 path === link.href ||
                 (isDbComparisonPage && link.href === "/db-comparison")
@@ -73,7 +87,15 @@ export default function Navbar() {
           {Navlinks.map((link, index) => (
             <li key={index}>
               <button
-                onClick={() => router.push(link.href)}
+                onClick={() => {
+                  if (link.href.startsWith("http")) {
+                    // Open external links in a new tab
+                    window.open(link.href, "_blank");
+                  } else {
+                    router.push(link.href);
+                  }
+                  setIsOpen(false);
+                }}
                 className={`block py-2 px-3 ${
                   path === link.href ||
                   (isDbComparisonPage && link.href === "/db-comparisons")

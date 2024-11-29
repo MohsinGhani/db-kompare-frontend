@@ -12,13 +12,13 @@ const ComparisonTable = ({
   setSelectedDatabasesOptions,
 }) => {
   const router = useRouter();
-console.log(filterData,'filterData');
+  console.log(filterData, "filterData");
   const generateDataForDatabase = (db) => {
     const dbName = db || "Unknown";
     const data = dbData?.find(
       (database) => database.name.toLowerCase() === dbName.toLowerCase()
     );
-    console.log(data,'data');
+    console.log(data, "data");
     // const result =  fetchDatabaseByIds();
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
@@ -46,7 +46,7 @@ console.log(filterData,'filterData');
     });
     return row;
   });
-console.log(data,'data');
+  console.log(data, "data");
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -57,22 +57,22 @@ console.log(data,'data');
   };
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      rowScope: 'row',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      rowScope: "row",
       render: (text) => {
         const rowLabel = rowLabels.find((label) => label.label === text);
         return (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ minWidth: '200px' }}>{text}</span>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span style={{ minWidth: "200px" }}>{text}</span>
             {rowLabel?.tooltipText && (
               <Tooltip title={rowLabel.tooltipText}>
                 <InfoCircleOutlined
                   style={{
                     marginLeft: 8,
-                    color: '#3E53D7',
-                    cursor: 'pointer',
+                    color: "#3E53D7",
+                    cursor: "pointer",
                   }}
                 />
               </Tooltip>
@@ -108,33 +108,58 @@ console.log(data,'data');
       ),
       dataIndex: db,
       render: (text, record) => {
-
         return (
           <div
             style={{
-              padding: '5px',
-              minWidth: '200px',
-              fontSize: '14px',
-              fontWeight: '400',
+              padding: "5px",
+              minWidth: "200px",
+              fontSize: "14px",
+              fontWeight: "400",
             }}
           >
-            <ProcessDataHtml htmlString={text}  />
+            <ProcessDataHtml htmlString={text} />
           </div>
         );
       },
     })),
   ];
-  
 
   return (
-    <Table
-      bordered
-      columns={columns}
-      dataSource={data}
-      pagination={false}
-      className="w-full mt-4"
-      rowClassName="db-row"
-    />
+    <>
+      {isLoading ? (
+        <Table
+          rowKey="key"
+          pagination={false}
+          dataSource={[...Array(5)].map((_, index) => ({
+            key: `key${index}`,
+          }))}
+          columns={columns.map((column) => ({
+            ...column,
+            render: function renderPlaceholder() {
+              return (
+                <Skeleton
+                  key={column.key}
+                  title
+                  active={false}
+                  paragraph={false}
+                />
+              );
+            },
+          }))}
+        />
+      ) : (
+        <Table
+          bordered
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          className="w-full mt-4 db-row"
+          rowClassName={(record, index) =>
+            index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
+          }
+        />
+      )}
+    </>
   );
 };
 
