@@ -22,7 +22,7 @@ DB Kompare is a platform that helps users compare different databases, view thei
 **This is a sample `.env` file. Replace the values with your own:**
 
 ```bash
-NEXT_PUBLIC_API_KEY=<Your-Access-API-Key>
+NEXT_PUBLIC_API_KEY=<Your-Access-API-KEY>
 ```
 
 ## Getting Started
