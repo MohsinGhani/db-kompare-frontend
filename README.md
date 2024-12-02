@@ -25,14 +25,6 @@ DB Kompare is a platform that helps users compare different databases, view thei
 NEXT_PUBLIC_API_KEY=<Your-Access-API-KEY>
 ```
 
-## Getting Started
-
-To get started with DB Kompare, follow these steps:
-
-1. Clone the repository: `git clone https://github.com/MohsinGhani/db-kompare-frontend.git`
-2. Install dependencies: `npm install`
-3. Start the development server: `npm run dev`
-
 ## Acknowledgements
 
 - [Next.js](https://nextjs.org/)
