@@ -17,6 +17,14 @@ DB Kompare is a platform that helps users compare different databases, view thei
 3. Create a `.env.local` file and add your environment variables.
 4. Start the development server: `npm run dev`
 
+## Sample `.env` File
+
+**This is a sample `.env` file. Replace the values with your own:**
+
+```bash
+NEXT_PUBLIC_API_KEY=<Your-Access-API-Key>
+```
+
 ## Getting Started
 
 To get started with DB Kompare, follow these steps:
