@@ -3,13 +3,14 @@ import parse from "html-react-parser";
 import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-const ProcessDataHtml = ({ htmlString }) => {
+const ProcessDataHtml = ({ htmlString, record }) => {
+  // Process and display HTML content with specific styling and tooltips
+
   const processHtml = (html) => {
     if (typeof html !== "string") {
       console.error("Invalid HTML string:", html);
       return null;
     }
-
     const modifiedHtml = html.replace(/,/g, ",<br />");
 
     const styledHtml = modifiedHtml.replace(
@@ -19,6 +20,26 @@ const ProcessDataHtml = ({ htmlString }) => {
 
     return parse(styledHtml, {
       replace: (domNode) => {
+        if (domNode.name === "span" && domNode.attribs?.["title"]) {
+          const tooltipContent = domNode.attribs["title"];
+          const cleanTooltipContent = tooltipContent.replace(
+            /<br\s*\/?>/g,
+            " "
+          );
+
+          return (
+            <Tooltip title={cleanTooltipContent}>
+              <InfoCircleOutlined
+                style={{
+                  marginLeft: 8,
+                  color: "#3E53D7",
+                  cursor: "pointer",
+                }}
+              />
+            </Tooltip>
+          );
+        }
+
         if (domNode.name === "span") {
           if (domNode.attribs?.class === "bold") {
             return (
@@ -34,25 +55,24 @@ const ProcessDataHtml = ({ htmlString }) => {
             );
           }
         }
-        if (domNode.name === "span" && domNode.attribs?.["title"]) {
-          const tooltipContent = domNode.attribs["title"];
-
-          return (
-            <Tooltip title={tooltipContent}>
-              <InfoCircleOutlined
-                style={{
-                  marginLeft: 8,
-                  color: "#3E53D7",
-                  cursor: "pointer",
-                }}
-              />
-            </Tooltip>
-          );
-        }
       },
-
     });
   };
+
+  if (record?.key === "Current Release") {
+    return (
+      <div
+        style={{
+          padding: "5px",
+          minWidth: "200px",
+          fontSize: "14px",
+          fontWeight: "400",
+        }}
+      >
+        <span>{htmlString}</span>
+      </div>
+    );
+  }
 
   if (!htmlString) {
     return null;
@@ -60,5 +80,4 @@ const ProcessDataHtml = ({ htmlString }) => {
 
   return <div>{processHtml(htmlString)}</div>;
 };
-
 export default ProcessDataHtml;

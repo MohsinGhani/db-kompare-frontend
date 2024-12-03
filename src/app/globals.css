@@ -18,15 +18,34 @@ body {
   }
 }
 
-.ant-table-cell {
+.db-row .ant-table-cell {
   vertical-align: sub;
 }
-:where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-prev, :where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-next {
+:where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-prev,
+:where(.css-dev-only-do-not-override-apn68).ant-carousel .slick-next {
   color: black;
 }
 
 .ant-btn:hover {
-  background-color: none !important;
-color: #000 !important; /* Ensure the text is readable */
-
+  background-color: white !important;
+  border: 1px solid #3e53d7 !important;
+  color: #3e53d7 !important;
+}
+:where(.css-dev-only-do-not-override-apn68).ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th {
+  background-color: #677af5;
+  color: white;
+}
+:where(.css-apn68).ant-carousel .slick-next {
+  color: black;
+}
+:where(.css-apn68).ant-carousel .slick-prev {
+  color: black;
+}
+:where(.css-apn68).ant-table-wrapper .ant-table-thead > tr > th,
+:where(.css-apn68).ant-table-wrapper .ant-table-thead > tr > td {
+  background-color: #677af5;
+  color: white;
 }

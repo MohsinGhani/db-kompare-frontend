@@ -6,51 +6,62 @@ import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
- 
-// import {Metadata} from 'next'
-
-// export const metadata = {
-// title:"comparison page",
-// }
-
-
-// const generateMetadata = (title) => {
-//   return {
-//     title:" hello world",
-//   };
-// }
 
 const Comparison = ({ params }) => {
   const router = useRouter();
   const { db } = params;
-  const removedb = db.includes("list-") ? db.replace("list-", "") : db;
-  const decodedDb = removedb ? decodeURIComponent(removedb) : "";
-const [selectedDatabaseIds, setSelectedDatabaseIds] = useState([]);
+
+  const [selectedDatabaseIds, setSelectedDatabaseIds] = useState([]);
   const [dbData, setDbData] = useState([]);
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [selectedDatabasesOptions, setSelectedDatabasesOptions] = useState([]);
-const [filterData, setFilterData] = useState([]);
+  const [filterData, setFilterData] = useState([]);
+
+  // Decode db parameter and navigate to comparison page
+  const decodedDb = decodeURIComponent(db.replace("list-", ""));
+
   useEffect(() => {
-    const newDbQuery = encodeURIComponent(decodedDb);
-    router.push(`/db-comparison/${newDbQuery}`);
+    if (decodedDb) {
+      router.push(`/db-comparison/${encodeURIComponent(decodedDb)}`);
+    }
   }, [decodedDb]);
+
+  // Fetch database list on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         const result = await fetchDatabases();
         setDbData(result.data);
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     };
     fetchData();
   }, []);
+
+  // Update selected database IDs based on selected database names
+  useEffect(() => {
+    if (dbData.length === 0) return;
+
+    const newSelectedDatabaseIds = selectedDatabases
+      .map((dbName) => {
+        const dbOption = dbData.find(
+          (dbOption) => dbOption.name.toLowerCase() === dbName.toLowerCase()
+        );
+        return dbOption ? dbOption.id : null;
+      })
+      .filter((id) => id !== null);
+
+    setSelectedDatabaseIds(newSelectedDatabaseIds);
+  }, [dbData, selectedDatabases]);
+
+  // Fetch details for selected databases
   useEffect(() => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
         try {
           const response = await fetchDatabaseByIds(selectedDatabaseIds);
-          setFilterData(response.data); 
+          setFilterData(response?.data || []);
         } catch (error) {
           console.error("Error fetching database details:", error);
         }
@@ -59,9 +70,12 @@ const [filterData, setFilterData] = useState([]);
     }
   }, [selectedDatabaseIds]);
 
+  // Set selected databases based on decoded URL parameter
   useEffect(() => {
     if (decodedDb) {
-      const databases = decodedDb.split("-").map((db) => decodeURIComponent(db));
+      const databases = decodedDb
+        .split("-")
+        .map((db) => decodeURIComponent(db));
       setSelectedDatabases(databases);
       setSelectedDatabasesOptions(databases);
     }
@@ -69,14 +83,24 @@ const [filterData, setFilterData] = useState([]);
 
   const newDbQuery = encodeURIComponent(selectedDatabasesOptions.join("-"));
 
+  // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
     router.push(`/db-comparison/${newDbQuery}`);
   };
 
+  // Redirect to comparison or list page based on selected databases
+  const handleAddSystemClick = () => {
+    if (selectedDatabasesOptions.length === 0) {
+      router.push(`/db-comparisons/list`);
+    } else {
+      router.push(`/db-comparisons/${newDbQuery}`);
+    }
+  };
+
   return (
     <>
-    <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
-      <ComparisonHeader selectedDatabases={selectedDatabases} />
+      <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
+        <ComparisonHeader selectedDatabases={selectedDatabases} />
       </div>
       <div className="w-full h-auto p-12 md:p-20 px-9 md:px-28 font-medium flex flex-col gap-8 md:gap-5 items-center">
         <DatabaseSelect
@@ -88,9 +112,9 @@ const [filterData, setFilterData] = useState([]);
           setSelectedDatabasesOptions={setSelectedDatabasesOptions}
           handleCompareClick={handleCompareClick}
         />
-               <div className="w-full text-end flex justify-end">
-          {" "}
+        <div className="w-full text-end flex justify-end">
           <CommonButton
+            disabled={selectedDatabases.length > 4}
             style={{
               borderRadius: "12px",
               padding: "0 40px",
@@ -100,18 +124,15 @@ const [filterData, setFilterData] = useState([]);
               color: "white",
               fontSize: "14px",
               fontWeight: "bold",
-              // width: "200px",
             }}
-            onClick={() => {
-              router.push(`/db-comparisons/${newDbQuery}`);
-            }}
+            onClick={handleAddSystemClick}
           >
             Add another system
           </CommonButton>
         </div>
         <div className="w-full overflow-auto">
           <ComparisonTable
-          filterData={filterData}
+            filterData={filterData}
             setSelectedDatabases={setSelectedDatabases}
             dbData={dbData}
             selectedDatabases={selectedDatabases}

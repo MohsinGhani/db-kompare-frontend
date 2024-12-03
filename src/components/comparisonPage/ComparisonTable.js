@@ -1,25 +1,27 @@
-import { Table, Tooltip } from "antd"; // Import Tooltip from Ant Design
-import { InfoCircleOutlined } from "@ant-design/icons"; // Import the info icon
+"use client";
+import { Skeleton, Table, Tooltip } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import { rowLabels } from "../data/data";
 import ProcessDataHtml from "@/utils/processHtml";
+import { useState, useEffect } from "react";
+import { rowLabels } from "@/utils/rowLabels";
 
 const ComparisonTable = ({
-  dbData,
   filterData,
   selectedDatabases,
   setSelectedDatabases,
   setSelectedDatabasesOptions,
 }) => {
   const router = useRouter();
-  console.log(filterData, "filterData");
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Add generateDataForDatabase function to structure and format data for each database
   const generateDataForDatabase = (db) => {
-    const dbName = db || "Unknown";
-    const data = dbData?.find(
-      (database) => database.name.toLowerCase() === dbName.toLowerCase()
-    );
-    console.log(data, "data");
-    // const result =  fetchDatabaseByIds();
+    const data = filterData?.find((database) => {
+      return database.name.toLowerCase() === db.toLowerCase();
+    });
+
     if (data) {
       return rowLabels.reduce((acc, { label, key }) => {
         acc[label] =
@@ -33,8 +35,10 @@ const ComparisonTable = ({
         return acc;
       }, {});
     }
+
     return null;
   };
+  // Generate data rows for selected databases using rowLabels and the generateDataForDatabase function
 
   const data = rowLabels.map(({ label }) => {
     const row = { key: label, name: label };
@@ -46,7 +50,8 @@ const ComparisonTable = ({
     });
     return row;
   });
-  console.log(data, "data");
+
+  // Add handleRemoveDatabase function to handle removal of selected databases
   const handleRemoveDatabase = (db) => {
     const updatedDatabases = selectedDatabases.filter((item) => item !== db);
     setSelectedDatabases(updatedDatabases);
@@ -55,16 +60,25 @@ const ComparisonTable = ({
     const newDbQuery = encodeURIComponent(updatedDatabases.join("-"));
     router.push(`/db-comparison/${newDbQuery}`);
   };
+
+  // Define columns for the comparison table with custom rendering and remove functionality
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
       rowScope: "row",
+
       render: (text) => {
         const rowLabel = rowLabels.find((label) => label.label === text);
         return (
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+
+              alignItems: "center",
+            }}
+          >
             <span style={{ minWidth: "200px" }}>{text}</span>
             {rowLabel?.tooltipText && (
               <Tooltip title={rowLabel.tooltipText}>
@@ -117,12 +131,19 @@ const ComparisonTable = ({
               fontWeight: "400",
             }}
           >
-            <ProcessDataHtml htmlString={text} />
+            <ProcessDataHtml htmlString={text} record={record} />
           </div>
         );
       },
     })),
   ];
+
+  // Add useEffect to set loading state when dbData is loaded
+  useEffect(() => {
+    if (filterData && filterData.length > 0) {
+      setIsLoading(false);
+    }
+  }, [filterData]);
 
   return (
     <>

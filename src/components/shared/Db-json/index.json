@@ -1,0 +1,94 @@
+{
+  "rantingData": [
+    {
+      "id": 1,
+      "Rank": "1",
+      "DBMS": "Oracle",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 2,
+      "Rank": "2",
+      "DBMS": "Microsoft SQL Server",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 3,
+      "Rank": "3",
+      "DBMS": "PostgreSQL",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 4,
+      "Rank": "4",
+      "DBMS": "MySQL",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 5,
+      "Rank": "5",
+      "DBMS": "MongoDB",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 6,
+      "Rank": "6",
+      "DBMS": "Redis",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 7,
+      "Rank": "7",
+      "DBMS": "Elasticsearch",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 8,
+      "Rank": "8",
+      "DBMS": "Faocsearch",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 9,
+      "Rank": "9",
+      "DBMS": "IBM Db2",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    },
+    {
+      "id": 10,
+      "Rank": "10",
+      "DBMS": "SQLite",
+      "DatabaseModel": "Relational , Multimodel",
+      "Score": "15424",
+      "25th Nov, 24": "243.34",
+      "24th Nov, 24": "243.34"
+    }
+  ]
+}

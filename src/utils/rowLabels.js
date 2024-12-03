@@ -1,0 +1,112 @@
+export const rowLabels = [
+  {
+    label: "Description",
+    key: "description",
+    tooltipText: "This is a description of the database",
+  },
+  { label: "Primary Database Model", key: "primary_database_model" },
+  {
+    label: "DB Kompare Ranking",
+    key: "db_compare_ranking",
+    tooltipText: "This is a ranking of the database",
+  },
+  {
+    label: "AI Compatibility",
+    key: "ai_compatibility",
+  },
+  { label: "Pricing", key: "pricing" },
+  { label: "Website", key: "website" },
+  { label: "Developer", key: "developer" },
+  { label: "Initial Release", key: "initial_release" },
+  { label: "Current Release", key: "current_release" },
+  {
+    label: "License",
+    key: "license",
+    tooltipText: "This is a license of the database",
+  },
+  { label: "Supported Operating Systems", key: "server_operating_systems" },
+  {
+    label: "Supported Programming Languages",
+    key: "supported_programming_languages",
+    tooltipText: "This is a supported progamminfg of the database",
+  },
+  { label: "Partitioning Methods", key: "partitioning_methods" },
+  { label: "Replication Methods", key: "replication_methods" },
+  { label: "Secondary Database Models", key: "secondary_database_models" },
+  { label: "Ranking Score", key: "db_compare_ranking.score" },
+  { label: "Technical Documentation", key: "technical_documentation" },
+  { label: "Cloud Based Only", key: "cloud_based_only" },
+  {
+    label: "DBaaS Offerings",
+    key: "dbaas_offerings",
+    tooltipText: "This is a DBaaS offerings of the database",
+  },
+  { label: "Implementation Languages", key: "implementation_language" },
+  { label: "Data Scheme", key: "data_scheme" },
+  {
+    label: "Typing",
+    key: "typing",
+    tooltipText: "This is a typing of the database",
+  },
+  {
+    label: "XML Support",
+    key: "xml_support",
+    tooltipText: "This is a XML support of the database",
+  },
+  { label: "Secondary Indexes", key: "secondary_indexes" },
+  { label: "SQL", key: "sql", tooltipText: "This is a SQL of the database" },
+  {
+    label: "APIs and Other Access Methods",
+    key: "apis_and_other_access_methods",
+  },
+  {
+    label: "Server Side Scripts",
+    key: "server_side_scripts",
+    tooltipText: "This is a server side scripts of the database",
+  },
+  { label: "Triggers", key: "triggers" },
+  {
+    label: "MapReduce",
+    key: "mapreduce",
+    tooltipText: "This is a MapReduce of the database",
+  },
+  {
+    label: "Consistency Concepts",
+    key: "consistency_concepts",
+    tooltipText: "This is a consistency concepts of the database",
+  },
+  {
+    label: "Foreign Keys",
+    key: "foreign_keys",
+    tooltipText: "This is a foreign keys of the database",
+  },
+  {
+    label: "Transaction Concepts",
+    key: "transaction_concepts",
+    tooltipText: "This is a transaction concepts of the database",
+  },
+  {
+    label: "Concurrency",
+    key: "concurrency",
+    tooltipText: "This is a concurrency of the database",
+  },
+  {
+    label: "Durability",
+    key: "durability",
+    tooltipText: "This is a durability of the database",
+  },
+  {
+    label: "In-memory Capabilities",
+    key: "in_memory_capabilities",
+    tooltipText: "This is a in-memory capabilities of the database",
+  },
+  {
+    label: "User Concepts",
+    key: "user_concepts",
+    tooltipText: "This is a user concepts of the database",
+  },
+  {
+    label: "Db Komapre View",
+    key: "db_kompare_view",
+  },
+];

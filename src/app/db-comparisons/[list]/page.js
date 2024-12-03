@@ -7,31 +7,37 @@ import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
 import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export default function Page({ params }) {
-  const [hoverIndex, setHoverIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
+  const { list } = params;
+
   const [selectedDatabases, setSelectedDatabases] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter();
+  const [hoverIndex, setHoverIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [dbData, setDbData] = useState([]);
-  const [dbSelectedId, setDbSelectedId] = useState([]);
-  const [dbDetails, setDbDetails] = useState([]);
 
+  // Fetch and load database data with loading state handling
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const result = await fetchDatabases();
         setDbData(result.data);
+        setIsLoading(false);
       } catch (error) {
-        console.log(error.message);
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  const { list } = params;
+  // Decode 'list' query parameter to set selectedDatabases state
   const decodedDb = list ? decodeURIComponent(list) : "";
   const decodedDbArray = decodedDb ? decodedDb.split("-") : [];
 
@@ -41,49 +47,39 @@ export default function Page({ params }) {
     }
   }, []);
 
+  // Filter database options based on search term
   const filteredOptions = dbData.filter((option) =>
     option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  useEffect(() => {
-    if (dbSelectedId.length > 0) {
-      const fetchSelectedDatabases = async () => {
-        try {
-          const response = await fetchDatabaseByIds(dbSelectedId);
-          setDbDetails(response.data);
-        } catch (error) {
-          console.error("Error fetching database details:", error);
-        }
-      };
-      fetchSelectedDatabases();
-    }
-  }, [dbSelectedId]);
-
+  // Handle database selection with a limit of 5 and validation logic
   const handleDatabaseClick = (option) => {
+    const cleanedSelectedDatabases = selectedDatabases.filter(
+      (db) => db !== "list"
+    );
+
     if (
-      selectedDatabases.length >= 5 &&
-      !selectedDatabases.includes(option.name)
+      cleanedSelectedDatabases.length >= 5 &&
+      !cleanedSelectedDatabases.includes(option.name)
     ) {
       setErrorMessage("You can select only up to 5 databases.");
     } else {
       setErrorMessage("");
-      setSelectedDatabases((prevSelected) =>
-        prevSelected.includes(option.name)
+      setSelectedDatabases((prevSelected) => {
+        const newSelected = prevSelected.includes(option.name)
           ? prevSelected.filter((db) => db !== option.name)
-          : [...prevSelected, option.name]
-      );
+          : [...prevSelected, option.name];
 
-      setDbSelectedId((prevSelectedIds) => {
-        const newIds = prevSelectedIds.includes(option.id)
-          ? prevSelectedIds.filter((id) => id !== option.id)
-          : [...prevSelectedIds, option.id];
-        return newIds;
+        return newSelected.filter((db) => db !== "list");
       });
     }
   };
 
+  // Trigger navigation for database comparison with validation
   const handleCompareClick = () => {
-    if (selectedDatabases.length) {
+    if (selectedDatabases.includes("list") || selectedDatabases.length === 0) {
+      setErrorMessage("Please select at least one database to compare");
+    } else {
       router.push(
         `/db-comparison/${encodeURIComponent(selectedDatabases.join("-"))}`
       );
@@ -94,43 +90,54 @@ export default function Page({ params }) {
     <ContentSection
       heading1="Database management systems"
       heading2="Offer Technology"
-      paragraph1="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across technical forums, DB-Engines provides a comprehensive view of how different database systems are being used and perceived globally."
-      paragraph2="The DB-Engines Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity."
+      paragraph1="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity. By tracking various metrics such as search engine queries, job postings, and discussions across technical forums, DB-Kompare provides a comprehensive view of how different database systems are being used and perceived globally."
+      paragraph2="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity."
       imageAlt="blue line"
     >
-      <div className="w-full md:px-20 flex flex-col gap-10">
+      <div className="w-full md:px-20 flex md:mt-8 flex-col gap-10">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-        <div className="grid w-full grid-cols-1 sm:grid-cols-4 md:grid-cols-5 gap-4 p-2">
-          {filteredOptions.map((option, index) => (
-            <CommonButton
-              key={option.name}
-              style={{
-                width: "100%",
-                fontWeight: "600",
-                fontSize: "16px",
-                border:
-                  selectedDatabases.includes(option.name) ||
-                  hoverIndex === index
-                    ? "2px solid #3E53D7"
-                    : "2px solid #D9D9D9",
-                height: "60px",
-                background: "transparent",
-                color:
-                  selectedDatabases.includes(option.name) ||
-                  hoverIndex === index
-                    ? "#3E53D7"
-                    : "black",
-                borderRadius: "16px",
-              }}
-              onMouseEnter={() => setHoverIndex(index)}
-              onMouseLeave={() => setHoverIndex(null)}
-              onClick={() => handleDatabaseClick(option)}
-            >
-              {option.name}
-            </CommonButton>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="w-full flex justify-center items-center h-32">
+            {" "}
+            <Spin
+              indicator={<LoadingOutlined style={{ fontSize: 90 }} spin />}
+            />
+          </div>
+        ) : (
+          <div className="grid w-full grid-cols-1  sm:grid-cols-2  xl:grid-cols-5  md:grid-cols-3 gap-4 p-2">
+            <>
+              {filteredOptions.map((option, index) => (
+                <CommonButton
+                  key={option.name}
+                  style={{
+                    width: "100%",
+                    fontWeight: "600",
+                    fontSize: "16px",
+                    border:
+                      selectedDatabases.includes(option.name) ||
+                      hoverIndex === index
+                        ? "2px solid #3E53D7"
+                        : "2px solid #D9D9D9",
+                    height: "60px",
+                    background: "transparent",
+                    color:
+                      selectedDatabases.includes(option.name) ||
+                      hoverIndex === index
+                        ? "#3E53D7"
+                        : "black",
+                    borderRadius: "16px",
+                  }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                  onClick={() => handleDatabaseClick(option)}
+                >
+                  {option.name}
+                </CommonButton>
+              ))}
+            </>
+          </div>
+        )}
 
         <div
           className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center "
@@ -147,12 +154,15 @@ export default function Page({ params }) {
               fontSize: "16px",
               border: "1px solid #D9D9D9",
               height: "60px",
-              background: selectedDatabases.length <= 0 ? "grey" : "#3E53D7",
+              background:
+                selectedDatabases.includes("list") ||
+                selectedDatabases.length === 0
+                  ? "grey"
+                  : "#3E53D7",
               color: "white",
               borderRadius: "16px",
             }}
             onClick={handleCompareClick}
-            disabled={!selectedDatabases.length}
           >
             Compare
           </CommonButton>

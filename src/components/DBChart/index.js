@@ -6,35 +6,13 @@ import HighchartsReact from "highcharts-react-official";
 import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
-import { calculateChartWeightedValue } from "@/utils/const";
+import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
+import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
 
-const DBChart = () => {
+const DBChart = ({ previousDays }) => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
-
-  const isDateInRange = (date, startDate, endDate) =>
-    !startDate ||
-    !endDate ||
-    (new Date(date) >= new Date(startDate) &&
-      new Date(date) <= new Date(endDate));
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const startDate = "2024-11-17"; 
-        const endDate = "2024-11-25"; 
-
-        const data = await fetchMetricsData(startDate, endDate);
-        setMetricsData(data.data);
-        console.log(data.data);
-      } catch (error) {
-        console.error("Error fetching metrics data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
@@ -42,32 +20,42 @@ const DBChart = () => {
     }
   }, [selectedMetricKeys]);
 
- 
+  const getMetricData = (metricKeys, dateRange) => {
+    const allDatesInRange = getXAxisCategories(dateRange);
 
-  const getMetricData = (metricKeys, dateRange) =>
-    metricsData.map((db) => ({
+    return metricsData.map((db) => ({
       databaseName: db.databaseName,
-      data: db.metrics
+      data: allDatesInRange.map((date) => {
+        const matchingMetric = db.metrics.find(
+          (metric) => metric.date === date
+        );
+
+        // If no data for this date, return null to create a gap
+        return matchingMetric
+          ? calculateChartWeightedValue(matchingMetric, metricKeys)
+          : null;
+      }),
+    }));
+  };
+
+  // Add getXAxisCategories function to filter metrics by date range
+  const getXAxisCategories = (dateRange) => {
+    const allMetrics = metricsData[0]?.metrics || [];
+
+    // Extract unique dates that are within the selected range
+    const uniqueDates = new Set(
+      allMetrics
         .filter((metric) =>
           isDateInRange(metric.date, dateRange[0], dateRange[1])
         )
-        .map((metric) => calculateChartWeightedValue(metric, metricKeys)),
-    }));
+        .map((metric) => metric.date)
+    );
 
-  const getXAxisCategories = (dateRange) => {
-    const allMetrics = metricsData[0]?.metrics || [];
-    if (!dateRange[0] || !dateRange[1]) {
-      return allMetrics.map((metric) => metric.date);
-    }
-    return allMetrics
-      .filter((metric) =>
-        isDateInRange(metric.date, dateRange[0], dateRange[1])
-      )
-      .map((metric) => metric.date);
+    return Array.from(uniqueDates);
   };
 
+  // Add chartOptions configuration with error handling and chart customization
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
-
   const chartOptions = {
     chart: {
       type: "spline",
@@ -84,21 +72,34 @@ const DBChart = () => {
           const chartHeight = chart.chartHeight;
 
           if (filteredData.every((db) => db.data.length === 0)) {
-            const errorMessage = "No data available on these dates";
+            const errorMessage = "No data available";
+
             if (!this.errorMessage) {
               this.errorMessage = chart.renderer
                 .text(errorMessage, 0, 0)
-                .css({ fontSize: "20px", fontWeight: "bold", color: "red" })
+                .css({
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "red",
+                })
                 .add();
-              const { width: textWidth, height: textHeight } =
-                this.errorMessage.getBBox();
+
+              const textWidth = this.errorMessage.getBBox().width;
+              const textHeight = this.errorMessage.getBBox().height;
+
+              const xPosition = (chartWidth - textWidth) / 2;
+              const yPosition = (chartHeight + textHeight) / 2;
+
               this.errorMessage.attr({
-                x: (chartWidth - textWidth) / 2,
-                y: (chartHeight + textHeight) / 2,
+                x: xPosition,
+                y: yPosition,
               });
             }
           } else {
-            this.errorMessage?.destroy();
+            if (this.errorMessage) {
+              this.errorMessage.destroy();
+              this.errorMessage = null;
+            }
           }
         },
       },
@@ -139,6 +140,19 @@ const DBChart = () => {
     credits: false,
   };
 
+  // Add useEffect to fetch metrics data based on selected date range'
+  useEffect(() => {
+    const fetchData = async () => {
+      const startDate = formatDate(selectedDate[0]) || "2024-11-18";
+      const endDate = formatDate(selectedDate[1]) || previousDays[0];
+
+      const data = await fetchMetricsData(startDate, endDate);
+      setMetricsData(data.data);
+    };
+
+    fetchData();
+  }, [selectedDate]);
+
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
       <div className="w-full">
@@ -159,4 +173,3 @@ const DBChart = () => {
 };
 
 export default DBChart;
-

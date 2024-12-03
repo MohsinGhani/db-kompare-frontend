@@ -15,7 +15,7 @@ const CustomSelect = ({
 }) => {
   return (
     <Select
-      disabled={disabled || value.length > maxSelection}
+      disabled={disabled || value?.length > maxSelection}
       mode="multiple"
       className={className}
       value={value}
