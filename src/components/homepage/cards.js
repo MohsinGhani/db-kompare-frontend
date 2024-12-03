@@ -41,12 +41,12 @@ const HomepageCards = () => {
               </CommonTypography>
               <br />
 
-              <h3 className="text-[#565758] text-base md:text-lg my-9">
+              <h3 className="text-secondary text-base md:text-lg my-9">
                 {item.description}
               </h3>
             </div>
             <CommonButton
-              className="bg-[#3E53D7] border-none md:w-40 w-full lg:w-52 text-white text-lg md:text-base hover:text-black transition-all duration-300"
+              className="bg-primary border-none md:w-40 w-full lg:w-52 text-white text-lg md:text-base hover:text-black transition-all duration-300"
               style={{ color: "white", border: "none" }}
               onClick={() => router.push(item.link.href)}
             >

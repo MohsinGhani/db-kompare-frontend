@@ -72,7 +72,7 @@ const ExperienceSection = () => {
 
   return (
     <div
-      className="bg-[#3E53D7] shadow-md md:px-24 px-9 my-4 py-11 w-full"
+      className="bg-primary shadow-md md:px-24 px-9 my-4 py-11 w-full"
       ref={sectionRef}
     >
       <div className="flex md:flex-row flex-col justify-between items-center mt-8">

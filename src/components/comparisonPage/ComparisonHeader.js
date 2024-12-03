@@ -11,7 +11,7 @@ const ComparisonHeader = ({ selectedDatabases }) => {
                 <span key={index} className="flex items-center">
                   {db}
                   {index < selectedDatabases.length - 1 && (
-                    <span className="text-[#3E53D7] px-2 mx-1">VS</span>
+                    <span className="text-primary px-2 mx-1">VS</span>
                   )}
                 </span>
               ))}
@@ -22,7 +22,3 @@ const ComparisonHeader = ({ selectedDatabases }) => {
 };
 
 export default ComparisonHeader;
-
-  
-
-

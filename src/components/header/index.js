@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import CommonTypography from "../shared/Typography";
 import { Navlinks } from "@/utils/const";
+import CommonButton from "../shared/Button";
+import CommonUserDropdown from "../shared/UserDropdown";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,16 +18,28 @@ export default function Navbar() {
   const isDbComparisonPage = path?.startsWith(
     "/db-comparison" || "/db-comparisons/list"
   );
-
+  const authRoutes = [
+    "/signin",
+    "/signup",
+    "/new-password",
+    "/verification-code",
+  ];
+  const user = true;
+  // const user = false;
   return (
     <div
-      className={`w-full h-20 pt-4 z-10 ${
+      className={`w-full h-20 pt-3 z-10 ${
         path === "/"
           ? " lg:bg-[url('/assets/images/homebg.png')] w-full bg-cover bg-custom-gradient"
           : "fixed bg-custom-gradient"
       }`}
     >
-      <div className="2xl:w-[75%] w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center">
+      <div
+        className={`${
+          !authRoutes.includes(path) ? "2xl:w-full " : "2xl:w-[70%]"
+        } w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
+      >
+        {/* <div className="2xl:w-[75%] w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center"> */}
         <div
           className="flex items-center gap-2 justify-center cursor-pointer"
           onClick={() => {
@@ -44,7 +58,7 @@ export default function Navbar() {
             DB Kompare
           </CommonTypography>
         </div>
-        <div className="hidden  md:flex space-x-8">
+        <div className="hidden lg:flex space-x-8">
           {Navlinks.map((link, index) => (
             <button
               key={index}
@@ -66,9 +80,26 @@ export default function Navbar() {
             </button>
           ))}
         </div>
+        {!authRoutes.includes(path) && (
+          <div className="lg:block hidden">
+            {user ? (
+              <CommonUserDropdown />
+            ) : (
+              <CommonButton
+                className="bg-primary text-white"
+                style={{ height: "40px" }}
+                onClick={() => {
+                  router.push("/signin");
+                }}
+              >
+                Vendor Login
+              </CommonButton>
+            )}
+          </div>
+        )}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
           aria-expanded={isOpen ? "true" : "false"}
         >
           {isOpen ? (
@@ -81,7 +112,7 @@ export default function Navbar() {
       <div
         className={`${
           isOpen ? "block" : "hidden"
-        } md:hidden fixed top-20 left-0 w-full bg-white z-30 transition-all duration-300 ease-in-out`}
+        } lg:hidden fixed top-20 left-0 p-7 w-full bg-white z-30 transition-all duration-300 ease-in-out`}
       >
         <ul className="text-black text-lg font-normal gap-3 flex flex-col p-4 md:p-0 h-auto justify-start items-start">
           {Navlinks.map((link, index) => (
@@ -89,7 +120,6 @@ export default function Navbar() {
               <button
                 onClick={() => {
                   if (link.href.startsWith("http")) {
-                    // Open external links in a new tab
                     window.open(link.href, "_blank");
                   } else {
                     router.push(link.href);

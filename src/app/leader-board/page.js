@@ -43,7 +43,7 @@ export default function Page() {
       >
         <div className="w-full">
           {/* <div className="text-center w-full">
-            <CommonTypography classes="font-bold text-xl text-[#565758]">
+            <CommonTypography classes="font-bold text-xl text-secondary">
               We update our results daily at 12 PM UTC.
             </CommonTypography>
           </div> */}

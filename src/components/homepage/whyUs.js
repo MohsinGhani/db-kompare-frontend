@@ -20,14 +20,14 @@ export default function WhyUs() {
           <CommonTypography className="text-4xl font-bold text-[#191A15]">
             Why Choose Us?
           </CommonTypography>
-          <CommonTypography className="text-lg text-[#565758]">
+          <CommonTypography className="text-lg text-secondary">
             Get smarter, faster access to the best resources, all in one place,
             to streamline your workflow and find the right solutions quickly.
           </CommonTypography>
-          <ul className="mt-4 space-y-4 text-base text-[#565758]">
+          <ul className="mt-4 space-y-4 text-base text-secondary">
             {chooseList.map((text, index) => (
               <li key={index}>
-                <CheckOutlined className="mr-4 text-xl text-[#3E53D7]" />
+                <CheckOutlined className="mr-4 text-xl text-primary" />
                 {text}
               </li>
             ))}

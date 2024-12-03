@@ -5,6 +5,7 @@ import { Button } from "antd";
 
 const CommonButton = ({
   type,
+  htmltype,
   onClick,
   children,
   loading = false,
@@ -25,6 +26,7 @@ const CommonButton = ({
 
   return (
     <Button
+      htmlType={htmltype}
       type={type}
       onClick={onClick}
       loading={loading}

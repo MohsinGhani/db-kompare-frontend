@@ -57,7 +57,7 @@ export default function LeaderboardFilter({
           Filters
         </CommonTypography>
         <button
-          className="text-[#3E53D7] text-base font-medium underline"
+          className="text-primary text-base font-medium underline"
           onClick={() => {
             setSelectedDate([null, null]);
             setSelectedMetricKeys([]);

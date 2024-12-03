@@ -3,9 +3,8 @@ import ClientLayout from "./client-layout";
 
 export const metadata = {
   title: {
-    absolute: "",
-    default: "DB kompare",
-    template: "%s | DB kompare",
+    default: "DB Kompare",
+    template: "%s | DB Kompare",
   },
   description: "Database comparison platform",
 };

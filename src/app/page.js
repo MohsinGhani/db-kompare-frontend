@@ -23,7 +23,7 @@ function Home() {
               <h1 className="font-extrabold text-3xl 2xl:text-5xl 2xl:leading-[67.52px] tracking-[-1%]">
                 Compare DBs and Discover
                 <br />
-                <span className="text-[#3E53D7]">DB Internals</span>
+                <span className="text-primary">DB Internals</span>
               </h1>
               <Image src={blueline} alt="blue line" width={300} height={50} />
               <p className="xl:text-lg xl:text-start text-center font-normal mb-3">
@@ -35,14 +35,14 @@ function Home() {
               </p>
               <div className="md:flex md:space-x-4">
                 <CommonButton
-                  className="bg-[#3E53D7] md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
+                  className="bg-primary md:w-40 w-full lg:w-52 mt-3 text-white text-lg  md:text-base  hover:bg-pink-300 hover:text-black transition-all duration-300"
                   style={{ color: "white" }}
                   onClick={() => router.push("/leader-board")}
                 >
                   DB Leaderboard
                 </CommonButton>
                 <CommonButton
-                  className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-[#3E53D7] md:text-base text-lg "
+                  className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-primary md:text-base text-lg "
                   onClick={() => router.push("/db-comparisons/list")}
                 >
                   DB Comparison
