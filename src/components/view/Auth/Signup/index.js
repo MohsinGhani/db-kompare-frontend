@@ -11,17 +11,26 @@ import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import CommonModal from "@/components/shared/CommonModal";
 import CommonTypography from "@/components/shared/Typography";
-
+import { toast } from "react-toastify";
+import { signUp } from "aws-amplify/auth";
 const Signup = () => {
   const router = useRouter();
 
   const [isModalOpen, setIsModal] = useState(false);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     try {
-      console.log("values", values);
-      setIsModal(true);
+      const { password, name, email } = values;
+
+      const user = await signUp({
+        username: name,
+        email,
+        password,
+      });
+      console.log("Sign up successful", user);
+      // setIsModal(true);
     } catch (err) {
+      console.error(err);
       toast.error(err?.message);
     }
   };

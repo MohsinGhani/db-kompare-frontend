@@ -1,10 +1,11 @@
-"use client"; 
+"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import Navbar from "@/components/header";
 import Footer from "@/components/footer";
+import { Providers } from "./providers";
 
 export default function ClientLayout({ children }) {
   const [mount, setMount] = useState(false);
@@ -15,7 +16,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-        {" "}
+      <Providers>
         {mount ? (
           <>
             <Navbar />
@@ -32,6 +33,7 @@ export default function ClientLayout({ children }) {
             />
           </div>
         )}
+      </Providers>{" "}
     </>
   );
 }
