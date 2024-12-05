@@ -24,8 +24,8 @@ export default function Navbar() {
     "/new-password",
     "/verification-code",
   ];
-  const user = true;
-  // const user = false;
+  // const user = true;
+  const user = false;
   return (
     <div
       className={`w-full h-20 pt-3 z-10 ${

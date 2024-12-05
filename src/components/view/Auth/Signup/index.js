@@ -20,15 +20,13 @@ const Signup = () => {
 
   const onFinish = async (values) => {
     try {
-      const { password, name, email } = values;
-
-      const user = await signUp({
-        username: name,
-        email,
-        password,
+      console.log("Received values of form: ", values);
+      const { user } = await signUp({
+        username: values.email, // Use email as the username
+        password: values.password,
       });
+
       console.log("Sign up successful", user);
-      // setIsModal(true);
     } catch (err) {
       console.error(err);
       toast.error(err?.message);

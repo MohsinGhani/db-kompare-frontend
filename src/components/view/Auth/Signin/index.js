@@ -6,11 +6,17 @@ import googleIcon from "@/../public/assets/icons/googleIcon.svg";
 import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
-
+import { signIn } from "aws-amplify/auth";
+import { CognitoUser } from "@aws-amplify/auth";
+import { Auth } from "aws-amplify";
 const SignIn = () => {
   const onFinish = async (values) => {
     try {
-      console.log("Form values:", values);
+      const { isSignUpComplete, userId, nextStep } = signIn({
+        username: values.email,
+        password: values.password,
+      });
+      console.log("Sign in successful", isSignUpComplete, userId, nextStep);
     } catch (err) {
       console.error("Error:", err?.message);
     }
