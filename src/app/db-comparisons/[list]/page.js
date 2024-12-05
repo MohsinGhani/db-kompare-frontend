@@ -9,6 +9,7 @@ import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import Comments from "@/components/Comments";
 
 export default function Page({ params }) {
   const router = useRouter();
@@ -168,6 +169,7 @@ export default function Page({ params }) {
           </CommonButton>
         </div>
       </div>
+      <Comments />
     </ContentSection>
   );
 }
