@@ -6,6 +6,8 @@ import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif"
 import Navbar from "@/components/header";
 import Footer from "@/components/footer";
 import { Providers } from "./providers";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ClientLayout({ children }) {
   const [mount, setMount] = useState(false);
@@ -16,6 +18,11 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
+      <ToastContainer
+        style={{
+          zIndex: 3000,
+        }}
+      />
       <Providers>
         {mount ? (
           <>

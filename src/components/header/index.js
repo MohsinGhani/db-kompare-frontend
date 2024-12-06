@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
@@ -9,12 +9,16 @@ import CommonTypography from "../shared/Typography";
 import { Navlinks } from "@/utils/const";
 import CommonButton from "../shared/Button";
 import CommonUserDropdown from "../shared/UserDropdown";
+import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { selectEmail, setUserDetails } from "@/redux/slices/authSlice";
+import Cookies from "js-cookie";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
-
+  const [user, setUser] = useState(null);
   const isDbComparisonPage = path?.startsWith(
     "/db-comparison" || "/db-comparisons/list"
   );
@@ -24,22 +28,45 @@ export default function Navbar() {
     "/new-password",
     "/verification-code",
   ];
-  // const user = true;
-  const user = false;
+  const dispatch = useDispatch();
+  const email = useSelector(selectEmail);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const session = await fetchAuthSession();
+
+        if (!session || !session.tokens || !session.tokens.idToken) {
+          return;
+        }
+
+        const idToken = session.tokens.idToken.payload;
+
+        const currentUser = await getCurrentUser();
+
+        if (currentUser || email) {
+          dispatch(setUserDetails({ idToken, ...currentUser }));
+          setUser(true);
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [email, dispatch, router, setUserDetails]);
+
   return (
     <div
       className={`w-full h-20 pt-3 z-10 ${
         path === "/"
-          ? " lg:bg-[url('/assets/images/homebg.png')] w-full bg-cover bg-custom-gradient"
+          ? "lg:bg-[url('/assets/images/homebg.png')] w-full bg-cover bg-custom-gradient"
           : "fixed bg-custom-gradient"
       }`}
     >
       <div
-        className={`${
-          !authRoutes.includes(path) ? "2xl:w-full " : "2xl:w-[70%]"
-        } w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
+        className={`w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
       >
-        {/* <div className="2xl:w-[75%] w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center"> */}
         <div
           className="flex items-center gap-2 justify-center cursor-pointer"
           onClick={() => {
@@ -123,8 +150,8 @@ export default function Navbar() {
                     window.open(link.href, "_blank");
                   } else {
                     router.push(link.href);
+                    setIsOpen(false);
                   }
-                  setIsOpen(false);
                 }}
                 className={`block py-2 px-3 ${
                   path === link.href ||

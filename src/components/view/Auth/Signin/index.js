@@ -7,18 +7,32 @@ import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import { signIn } from "aws-amplify/auth";
-import { CognitoUser } from "@aws-amplify/auth";
-import { Auth } from "aws-amplify";
+import { useRouter } from "next/navigation";
+import { setUserDetails } from "@/redux/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { fetchAuthSession } from "aws-amplify/auth";
+import { setAccessTokenFromLocalStorage } from "@/utils/helper";
 const SignIn = () => {
+  const [error, setError] = useState(null);
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   const onFinish = async (values) => {
     try {
-      const { isSignUpComplete, userId, nextStep } = signIn({
+      await signIn({
         username: values.email,
         password: values.password,
       });
-      console.log("Sign in successful", isSignUpComplete, userId, nextStep);
+
+      const session = await fetchAuthSession();
+      const idToken = session.tokens.idToken.payload;
+      dispatch(setUserDetails({ idToken }));
+      setAccessTokenFromLocalStorage();
+      router.push("/");
     } catch (err) {
-      console.error("Error:", err?.message);
+      console.error("Sign-in error:", err?.message);
+      setError(err?.message);
     }
   };
 
@@ -78,11 +92,16 @@ const SignIn = () => {
 
               <Form.Item>
                 <Link
-                  href="/verification-code"
+                  href="/email-verification"
                   className="mb-[10px] mt-[-10px] block w-full text-right text-base font-medium text-primary hover:underline"
                 >
                   Forgot Password?
                 </Link>
+                {error && (
+                  <p className="text-red-500 text-base my-2 text-start">
+                    {error}
+                  </p>
+                )}
                 <CommonButton
                   htmlType="submit"
                   className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"

@@ -11,25 +11,33 @@ import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import CommonModal from "@/components/shared/CommonModal";
 import CommonTypography from "@/components/shared/Typography";
-import { toast } from "react-toastify";
 import { signUp } from "aws-amplify/auth";
+import { useDispatch } from "react-redux";
+import { setEmail } from "@/redux/slices/authSlice";
 const Signup = () => {
   const router = useRouter();
-
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModal] = useState(false);
+  const dispatch = useDispatch();
 
   const onFinish = async (values) => {
     try {
-      console.log("Received values of form: ", values);
-      const { user } = await signUp({
-        username: values.email, // Use email as the username
+      await signUp({
+        username: values.email,
         password: values.password,
+        options: {
+          userAttributes: {
+            name: values.name,
+          },
+        },
+        autoConfirmUser: true,
       });
+      dispatch(setEmail(values.email));
 
-      console.log("Sign up successful", user);
+      setIsModal(true);
     } catch (err) {
       console.error(err);
-      toast.error(err?.message);
+      setError(err?.message);
     }
   };
 
@@ -153,7 +161,11 @@ const Signup = () => {
                     </p>
                   </Checkbox>
                 </Form.Item>
-
+                {error && (
+                  <p className="text-red-500 text-base my-2 text-start">
+                    {error}
+                  </p>
+                )}
                 <Form.Item>
                   <CommonButton
                     htmlType="submit"
@@ -191,13 +203,12 @@ const Signup = () => {
           <CommonTypography classes="text-base font-medium text-body-color">
             Success !!{" "}
           </CommonTypography>
-          <CommonTypography classes="text-base font-medium text-body-color">
+          <CommonTypography classes="text-base font-medium text-body-color mb-4">
             Your account has been created successfully.
           </CommonTypography>
-          <CommonButton
-            children={"Login Now"}
-            onClick={() => router.push("/signin")}
-          />
+          <CommonButton onClick={() => router.push("/verification-code")}>
+            Verify Email
+          </CommonButton>
         </div>
       </CommonModal>
     </>

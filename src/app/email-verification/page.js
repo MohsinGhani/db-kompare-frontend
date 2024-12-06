@@ -1,4 +1,4 @@
-import CodeVerification from "@/components/view/Auth/VerificationCode";
+import EmailVerification from "@/components/view/Auth/EmailVerification/page";
 import React from "react";
 export const metadata = {
   title: {
@@ -6,5 +6,5 @@ export const metadata = {
   },
 };
 export default function page() {
-  return <CodeVerification />;
+  return <EmailVerification />;
 }

@@ -2,22 +2,39 @@
 
 import CommonButton from "@/components/shared/Button";
 import CommonInput from "@/components/shared/CommonInput";
-import { Button, Form } from "antd";
+import { Form } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { resetPassword } from "aws-amplify/auth";
+import { useDispatch } from "react-redux";
+import { setEmail } from "@/redux/slices/authSlice";
 import { toast } from "react-toastify";
 
-const Verification = () => {
+const EmailVerification = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+
   const onFinish = async (values) => {
     try {
-      console.log("values", values);
+      const output = await resetPassword({ username: values.email });
+      handleResetPasswordNextSteps(output);
+      dispatch(setEmail(values.email));
       router.push("/new-password");
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err);
     }
   };
-
+  function handleResetPasswordNextSteps(output) {
+    const { nextStep } = output;
+    switch (nextStep.resetPasswordStep) {
+      case "CONFIRM_RESET_PASSWORD_WITH_CODE":
+        toast.info(`Confirmation code was sent to your email`);
+        break;
+      case "DONE":
+        console.log("Successfully reset password.");
+        break;
+    }
+  }
   return (
     <div className="relative w-full bg-background overflow-hidden pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[140px]">
       <div className="flex flex-wrap ">
@@ -70,4 +87,4 @@ const Verification = () => {
   );
 };
 
-export default Verification;
+export default EmailVerification;

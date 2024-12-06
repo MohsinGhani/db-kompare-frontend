@@ -8,7 +8,7 @@ const CommonInput = ({
   label,
   name,
   rules = [],
-  inputType = "text",
+  inputType,
   inputProps = {},
   labelLevel = 5,
   size = "large",
@@ -37,6 +37,7 @@ const CommonInput = ({
         ) : (
           <Input
             size={size}
+            type={inputType ? inputType : "text"}
             placeholder={placeholder}
             allowClear={false}
             {...inputProps}

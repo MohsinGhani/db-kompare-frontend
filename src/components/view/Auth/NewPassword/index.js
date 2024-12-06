@@ -4,11 +4,27 @@ import CommonButton from "@/components/shared/Button";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import Link from "next/link";
+import { confirmResetPassword } from "aws-amplify/auth";
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { selectEmail } from "@/redux/slices/authSlice";
+import { useRouter } from "next/navigation";
 
 const NewPassword = () => {
+  const email = useSelector(selectEmail);
+  const router = useRouter();
   const onFinish = async (values) => {
+    const { name, confirmationCode, confirmPassword } = values;
+
     try {
+      await confirmResetPassword({
+        username: email,
+        confirmationCode,
+        newPassword: confirmPassword,
+      });
       console.log("values", values);
+      router.push("/signin");
+      toast.success("Password reset successful");
     } catch (err) {
       toast.error(err?.message);
     }
@@ -31,7 +47,7 @@ const NewPassword = () => {
                 label="OTP"
                 name="confirmationCode"
                 placeholder="Enter your OTP"
-                inputType="text"
+                inputType="number"
                 rules={[
                   {
                     required: true,

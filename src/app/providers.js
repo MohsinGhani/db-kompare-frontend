@@ -1,3 +1,5 @@
+//src/app/providers.js
+
 "use client";
 
 import { store } from "@/redux/store";
