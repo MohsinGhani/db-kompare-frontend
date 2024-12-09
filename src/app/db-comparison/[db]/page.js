@@ -6,6 +6,7 @@ import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
+import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -138,6 +139,10 @@ const Comparison = ({ params }) => {
             selectedDatabases={selectedDatabases}
             setSelectedDatabasesOptions={setSelectedDatabasesOptions}
           />
+        </div>
+
+        <div className="w-full md:pt-8 ">
+          <CommentsSection selectedDatabases={selectedDatabases} />
         </div>
       </div>
     </>

@@ -52,3 +52,7 @@ body {
 :where(.css-dev-only-do-not-override-apn68).ant-otp .ant-otp-input {
   height: 50px;
 }
+
+:where(.css-dev-only-do-not-override-apn68).ant-card .ant-card-body {
+  padding: 0px;
+}
