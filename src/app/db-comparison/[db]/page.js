@@ -103,7 +103,7 @@ const Comparison = ({ params }) => {
       <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
         <ComparisonHeader selectedDatabases={selectedDatabases} />
       </div>
-      <div className="w-full h-auto p-12 md:p-20 px-9 md:px-28 font-medium flex flex-col gap-8 md:gap-5 items-center">
+      <div className="w-full h-auto p-12 md:p-20 px-8 md:px-28 font-medium flex flex-col gap-8 md:gap-5 items-center">
         <DatabaseSelect
           dbData={dbData}
           selectedDatabases={selectedDatabases}

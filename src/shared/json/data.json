@@ -1,0 +1,53 @@
+{
+  "commentsDummyData": [
+    {
+      "id": 1,
+      "author": "Zain Shareef",
+      "commentedAt": "2 hrs ago",
+      "text": "This is the first comment",
+      "database": "Mongo DB",
+      "disabled": false,
+      "replies": [
+        {
+          "id": 1,
+          "author": "John Doe",
+          "commentedAt": "1 hr ago",
+          "text": "This is a reply to the first comment ",
+          "parentCommentId": 1,
+          "database": "Mongo DB",
+          "disabled": false,
+          "replies": []
+        },
+        {
+          "id": 2,
+          "author": "Alice Smith",
+          "commentedAt": "30 mins ago",
+          "text": "This is a reply to the first comment ",
+          "parentCommentId": 1,
+          "database": "Mongo DB",
+          "disabled": false,
+          "replies": []
+        },
+        {
+          "id": 3,
+          "author": "Alice Smith",
+          "commentedAt": "30 mins ago",
+          "text": "Another reply to the first comment",
+          "parentCommentId": 1,
+          "database": "Mongo DB",
+          "disabled": false,
+          "replies": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "author": "Zain Shareef",
+      "commentedAt": "3 hrs ago",
+      "text": "This is the second comment",
+      "database": "MySQL",
+      "disabled": false,
+      "replies": []
+    }
+  ]
+}
