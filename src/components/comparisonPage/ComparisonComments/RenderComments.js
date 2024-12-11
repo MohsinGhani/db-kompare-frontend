@@ -14,34 +14,53 @@ import {
 import CommonTypography from "@/components/shared/Typography";
 import { getInitials } from "@/utils/getInitials";
 import "./tree-view.scss";
+import { useSelector } from "react-redux";
+import { CommentStatus } from "@/utils/const";
+import { formatRelativeTime } from "@/utils/formatDateAndTime";
 
 const Comment = ({
   comment,
   level,
+  fetchComments,
   showAllReplies,
   toggleShowAllReplies,
   deleteComment,
   disableComment,
   undisableComment,
-  addReply,
-  editComment,
-  editReply,
+  selectedDatabases,
+  selectedDatabaseIds,
 }) => {
-  const [showAddReplyInput, setShowAddReplyInput] = useState(false);
   const [showEditInput, setShowEditInput] = useState(false);
-  const [editText, setEditText] = useState("");
+  const [showAddReplyInput, setShowAddReplyInput] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [addReplyForm] = Form.useForm();
   const [editReplyForm] = Form.useForm();
+  const { userDetails } = useSelector((state) => state.auth);
+  const userId = userDetails?.idToken["custom:userId"];
+  const userName = userDetails?.idToken["name"];
+  const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
+
+  const databaseName =
+    selectedDatabases && selectedDatabaseIds
+      ? selectedDatabaseIds.includes(comment.databaseId)
+        ? selectedDatabases[selectedDatabaseIds.indexOf(comment.databaseId)]
+        : ""
+      : "";
 
   const items = [
     {
       key: "edit",
       label: "Edit",
     },
-    {
-      key: comment.disabled ? "undisable" : "disable",
-      label: comment.disabled ? "Undisable" : "Disable",
-    },
+    ...(level === 0
+      ? [
+          {
+            key: comment.status === CommentStatus.ACTIVE ? "disable" : "enable",
+            label:
+              comment.status === CommentStatus.INACTIVE ? "Enable" : "Disable",
+          },
+        ]
+      : []),
     {
       key: "delete",
       label: (
@@ -62,11 +81,57 @@ const Comment = ({
   const handleMenuClick = (key) => {
     if (key === "edit") {
       setShowEditInput(true);
-      setEditText(comment.text);
+      editReplyForm.setFieldsValue({
+        id: comment.id,
+        editText: comment.comment,
+      });
     } else if (key === "disable") {
       disableComment(comment.id, comment.parentCommentId || null);
-    } else if (key === "undisable") {
+    } else if (key === "enable") {
       undisableComment(comment.id, comment.parentCommentId || null);
+    }
+  };
+
+  const addReply = async (replyData) => {
+    const { text, parentCommentId, createdBy } = replyData;
+
+    const payload = {
+      comment: text,
+      repliedTo: parentCommentId,
+      createdBy: createdBy,
+    };
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/create-comment",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": X_API_KEY,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add reply");
+      }
+
+      const data = await response.json();
+      message.success("Reply added successfully!");
+      fetchComments(selectedDatabaseIds);
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      message.error(
+        error.message || "An error occurred while adding the reply"
+      );
+    } finally {
+      addReplyForm.resetFields();
+      setLoading(false);
+      setShowAddReplyInput(false);
     }
   };
 
@@ -77,44 +142,66 @@ const Comment = ({
     }
 
     const newReplyData = {
-      id: Date.now(),
-      author: "Sameer Malik",
-      commentedAt: "Just now",
+      createdBy: userId,
       text: reply.trim(),
-      database: comment.database,
-      disabled: false,
       replies: [],
       parentCommentId: comment.id,
     };
+    addReply(newReplyData);
+  };
 
-    if (typeof addReply === "function") {
-      addReply(newReplyData);
-      addReplyForm.resetFields();
-      setShowAddReplyInput(false);
+  const editCommentOrReply = async (id, newText, isReply = false) => {
+    const payload = {
+      id: id,
+      comment: newText,
+    };
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/update-comment",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": X_API_KEY,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        fetchComments(selectedDatabaseIds);
+        message.success(
+          `${isReply ? "Reply" : "Comment"} updated successfully!`
+        );
+      } else {
+        message.error(data.message || "Failed to update comment or reply.");
+      }
+    } catch (error) {
+      console.error("Error editing comment or reply:", error);
+      message.error("An error occurred while updating the comment or reply.");
+    } finally {
+      setLoading(false);
+      setShowEditInput(false);
     }
   };
 
-  const handleEdit = (editText) => {
-    if (!editText.trim()) {
+  const handleEdit = (values) => {
+    const newText = values.editText.trim();
+
+    if (!newText) {
       message.error("Please enter text.");
       return;
     }
 
     if (level === 0) {
-      if (typeof editComment === "function") {
-        editComment(editText);
-      } else {
-        console.error("editComment function is not defined.");
-      }
+      editCommentOrReply(values.id, newText, false);
     } else {
-      if (typeof editReply === "function") {
-        editReply(comment.id, editText);
-      } else {
-        console.error("editReply function is not defined.");
-      }
+      editCommentOrReply(values.id, newText, true);
     }
-
-    setShowEditInput(false);
   };
 
   return (
@@ -127,11 +214,11 @@ const Comment = ({
           <div className={` ${level > 0 ? "pl-0" : ""}`}>
             <div className="flex items-start">
               <Avatar
-                className={`bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] md:mr-[6px] mt-[2px] ${
+                className={`bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-1 mt-[2px] ${
                   comment.disabled ? "opacity-70 cursor-default" : ""
                 }`}
               >
-                {getInitials(comment.author)}
+                {getInitials(comment.createdBy.name)}
               </Avatar>
 
               <div className="w-full ml-2">
@@ -143,13 +230,13 @@ const Comment = ({
                       </p>
                       <Form
                         layout="inline"
-                        onFinish={({ editText }) => handleEdit(editText)}
+                        onFinish={handleEdit}
                         className="w-full"
+                        form={editReplyForm}
                       >
+                        <Form.Item name="id" hidden></Form.Item>
                         <Form.Item
                           name="editText"
-                          initialValue={editText}
-                          form={editReplyForm}
                           rules={[
                             {
                               required: true,
@@ -159,14 +246,14 @@ const Comment = ({
                           className="w-full m-0"
                         >
                           <Input
-                            autoFocus
                             placeholder="Edit your comment"
                             className="px-2 border rounded-lg"
-                            onBlur={() => setShowEditInput(false)}
                             suffix={
                               <Button
                                 type="text"
                                 htmlType="submit"
+                                disabled={loading}
+                                loading={loading}
                                 icon={
                                   <img
                                     src="/assets/icons/send-icon.svg"
@@ -186,32 +273,36 @@ const Comment = ({
                     <div className="flex flex-row justify-between items-center">
                       <div className="flex flex-col">
                         <CommonTypography
-                          className={`font-semibold text-[13px] md:text-sm ${
-                            comment.disabled
+                          className={`font-semibold text-[13px] md:text-sm capitalize ${
+                            comment.status === CommentStatus.INACTIVE
                               ? "text-gray-400 cursor-default"
                               : ""
                           }`}
                         >
-                          {comment.author}
+                          {comment.createdBy.name}
                         </CommonTypography>
                         <CommonTypography
                           className={`!font-normal !text-xs opacity-70 ${
-                            comment.disabled
+                            comment.status === CommentStatus.INACTIVE
                               ? "text-gray-400 cursor-default"
                               : ""
                           }`}
                         >
-                          {comment.commentedAt}
+                          {formatRelativeTime(comment.createdAt)}
                         </CommonTypography>
                       </div>
                       <div className="flex flex-row items-center">
-                        <Tag
-                          className={`!text-white bg-[#3E53D7] border-none !font-normal !text-[10px] py-[2px] px-3 rounded-xl hidden md:block ${
-                            comment.disabled ? "opacity-70 cursor-default" : ""
-                          }`}
-                        >
-                          {comment.database}
-                        </Tag>
+                        {level === 0 && (
+                          <Tag
+                            className={`!text-white bg-[#3E53D7] border-none !font-normal !text-[10px] py-[2px] px-3 rounded-xl hidden md:block ${
+                              comment.status === CommentStatus.INACTIVE
+                                ? "opacity-70 cursor-default"
+                                : ""
+                            }`}
+                          >
+                            {databaseName}
+                          </Tag>
+                        )}
                         <Dropdown
                           menu={{
                             items: items.map((item) => ({
@@ -236,22 +327,33 @@ const Comment = ({
 
                     <p
                       className={`font-normal text-xs md:text-sm text-black my-2 ${
-                        comment.disabled ? "text-gray-400 cursor-default" : ""
+                        comment.status === CommentStatus.INACTIVE
+                          ? "text-gray-400 cursor-default"
+                          : ""
                       }`}
                     >
-                      {comment.text}
+                      {comment.comment}
                     </p>
 
-                    {level === 0 && !comment.disabled && (
-                      <Button
-                        className="bg-[#FAFAFA] text-[#565758] rounded-2xl font-normal text-xs border-none w-14 h-8"
-                        onClick={() => {
-                          setShowAddReplyInput(!showAddReplyInput);
-                          setEditText("");
-                        }}
-                      >
-                        Reply
-                      </Button>
+                    {level === 0 && (
+                      <div className="custom-button">
+                        <Button
+                          icon={
+                            <img
+                              src="/assets/icons/reply-icon.svg"
+                              alt="icon"
+                              className="w-4 h-4"
+                            />
+                          }
+                          className="bg-[#FAFAFA] text-[#565758]  rounded-2xl font-normal text-sm border-none w-18 h-8 flex items-center justify-center"
+                          onClick={() => {
+                            setShowAddReplyInput(!showAddReplyInput);
+                          }}
+                          disabled={comment.status === CommentStatus.INACTIVE}
+                        >
+                          Reply
+                        </Button>
+                      </div>
                     )}
                   </>
                 )}
@@ -278,12 +380,8 @@ const Comment = ({
                             undisableComment={(replyId, parentId) =>
                               undisableComment(replyId, parentId)
                             }
-                            addReply={(replyData) =>
-                              addReply(comment.id, replyData)
-                            }
-                            editComment={null}
-                            editReply={(replyId, parentId, newText) =>
-                              editReply(replyId, parentId, newText)
+                            fetchComments={() =>
+                              fetchComments(selectedDatabaseIds)
                             }
                           />
                         </li>
@@ -305,11 +403,11 @@ const Comment = ({
                 {showAddReplyInput && (
                   <div className="mx-0 md:mx-3 mt-4 flex flex-row items-start">
                     <Avatar className="bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-[6px] mt-[2px] opacity-70 cursor-default">
-                      {getInitials(comment.author)}
+                      {getInitials(userName)}
                     </Avatar>
                     <div className="w-full ml-2">
                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md md:inline-block hidden">
-                        Replying to {comment.author}
+                        Replying to {comment.createdBy.name}
                       </p>
                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md inline-block md:hidden">
                         Replying
@@ -335,6 +433,8 @@ const Comment = ({
                               <Button
                                 type="text"
                                 htmlType="submit"
+                                disabled={loading}
+                                loading={loading}
                                 icon={
                                   <img
                                     src="/assets/icons/send-icon.svg"

@@ -12,3 +12,8 @@ export const DropdownOptions = [
   { value: "googleScore", label: "Google Search" },
   { value: "bingScore", label: "Bing Search" },
 ];
+
+export const CommentStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};

@@ -11,7 +11,6 @@ import CommentsSection from "@/components/comparisonPage/ComparisonComments/Comm
 const Comparison = ({ params }) => {
   const router = useRouter();
   const { db } = params;
-
   const [selectedDatabaseIds, setSelectedDatabaseIds] = useState([]);
   const [dbData, setDbData] = useState([]);
   const [selectedDatabases, setSelectedDatabases] = useState([]);
@@ -62,6 +61,7 @@ const Comparison = ({ params }) => {
       const fetchSelectedDatabases = async () => {
         try {
           const response = await fetchDatabaseByIds(selectedDatabaseIds);
+
           setFilterData(response?.data || []);
         } catch (error) {
           console.error("Error fetching database details:", error);
@@ -142,7 +142,10 @@ const Comparison = ({ params }) => {
         </div>
 
         <div className="w-full md:pt-8 ">
-          <CommentsSection selectedDatabases={selectedDatabases} />
+          <CommentsSection
+            selectedDatabases={selectedDatabases}
+            selectedDatabaseIds={selectedDatabaseIds}
+          />
         </div>
       </div>
     </>
