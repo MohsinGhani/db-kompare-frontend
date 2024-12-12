@@ -3,80 +3,78 @@ import {
   DownOutlined,
   LogoutOutlined,
   SettingOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
-import { Avatar, Dropdown, Menu, Space } from "antd";
+import { Avatar, Dropdown, Space } from "antd";
 import { useRouter } from "next/navigation";
 import { signOut } from "aws-amplify/auth";
 import { useSelector } from "react-redux";
-import { selectUserDetails, setEmail } from "@/redux/slices/authSlice";
+import { selectUserDetails } from "@/redux/slices/authSlice";
 import { RemoveAccessTokenFormCookies } from "@/utils/helper";
-
-const items = [
-  {
-    key: "1",
-    label: "My Account",
-    disabled: true,
-  },
-  {
-    type: "divider",
-  },
-  {
-    key: "2",
-    icon: <UserOutlined />,
-    label: "Profile",
-    href: "/user-profile",
-  },
-  {
-    key: "3",
-    label: "Settings",
-    icon: <SettingOutlined />,
-  },
-  {
-    key: "4",
-    icon: <LogoutOutlined />,
-    label: "Logout",
-  },
-];
+import { getInitials } from "@/utils/getInitials";
 
 const CommonUserDropdown = () => {
-  const route = useRouter();
+  const router = useRouter();
   const loginUserDetails = useSelector(selectUserDetails);
-  const getInitials = (name) => {
-    if (!name) return "";
-    const nameParts = name.split(" ");
-    const initials = nameParts.map((part) => part[0].toUpperCase()).join("");
-    return initials;
+  const userName = loginUserDetails?.idToken?.name;
+
+  const handleMenuClick = async ({ key }) => {
+    switch (key) {
+      // case "2":
+      //   router.push("/user-profile");
+      //   break;
+      case "3":
+        router.push("/user-profile");
+        break;
+      case "4":
+        await signOut();
+        RemoveAccessTokenFormCookies();
+        router.push("/");
+        window.location.reload();
+        break;
+      default:
+        break;
+    }
   };
 
-  const userName = loginUserDetails?.idToken?.name;
+  const menu = {
+    items: [
+      {
+        key: "1",
+        label: "My Account",
+        disabled: true,
+      },
+      {
+        type: "divider",
+      },
+      // {
+      //   key: "2",
+      //   icon: <UserOutlined />,
+      //   label: "Profile",
+      // },
+      {
+        key: "3",
+        icon: <SettingOutlined />,
+        label: "Settings",
+      },
+      {
+        key: "4",
+        icon: <LogoutOutlined />,
+        label: "Logout",
+      },
+    ],
+    onClick: handleMenuClick,
+    className: "!mt-3",
+  };
+
   return (
-    <Dropdown
-      menu={
-        <Menu
-          items={items.map((item) => ({
-            ...item,
-            onClick: async () => {
-              if (item.href) {
-                route.push(item.href);
-              } else if (item.label === "Logout") {
-                await signOut();
-                RemoveAccessTokenFormCookies();
-                route.push("/signin");
-              }
-            },
-          }))}
-        />
-      }
-      trigger={["click"]}
-    >
+    <Dropdown menu={menu} trigger={["click"]} className="cursor-pointer">
       <a onClick={(e) => e.preventDefault()}>
         <Space>
-          <Avatar style={{ backgroundColor: "#F6F6FF", color: "#3E53D7" }}>
+          <Avatar className="bg-[#F6F6FF] text-[#3E53D7] w-9 h-9 ">
             {getInitials(userName)}
           </Avatar>
-          {loginUserDetails?.idToken?.name}
-          <DownOutlined style={{ fontSize: "12px" }} />
+          <span className="capitalize">{userName}</span>
+          <DownOutlined className="text-xs" />
         </Space>
       </a>
     </Dropdown>

@@ -11,17 +11,21 @@ import CommonButton from "../shared/Button";
 import CommonUserDropdown from "../shared/UserDropdown";
 import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { selectEmail, setUserDetails } from "@/redux/slices/authSlice";
-import Cookies from "js-cookie";
+import {
+  selectEmail,
+  selectUserDetails,
+  setUserDetails,
+} from "@/redux/slices/authSlice";
+import { Skeleton } from "antd";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const isDbComparisonPage = path?.startsWith(
-    "/db-comparison" || "/db-comparisons/list"
-  );
+  const [loading, setLoading] = useState(false);
+  const isDbComparisonPage =
+    path?.startsWith("/db-comparison") ||
+    path?.startsWith("/db-comparisons/list");
   const authRoutes = [
     "/signin",
     "/signup",
@@ -30,31 +34,37 @@ export default function Navbar() {
   ];
   const dispatch = useDispatch();
   const email = useSelector(selectEmail);
+  const userDetails = useSelector(selectUserDetails);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
+        setLoading(true);
         const session = await fetchAuthSession();
+        console.log("Fetched session:", session);
 
-        if (!session || !session.tokens || !session.tokens.idToken) {
+        if (!session) {
+          dispatch(setUserDetails(null));
           return;
         }
 
         const idToken = session.tokens.idToken.payload;
-
         const currentUser = await getCurrentUser();
-
-        if (currentUser || email) {
-          dispatch(setUserDetails({ idToken, ...currentUser }));
-          setUser(true);
-        }
+        console.log("Fetched currentUser:", currentUser);
+        dispatch(setUserDetails({ idToken, ...currentUser }));
       } catch (error) {
         console.error("Error fetching current user:", error);
+
+        dispatch(setUserDetails(null));
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchCurrentUser();
-  }, [email, dispatch, router, setUserDetails]);
+    if (!userDetails && !authRoutes.includes(path)) {
+      fetchCurrentUser();
+    }
+  }, [path, dispatch]);
 
   return (
     <div
@@ -109,7 +119,13 @@ export default function Navbar() {
         </div>
         {!authRoutes.includes(path) && (
           <div className="lg:block hidden">
-            {user ? (
+            {loading ? (
+              <Skeleton.Button
+                size="medium"
+                className="!min-w-20 !w-32"
+                active
+              />
+            ) : userDetails ? (
               <CommonUserDropdown />
             ) : (
               <CommonButton

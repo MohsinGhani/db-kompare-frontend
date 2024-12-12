@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Avatar,
   Button,
@@ -10,6 +10,8 @@ import {
   message,
   Form,
   Popconfirm,
+  Rate,
+  Card,
 } from "antd";
 import CommonTypography from "@/components/shared/Typography";
 import { getInitials } from "@/utils/getInitials";
@@ -35,6 +37,7 @@ const Comment = ({
   const [loading, setLoading] = useState(false);
   const [addReplyForm] = Form.useForm();
   const [editReplyForm] = Form.useForm();
+  const editInputRef = useRef(null);
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.idToken["custom:userId"];
   const userName = userDetails?.idToken["name"];
@@ -92,13 +95,14 @@ const Comment = ({
     }
   };
 
-  const addReply = async (replyData) => {
+  const addReply = async (replyData, rating) => {
     const { text, parentCommentId, createdBy } = replyData;
 
     const payload = {
       comment: text,
       repliedTo: parentCommentId,
       createdBy: createdBy,
+      ...(rating !== undefined && { rating }),
     };
 
     try {
@@ -135,7 +139,8 @@ const Comment = ({
     }
   };
 
-  const handleAddReply = (reply) => {
+  const handleAddReply = (values) => {
+    const { reply, rating } = values;
     if (!reply.trim()) {
       message.error("Please enter a reply.");
       return;
@@ -147,13 +152,14 @@ const Comment = ({
       replies: [],
       parentCommentId: comment.id,
     };
-    addReply(newReplyData);
+    addReply(newReplyData, rating);
   };
 
-  const editCommentOrReply = async (id, newText, isReply = false) => {
+  const editCommentOrReply = async (id, newText, isReply = false, rating) => {
     const payload = {
       id: id,
       comment: newText,
+      ...(rating !== undefined && { rating }),
     };
 
     try {
@@ -190,6 +196,7 @@ const Comment = ({
   };
 
   const handleEdit = (values) => {
+    const rating = values.rating;
     const newText = values.editText.trim();
 
     if (!newText) {
@@ -198,21 +205,37 @@ const Comment = ({
     }
 
     if (level === 0) {
-      editCommentOrReply(values.id, newText, false);
+      editCommentOrReply(values.id, newText, false, rating);
     } else {
-      editCommentOrReply(values.id, newText, true);
+      editCommentOrReply(values.id, newText, true, rating);
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        editInputRef.current &&
+        !editInputRef.current.contains(event.target)
+      ) {
+        setShowEditInput(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="treeview js-treeview">
-      <ul>
-        <li>
+    <div className="treeview">
+      <ul className="cmnt-tree">
+        <li className="cmnt-tree-child">
           {level === 0 && (
             <div className="bg-[#D9D9D9] h-[1px] w-full opacity-70 my-5"></div>
           )}
           <div className={` ${level > 0 ? "pl-0" : ""}`}>
-            <div className="flex items-start">
+            <div className=" relative flex items-start">
               <Avatar
                 className={`bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-1 mt-[2px] ${
                   comment.disabled ? "opacity-70 cursor-default" : ""
@@ -221,51 +244,73 @@ const Comment = ({
                 {getInitials(comment.createdBy.name)}
               </Avatar>
 
-              <div className="w-full ml-2">
+              <div ref={editInputRef} className="w-full ml-2">
                 {showEditInput ? (
                   <div className="flex flex-row items-end">
                     <div className="w-full">
                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md inline-block">
                         Editing
                       </p>
-                      <Form
-                        layout="inline"
-                        onFinish={handleEdit}
-                        className="w-full"
-                        form={editReplyForm}
-                      >
-                        <Form.Item name="id" hidden></Form.Item>
-                        <Form.Item
-                          name="editText"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please enter updated text!",
-                            },
-                          ]}
-                          className="w-full m-0"
+                      <Card className="w-full rounded-xl p-1 sm:p-2 h-auto">
+                        <Form
+                          layout="inline"
+                          onFinish={handleEdit}
+                          className="w-full"
+                          form={editReplyForm}
                         >
-                          <Input
-                            placeholder="Edit your comment"
-                            className="px-2 border rounded-lg"
-                            suffix={
-                              <Button
-                                type="text"
-                                htmlType="submit"
-                                disabled={loading}
-                                loading={loading}
-                                icon={
-                                  <img
-                                    src="/assets/icons/send-icon.svg"
-                                    className="w-4 h-4 cursor-pointer"
-                                    alt="Send Icon"
-                                  />
-                                }
+                          <Form.Item name="id" hidden></Form.Item>
+                          <div className="w-full justify-between items-center">
+                            <Form.Item
+                              name="editText"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Please enter updated text!",
+                                },
+                              ]}
+                              className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
+                            >
+                              <Input.TextArea
+                                autoSize={{ minRows: 2, maxRows: 4 }}
+                                placeholder="Edit your comment"
+                                className="flex-1 resize-none border-none focus:ring-0 focus:outline-none rounded-lg h-8 mb-4 text-xs sm:text-sm"
+                                maxLength={1000}
+                                showCount
                               />
-                            }
-                          />
-                        </Form.Item>
-                      </Form>
+                            </Form.Item>
+                            <div className="w-full flex flex-row justify-between ">
+                              <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
+                                <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:block">
+                                  Rate Db:
+                                </CommonTypography>
+                                <Form.Item className="!p-0 !m-0 " name="rating">
+                                  <Rate
+                                    defaultValue={3}
+                                    className="text-[#FFC412] !text-sm"
+                                  />
+                                </Form.Item>
+                              </div>
+
+                              <Form.Item>
+                                <Button
+                                  className="-mr-2 sm:mr-0"
+                                  type="text"
+                                  htmlType="submit"
+                                  disabled={loading}
+                                  loading={loading}
+                                  icon={
+                                    <img
+                                      src="/assets/icons/send-icon.svg"
+                                      className="w-4 h-4 cursor-pointer "
+                                      alt="Send Icon"
+                                    />
+                                  }
+                                />
+                              </Form.Item>
+                            </div>
+                          </div>
+                        </Form>
+                      </Card>
                     </div>
                   </div>
                 ) : (
@@ -273,7 +318,7 @@ const Comment = ({
                     <div className="flex flex-row justify-between items-center">
                       <div className="flex flex-col">
                         <CommonTypography
-                          className={`font-semibold text-[13px] md:text-sm capitalize ${
+                          className={`font-semibold text-[13px] md:text-sm capitalize mb-1 ${
                             comment.status === CommentStatus.INACTIVE
                               ? "text-gray-400 cursor-default"
                               : ""
@@ -289,6 +334,19 @@ const Comment = ({
                           }`}
                         >
                           {formatRelativeTime(comment.createdAt)}
+                          <div className="-mt-1 rate-container">
+                            <Rate
+                              disabled={
+                                comment.status === CommentStatus.INACTIVE
+                              }
+                              value={comment.rating}
+                              className={`text-[#FFC412] !text-[11px] ${
+                                comment.status === CommentStatus.INACTIVE
+                                  ? "cursor-default opacity-50"
+                                  : ""
+                              }`}
+                            />
+                          </div>
                         </CommonTypography>
                       </div>
                       <div className="flex flex-row items-center">
@@ -336,7 +394,7 @@ const Comment = ({
                     </p>
 
                     {level === 0 && (
-                      <div className="custom-button">
+                      <div className="custom-button mb-5">
                         <Button
                           icon={
                             <img
@@ -345,7 +403,7 @@ const Comment = ({
                               className="w-4 h-4"
                             />
                           }
-                          className="bg-[#FAFAFA] text-[#565758]  rounded-2xl font-normal text-sm border-none w-18 h-8 flex items-center justify-center"
+                          className="bg-[#FAFAFA] text-[#565758] rounded-2xl font-normal text-sm border-none w-18 h-8 flex items-center justify-center"
                           onClick={() => {
                             setShowAddReplyInput(!showAddReplyInput);
                           }}
@@ -359,11 +417,11 @@ const Comment = ({
                 )}
 
                 {comment.replies && comment.replies.length > 0 && (
-                  <ul>
+                  <ul className="cmnt-tree">
                     {comment.replies
                       .slice(0, showAllReplies ? comment.replies.length : 2)
                       .map((reply) => (
-                        <li key={reply.id}>
+                        <li className="cmnt-tree-child" key={reply.id}>
                           <Comment
                             comment={reply}
                             level={level + 1}
@@ -412,25 +470,47 @@ const Comment = ({
                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md inline-block md:hidden">
                         Replying
                       </p>
-
-                      <Form
-                        layout="inline"
-                        onFinish={({ reply }) => handleAddReply(reply)}
-                        className="w-full"
-                        form={addReplyForm}
-                      >
-                        <Form.Item
-                          name="reply"
-                          rules={[
-                            { required: true, message: "Please add a reply!" },
-                          ]}
-                          className="w-full m-0"
+                      <Card className="w-full rounded-xl p-1 sm:p-2">
+                        <Form
+                          layout="inline"
+                          onFinish={handleAddReply}
+                          className="w-full"
+                          form={addReplyForm}
                         >
-                          <Input
-                            placeholder="Add a reply"
-                            className="px-2 border rounded-lg"
-                            suffix={
+                          <Form.Item
+                            name="reply"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please add a reply!",
+                              },
+                            ]}
+                            className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
+                          >
+                            <Input.TextArea
+                              autoSize={{ minRows: 2, maxRows: 4 }}
+                              maxLength={1000}
+                              showCount
+                              placeholder="Add a reply"
+                              className="px-1 border rounded-lg border-none focus:ring-0 focus:outline-none h-8 mb-2"
+                            />
+                          </Form.Item>
+                          <div className="w-full flex flex-row justify-between mt-1">
+                            <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
+                              <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:nlock">
+                                Rate Db:
+                              </CommonTypography>
+                              <Form.Item className="!p-0 !m-0 " name="rating">
+                                <Rate
+                                  defaultValue={3}
+                                  className="text-[#FFC412] !text-sm"
+                                />
+                              </Form.Item>
+                            </div>
+
+                            <Form.Item>
                               <Button
+                                className="-mr-2 sm:mr-0"
                                 type="text"
                                 htmlType="submit"
                                 disabled={loading}
@@ -443,10 +523,10 @@ const Comment = ({
                                   />
                                 }
                               />
-                            }
-                          />
-                        </Form.Item>
-                      </Form>
+                            </Form.Item>
+                          </div>
+                        </Form>
+                      </Card>
                     </div>
                   </div>
                 )}

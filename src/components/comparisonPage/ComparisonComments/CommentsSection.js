@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, Input, Button, Select, message, Form, Empty } from "antd";
+import { Card, Input, Button, Select, message, Form, Empty, Rate } from "antd";
 import Comment from "./RenderComments";
 import { useSelector } from "react-redux";
 import { CommentStatus } from "@/utils/const";
+import CommonTypography from "@/components/shared/Typography";
+import RenderTree from "./RenderTree";
 
 const { Option } = Select;
 
@@ -16,6 +18,12 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.idToken["custom:userId"];
   const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
+  const selectedDatabaseId = Form.useWatch("databaseId", inputForm);
+
+  const selectedDatabaseName =
+    selectedDatabaseId && selectedDatabaseIds.includes(selectedDatabaseId)
+      ? selectedDatabases[selectedDatabaseIds.indexOf(selectedDatabaseId)]
+      : "";
 
   const fetchComments = async (selectedDatabaseIds) => {
     if (!selectedDatabaseIds || selectedDatabaseIds.length === 0) {
@@ -48,12 +56,13 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
   };
   // Function to add a new comment
   const handleAddComment = async (values) => {
-    const { comment, databaseId } = values;
+    const { comment, databaseId, rating } = values;
 
     const payload = {
       comment: comment,
       databaseId: databaseId,
       createdBy: userId,
+      ...(rating !== undefined && { rating }),
     };
 
     try {
@@ -236,38 +245,62 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
           >
             <Form.Item
               name="comment"
-              rules={[{ required: true, message: "Please add a comment!" }]}
+              rules={[
+                { required: true, message: "Please add a comment!" },
+                {
+                  max: 1000,
+                  message: "Comment cannot exceed 1000 characters!",
+                },
+              ]}
               className="mb-2"
             >
-              <Input
+              <Input.TextArea
+                autoSize={{ minRows: 2, maxRows: 4 }}
                 placeholder="Add a comment"
                 className="border-none focus:ring-0 focus:outline-none h-8"
+                maxLength={1000}
+                showCount
               />
             </Form.Item>
 
-            <div className="flex items-center justify-between">
-              <Form.Item
-                name="databaseId"
-                rules={[{ required: true, message: "Please select database!" }]}
-                className="m-0"
-              >
-                <Select
-                  placeholder="Select database"
-                  popupMatchSelectWidth={false}
-                  allowClear
-                  className="max-w-40 md:max-w-full w-full"
+            <div className="sm:flex items-center justify-between mt-8">
+              <div className="flex flex-col sm:flex-row">
+                <Form.Item
+                  name="databaseId"
+                  rules={[
+                    { required: true, message: "Please select database!" },
+                  ]}
+                  className="m-0"
                 >
-                  {selectedDatabases?.map((db, idx) => (
-                    <Option key={idx} value={selectedDatabaseIds[idx]}>
-                      {db}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+                  <Select
+                    placeholder="Select database"
+                    popupMatchSelectWidth={false}
+                    allowClear
+                    className="sm:max-w-40 md:max-w-full w-full mb-2 sm:mb-0"
+                  >
+                    {selectedDatabases?.map((db, idx) => (
+                      <Option key={idx} value={selectedDatabaseIds[idx]}>
+                        {db}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <div className="flex items-center justify-between border border-[#D9D9D9] rounded-md px-2 sm:ml-2 h-8 ">
+                  <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 truncate max-w-32">
+                    Rate {selectedDatabaseName || "Db"}:
+                  </CommonTypography>
+                  <Form.Item className="!m-0 !p-0" name="rating">
+                    <Rate
+                      defaultValue={3}
+                      className="text-[#FFC412] !text-sm "
+                    />
+                  </Form.Item>
+                </div>
+              </div>
 
               <Button
                 type="primary"
-                className={`bg-[#3E53D7] text-white h-8 md:h-9 text-xs md:text-sm w-20 ${
+                className={`bg-[#3E53D7] text-white h-8 md:h-9 text-xs md:text-sm w-full sm:w-20 mt-2 sm:mt-0${
                   loading ? "w-28" : ""
                 } `}
                 htmlType="submit"
@@ -289,31 +322,58 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
             className="pt-12"
           />
         ) : (
-          commentsData?.map((comment) => (
-            <Comment
-              key={comment.id}
-              comment={comment}
-              level={0}
-              selectedDatabases={selectedDatabases}
-              selectedDatabaseIds={selectedDatabaseIds}
-              showAllReplies={showAllReplies[comment.id] || false}
-              toggleShowAllReplies={(value) =>
-                toggleShowAllReplies(comment.id, value)
-              }
-              deleteComment={(commentId, parentCommentId) =>
-                deleteComment(commentId, parentCommentId)
-              }
-              disableComment={(commentId, parentCommentId) =>
-                disableComment(commentId, parentCommentId)
-              }
-              undisableComment={(commentId, parentCommentId) =>
-                undisableComment(commentId, parentCommentId)
-              }
-              fetchComments={fetchComments}
-            />
-          ))
+          <div className="hello">
+            {commentsData?.map((comment) => (
+              <Comment
+                key={comment.id}
+                comment={comment}
+                level={0}
+                selectedDatabases={selectedDatabases}
+                selectedDatabaseIds={selectedDatabaseIds}
+                showAllReplies={showAllReplies[comment.id] || false}
+                toggleShowAllReplies={(value) =>
+                  toggleShowAllReplies(comment.id, value)
+                }
+                deleteComment={(commentId, parentCommentId) =>
+                  deleteComment(commentId, parentCommentId)
+                }
+                disableComment={(commentId, parentCommentId) =>
+                  disableComment(commentId, parentCommentId)
+                }
+                undisableComment={(commentId, parentCommentId) =>
+                  undisableComment(commentId, parentCommentId)
+                }
+                fetchComments={fetchComments}
+              />
+            ))}
+          </div>
+          // commentsData?.map((comment) => (
+          //   <Comment
+          //     key={comment.id}
+          //     comment={comment}
+          //     level={0}
+          //     selectedDatabases={selectedDatabases}
+          //     selectedDatabaseIds={selectedDatabaseIds}
+          //     showAllReplies={showAllReplies[comment.id] || false}
+          //     toggleShowAllReplies={(value) =>
+          //       toggleShowAllReplies(comment.id, value)
+          //     }
+          //     deleteComment={(commentId, parentCommentId) =>
+          //       deleteComment(commentId, parentCommentId)
+          //     }
+          //     disableComment={(commentId, parentCommentId) =>
+          //       disableComment(commentId, parentCommentId)
+          //     }
+          //     undisableComment={(commentId, parentCommentId) =>
+          //       undisableComment(commentId, parentCommentId)
+          //     }
+          //     fetchComments={fetchComments}
+          //   />
+          // ))
         )}
       </div>
+
+      {/* <RenderTree /> */}
     </div>
   );
 };

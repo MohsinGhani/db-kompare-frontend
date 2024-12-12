@@ -15,5 +15,5 @@ export const DropdownOptions = [
 
 export const CommentStatus = {
   ACTIVE: "ACTIVE",
-  INACTIVE: "INACTIVE",
+  INACTIVE: "DISABLED",
 };
