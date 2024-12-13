@@ -9,6 +9,7 @@
 body {
   background: #ebf2ff;
   font-family: "Plus Jakarta Sans", sans-serif;
+  margin: 0 !important;
 }
 
 @layer utilities {
@@ -54,5 +55,11 @@ body {
 }
 
 :where(.css-dev-only-do-not-override-apn68).ant-card .ant-card-body {
+  padding: 0px;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-collapse
+  .ant-collapse-content
+  > .ant-collapse-content-box {
   padding: 0px;
 }

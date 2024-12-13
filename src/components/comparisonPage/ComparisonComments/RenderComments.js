@@ -336,9 +336,7 @@ const Comment = ({
                           {formatRelativeTime(comment.createdAt)}
                           <div className="-mt-1 rate-container">
                             <Rate
-                              disabled={
-                                comment.status === CommentStatus.INACTIVE
-                              }
+                              disabled
                               value={comment.rating}
                               className={`text-[#FFC412] !text-[11px] ${
                                 comment.status === CommentStatus.INACTIVE
@@ -361,25 +359,27 @@ const Comment = ({
                             {databaseName}
                           </Tag>
                         )}
-                        <Dropdown
-                          menu={{
-                            items: items.map((item) => ({
-                              ...item,
-                              onClick: () => handleMenuClick(item.key),
-                            })),
-                          }}
-                          trigger={["click"]}
-                          placement="bottom"
-                          arrow={{ pointAtCenter: true }}
-                        >
-                          <img
-                            src="/assets/icons/dropdown-icon.svg"
-                            width={25}
-                            height={25}
-                            alt="Dropdown Icon"
-                            className="ml-2 cursor-pointer hover:opacity-70"
-                          />
-                        </Dropdown>
+                        {userDetails && (
+                          <Dropdown
+                            menu={{
+                              items: items.map((item) => ({
+                                ...item,
+                                onClick: () => handleMenuClick(item.key),
+                              })),
+                            }}
+                            trigger={["click"]}
+                            placement="bottom"
+                            arrow={{ pointAtCenter: true }}
+                          >
+                            <img
+                              src="/assets/icons/dropdown-icon.svg"
+                              width={25}
+                              height={25}
+                              alt="Dropdown Icon"
+                              className="ml-2 cursor-pointer hover:opacity-70"
+                            />
+                          </Dropdown>
+                        )}
                       </div>
                     </div>
 

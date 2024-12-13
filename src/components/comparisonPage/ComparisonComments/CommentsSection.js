@@ -6,7 +6,6 @@ import Comment from "./RenderComments";
 import { useSelector } from "react-redux";
 import { CommentStatus } from "@/utils/const";
 import CommonTypography from "@/components/shared/Typography";
-import RenderTree from "./RenderTree";
 
 const { Option } = Select;
 
@@ -372,8 +371,6 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
           // ))
         )}
       </div>
-
-      {/* <RenderTree /> */}
     </div>
   );
 };

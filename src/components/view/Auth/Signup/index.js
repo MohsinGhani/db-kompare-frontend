@@ -97,7 +97,7 @@ const Signup = () => {
                     },
                   ]}
                 />
-                <CommonInput
+                {/* <CommonInput
                   label="Confirm Email"
                   name="confirmEmail"
                   placeholder="Enter your email"
@@ -120,7 +120,7 @@ const Signup = () => {
                       },
                     }),
                   ]}
-                />
+                /> */}
 
                 <CommonInput
                   label="Your Password"
@@ -132,7 +132,7 @@ const Signup = () => {
                   ]}
                 />
 
-                <Form.Item
+                {/* <Form.Item
                   name="agreement"
                   valuePropName="checked"
                   rules={[
@@ -160,7 +160,7 @@ const Signup = () => {
                       </span>
                     </p>
                   </Checkbox>
-                </Form.Item>
+                </Form.Item> */}
                 {error && (
                   <p className="text-red-500 text-base my-2 text-start">
                     {error}

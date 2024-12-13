@@ -1,0 +1,9 @@
+/* Target the Collapse items within the custom-collapse class */
+.custom-collapse .ant-collapse-item {
+  @apply rounded-lg shadow-md;
+}
+
+/* Optional: Customize the Collapse header text */
+.custom-collapse .ant-collapse-header-text {
+  @apply text-sm font-semibold text-[#191A15];
+}

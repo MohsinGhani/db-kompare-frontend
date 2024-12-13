@@ -15,7 +15,8 @@ import { getInitials } from "@/utils/getInitials";
 const CommonUserDropdown = () => {
   const router = useRouter();
   const loginUserDetails = useSelector(selectUserDetails);
-  const userName = loginUserDetails?.idToken?.name;
+  console.log("loginUserDetails", loginUserDetails);
+  const userName = loginUserDetails?.name;
 
   const handleMenuClick = async ({ key }) => {
     switch (key) {
@@ -28,8 +29,7 @@ const CommonUserDropdown = () => {
       case "4":
         await signOut();
         RemoveAccessTokenFormCookies();
-        router.push("/");
-        window.location.reload();
+        window.location.href = "/";
         break;
       default:
         break;
@@ -38,14 +38,6 @@ const CommonUserDropdown = () => {
 
   const menu = {
     items: [
-      {
-        key: "1",
-        label: "My Account",
-        disabled: true,
-      },
-      {
-        type: "divider",
-      },
       // {
       //   key: "2",
       //   icon: <UserOutlined />,
@@ -53,21 +45,30 @@ const CommonUserDropdown = () => {
       // },
       {
         key: "3",
-        icon: <SettingOutlined />,
+        icon: <SettingOutlined className="pr-3 !text-lg " />,
         label: "Settings",
+        className:
+          "h-14 !pl-5 !text-sm !bg-gray-100 hover:!bg-[#dce0f8] hover:!text-[#3E53D7] !rounded-none transition-all !cursor-pointer ",
       },
       {
         key: "4",
-        icon: <LogoutOutlined />,
+        icon: <LogoutOutlined className="pr-3 !text-lg" />,
         label: "Logout",
+        className:
+          "h-14 !pl-6 !text-sm !bg-gray-100 hover:!bg-[#dce0f8] hover:!text-[#3E53D7] !rounded-none transition-all !cursor-pointer",
       },
     ],
     onClick: handleMenuClick,
-    className: "!mt-3",
+    className: "!mt-5 w-48 !bg-white !px-0 !rounded-none",
   };
 
   return (
-    <Dropdown menu={menu} trigger={["click"]} className="cursor-pointer">
+    <Dropdown
+      menu={menu}
+      trigger={["click"]}
+      className="cursor-pointer"
+      placement="bottom"
+    >
       <a onClick={(e) => e.preventDefault()}>
         <Space>
           <Avatar className="bg-[#F6F6FF] text-[#3E53D7] w-9 h-9 ">

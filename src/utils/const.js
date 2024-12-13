@@ -17,3 +17,16 @@ export const CommentStatus = {
   ACTIVE: "ACTIVE",
   INACTIVE: "DISABLED",
 };
+
+export const IT_SKILLS = [
+  "JavaScript",
+  "Python",
+  "Java",
+  "C#",
+  "React",
+  "Node.js",
+  "AWS",
+  "Docker",
+  "SQL",
+  "Git",
+];

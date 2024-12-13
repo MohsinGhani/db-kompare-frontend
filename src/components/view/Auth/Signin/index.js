@@ -13,10 +13,12 @@ import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { setAccessTokenFromLocalStorage } from "@/utils/helper";
+
 const SignIn = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
+  const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
   const onFinish = async (values) => {
     try {
@@ -27,12 +29,56 @@ const SignIn = () => {
 
       const session = await fetchAuthSession();
       const idToken = session.tokens.idToken.payload;
-      dispatch(setUserDetails({ idToken }));
-      setAccessTokenFromLocalStorage();
-      router.push("/");
+
+      const userId = idToken["custom:userId"];
+      handleLogin(userId);
     } catch (err) {
       console.error("Sign-in error:", err?.message);
-      setError(err?.message);
+      if (
+        err.message &&
+        err.message.includes(
+          "Cannot read properties of undefined (reading 'idToken')"
+        )
+      ) {
+        router.push("/verification-code");
+      } else if (err.message && err.message.includes("User does not exist")) {
+        setError("User does not exist.");
+      } else {
+        setError("An error occurred during sign-in. Please try again.");
+      }
+    }
+  };
+
+  const handleLogin = async (userId) => {
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": Y_API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        dispatch(setUserDetails({ data }));
+        setAccessTokenFromLocalStorage();
+        router.push("/");
+      } else if (response.status === 404) {
+        console.warn("User not found.");
+      } else {
+        console.error("Unexpected response status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
     }
   };
 
