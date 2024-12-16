@@ -13,35 +13,30 @@ const ImageUploader = ({ onImageUpload }) => {
 
   const props = {
     name: "file",
-    accept: "image/*", // Accept images only
-    multiple: false, // Ensures only one file can be uploaded at a time
+    accept: "image/*",
+    multiple: false,
     beforeUpload: (file) => {
-      // Restrict file types (only allow JPG, PNG)
       const isImage = file.type === "image/jpeg" || file.type === "image/png";
       if (!isImage) {
         message.error("You can only upload JPG/PNG file!");
       }
 
-      // Restrict file size (example: 3MB limit)
-      const isLt3M = file.size / 1024 / 1024 < 3; // 3MB
+      const isLt3M = file.size / 1024 / 1024 < 3;
       if (!isLt3M) {
         message.error("Image must be smaller than 3MB!");
       }
 
-      // Return false to prevent automatic upload if any condition fails
       return isImage && isLt3M;
     },
     onChange(info) {
       const { status } = info.file;
 
       if (status === "done") {
-        // Handle successful upload
         const uploadedFile = info.file.originFileObj;
         const previewUrl = URL.createObjectURL(uploadedFile);
         setFile(previewUrl);
-        onImageUpload(uploadedFile); // Pass the file to parent component
+        onImageUpload(uploadedFile);
       } else if (status === "error") {
-        // Handle error
         message.error(`${info.file.name} file upload failed.`);
       }
     },
