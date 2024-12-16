@@ -9,15 +9,16 @@ const CustomSelect = ({
   options,
   placeholder,
   disabled = false,
-  maxSelection = 4,
+  maxSelection,
   style = {},
   className = "",
 }) => {
   return (
     <Select
-      disabled={disabled || value?.length > maxSelection}
+      disabled={(maxSelection && disabled) || value?.length > maxSelection}
       mode="multiple"
       className={className}
+      size="large"
       value={value}
       placeholder={placeholder}
       onChange={onChange}
@@ -27,7 +28,7 @@ const CustomSelect = ({
         ...style,
       }}
     >
-      {options.map((option) => (
+      {options?.map((option) => (
         <Option key={option.value} value={option.value}>
           {option.label}
         </Option>

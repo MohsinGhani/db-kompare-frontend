@@ -107,7 +107,9 @@ export default function Navbar() {
       }`}
     >
       <div
-        className={`w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
+        className={`${
+          authRoutes.includes(path) ? "w-[70%]" : "w-full"
+        }  2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
       >
         <div
           className="flex items-center gap-2 justify-center cursor-pointer"
