@@ -141,12 +141,12 @@ const Comparison = ({ params }) => {
           />
         </div>
 
-        <div className="w-full md:pt-8 ">
+        {/* <div className="w-full md:pt-8 ">
           <CommentsSection
             selectedDatabases={selectedDatabases}
             selectedDatabaseIds={selectedDatabaseIds}
           />
-        </div>
+        </div> */}
       </div>
     </>
   );
