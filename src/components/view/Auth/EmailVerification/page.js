@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import CommonButton from "@/components/shared/Button";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
@@ -11,17 +11,21 @@ import { setEmail } from "@/redux/slices/authSlice";
 import { toast } from "react-toastify";
 
 const EmailVerification = () => {
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
 
   const onFinish = async (values) => {
     try {
+      setLoading(true);
       const output = await resetPassword({ username: values.email });
       handleResetPasswordNextSteps(output);
       dispatch(setEmail(values.email));
       router.push("/new-password");
     } catch (err) {
-      toast.error(err);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
   function handleResetPasswordNextSteps(output) {
@@ -67,9 +71,10 @@ const EmailVerification = () => {
                   htmlType="submit"
                   className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
                   style={{ height: "45px" }}
+                  loading={loading}
+                  disabled={loading}
                 >
-                  {/* {forgotPasswordLoader ? "Loading..." : "Confirm"} */}
-                  Confirm
+                  {loading ? "Confirming..." : "   Confirm"}
                 </CommonButton>
               </Form.Item>
             </Form>

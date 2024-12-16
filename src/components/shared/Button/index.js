@@ -17,7 +17,7 @@ const CommonButton = ({
   const buttonStyle = {
     height: "54px",
     padding: "13px 40.92px 13px 41px",
-    gap: "0px",
+    gap: "8px",
     fontWeight: 700,
     borderRadius: "9px ",
   };

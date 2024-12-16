@@ -8,13 +8,14 @@ import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import { signIn } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
-import { setUserDetails } from "@/redux/slices/authSlice";
+import { setEmail, setUserDetails } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { setAccessTokenFromLocalStorage } from "@/utils/helper";
 
 const SignIn = () => {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const SignIn = () => {
 
   const onFinish = async (values) => {
     try {
+      setLoading(true);
       await signIn({
         username: values.email,
         password: values.password,
@@ -34,17 +36,17 @@ const SignIn = () => {
       handleLogin(userId);
     } catch (err) {
       console.error("Sign-in error:", err?.message);
+      setLoading(false);
       if (
         err.message &&
         err.message.includes(
           "Cannot read properties of undefined (reading 'idToken')"
         )
       ) {
+        dispatch(setEmail(values.email));
         router.push("/verification-code");
-      } else if (err.message && err.message.includes("User does not exist")) {
-        setError("User does not exist.");
       } else {
-        setError("An error occurred during sign-in. Please try again.");
+        setError(err.message);
       }
     }
   };
@@ -79,6 +81,8 @@ const SignIn = () => {
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,10 +154,12 @@ const SignIn = () => {
                 )}
                 <CommonButton
                   htmlType="submit"
-                  className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
+                  className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white flex items-center justify-center gap-2"
                   style={{ height: "45px" }}
+                  loading={loading}
+                  disabled={loading}
                 >
-                  Sign In
+                  {loading ? "Signing in..." : "Sign In"}
                 </CommonButton>
               </Form.Item>
             </Form>

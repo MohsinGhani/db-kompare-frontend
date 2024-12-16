@@ -1,22 +1,33 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, Input, Button, Select, message, Form, Empty, Rate } from "antd";
+import {
+  Card,
+  Input,
+  Button,
+  Select,
+  message,
+  Form,
+  Empty,
+  Rate,
+  Skeleton,
+} from "antd";
 import Comment from "./RenderComments";
 import { useSelector } from "react-redux";
 import { CommentStatus } from "@/utils/const";
 import CommonTypography from "@/components/shared/Typography";
 
 const { Option } = Select;
+const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 
 const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
   const [commentsData, setCommentsData] = useState([]);
   const [showAllReplies, setShowAllReplies] = useState({});
   const [loading, setLoading] = useState(false);
+  const [addCommentLoading, setAddCommentLoading] = useState(false);
   const [inputForm] = Form.useForm();
   const { userDetails } = useSelector((state) => state.auth);
-  const userId = userDetails?.idToken["custom:userId"];
-  const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
+  const userId = userDetails?.data?.data?.id;
   const selectedDatabaseId = Form.useWatch("databaseId", inputForm);
 
   const selectedDatabaseName =
@@ -29,6 +40,7 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
       return;
     }
     try {
+      setLoading(true);
       const response = await fetch(
         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/get-comments",
         {
@@ -51,6 +63,8 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
+    } finally {
+      setLoading(false);
     }
   };
   // Function to add a new comment
@@ -65,7 +79,7 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
     };
 
     try {
-      setLoading(true);
+      setAddCommentLoading(true);
       const response = await fetch(
         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/create-comment",
         {
@@ -93,7 +107,7 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
         error.message || "An error occurred while adding the comment"
       );
     } finally {
-      setLoading(false);
+      setAddCommentLoading(false);
     }
   };
   // Function to delete a comment or reply
@@ -299,12 +313,12 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
 
               <Button
                 type="primary"
-                className={`bg-[#3E53D7] text-white h-8 md:h-9 text-xs md:text-sm w-full sm:w-20 mt-2 sm:mt-0${
-                  loading ? "w-28" : ""
+                className={`bg-[#3E53D7] text-white h-8 md:h-9 text-xs md:text-sm w-full sm:w-20 mt-2 sm:mt-0 ${
+                  addCommentLoading ? "sm:w-28" : ""
                 } `}
                 htmlType="submit"
-                disabled={loading}
-                loading={loading}
+                disabled={addCommentLoading}
+                loading={addCommentLoading}
               >
                 Submit
               </Button>
@@ -313,16 +327,18 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
         </div>
       </Card>
 
-      <div className="">
-        {commentsData?.length === 0 ? (
+      <div>
+        {loading ? (
+          <Skeleton active paragraph={{ rows: 3 }} className="pt-12" />
+        ) : commentsData === undefined || commentsData.length === 0 ? (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="No comments"
             className="pt-12"
           />
         ) : (
-          <div className="hello">
-            {commentsData?.map((comment) => (
+          <div>
+            {commentsData.map((comment) => (
               <Comment
                 key={comment.id}
                 comment={comment}
@@ -346,29 +362,6 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
               />
             ))}
           </div>
-          // commentsData?.map((comment) => (
-          //   <Comment
-          //     key={comment.id}
-          //     comment={comment}
-          //     level={0}
-          //     selectedDatabases={selectedDatabases}
-          //     selectedDatabaseIds={selectedDatabaseIds}
-          //     showAllReplies={showAllReplies[comment.id] || false}
-          //     toggleShowAllReplies={(value) =>
-          //       toggleShowAllReplies(comment.id, value)
-          //     }
-          //     deleteComment={(commentId, parentCommentId) =>
-          //       deleteComment(commentId, parentCommentId)
-          //     }
-          //     disableComment={(commentId, parentCommentId) =>
-          //       disableComment(commentId, parentCommentId)
-          //     }
-          //     undisableComment={(commentId, parentCommentId) =>
-          //       undisableComment(commentId, parentCommentId)
-          //     }
-          //     fetchComments={fetchComments}
-          //   />
-          // ))
         )}
       </div>
     </div>

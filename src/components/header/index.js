@@ -9,7 +9,7 @@ import CommonTypography from "../shared/Typography";
 import { Navlinks } from "@/utils/const";
 import CommonButton from "../shared/Button";
 import CommonUserDropdown from "../shared/UserDropdown";
-import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectEmail,
@@ -35,6 +35,40 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const email = useSelector(selectEmail);
   const userDetails = useSelector(selectUserDetails);
+  const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
+
+  const handleLogin = async (userId) => {
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": Y_API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        dispatch(setUserDetails({ data }));
+      } else if (response.status === 404) {
+        console.warn("User not found.");
+      } else {
+        console.error("Unexpected response status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -44,19 +78,17 @@ export default function Navbar() {
         console.log("Fetched session:", session);
 
         if (!session) {
+          setLoading(false);
           dispatch(setUserDetails(null));
           return;
         }
 
         const idToken = session.tokens.idToken.payload;
-        const currentUser = await getCurrentUser();
-        console.log("Fetched currentUser:", currentUser);
-        dispatch(setUserDetails({ idToken, ...currentUser }));
+        const userId = idToken["custom:userId"];
+        handleLogin(userId);
       } catch (error) {
         console.error("Error fetching current user:", error);
-
         dispatch(setUserDetails(null));
-      } finally {
         setLoading(false);
       }
     };
@@ -64,7 +96,7 @@ export default function Navbar() {
     if (!userDetails && !authRoutes.includes(path)) {
       fetchCurrentUser();
     }
-  }, [path, dispatch]);
+  }, [path, dispatch, userDetails]);
 
   return (
     <div
@@ -140,6 +172,7 @@ export default function Navbar() {
             )}
           </div>
         )}
+
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"

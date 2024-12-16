@@ -15,13 +15,15 @@ import { signUp } from "aws-amplify/auth";
 import { useDispatch } from "react-redux";
 import { setEmail } from "@/redux/slices/authSlice";
 const Signup = () => {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModal] = useState(false);
+  const router = useRouter();
   const dispatch = useDispatch();
 
   const onFinish = async (values) => {
     try {
+      setLoading(true);
       await signUp({
         username: values.email,
         password: values.password,
@@ -38,6 +40,8 @@ const Signup = () => {
     } catch (err) {
       console.error(err);
       setError(err?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,8 +175,10 @@ const Signup = () => {
                     htmlType="submit"
                     className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
                     style={{ height: "45px" }}
+                    loading={loading}
+                    disabled={loading}
                   >
-                    Signup
+                    {loading ? "Signing up..." : "Signup"}
                   </CommonButton>
                 </Form.Item>
               </Form>

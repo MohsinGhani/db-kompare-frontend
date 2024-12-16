@@ -10,7 +10,6 @@ export const ChangePasswordForm = ({ email }) => {
 
   const handlePasswordSubmit = async (values) => {
     const { oldPassword, confirmPassword } = values;
-    console.log(values);
     try {
       setPasswordLoading(true);
       await updatePassword({
@@ -81,9 +80,10 @@ export const ChangePasswordForm = ({ email }) => {
           type="primary"
           htmlType="submit"
           loading={passwordLoading}
+          disabled={passwordLoading}
           className="bg-[#3E53D7]"
         >
-          Change Password
+          {passwordLoading ? "Changing Password..." : "Change Password"}
         </Button>
       </Form.Item>
     </Form>

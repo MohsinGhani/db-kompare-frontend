@@ -1,15 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Select, message } from "antd";
+import { Form, Input, Button, Select } from "antd";
 import { IT_SKILLS } from "@/utils/const";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setUserDetails } from "@/redux/slices/authSlice";
 
 const { Option } = Select;
+const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
 export const BasicDetailsForm = ({ userData }) => {
   const [basicDetailsLoading, setBasicDetailsLoading] = useState(false);
+  const [originalData, setOriginalData] = useState({});
   const [basicDetailsForm] = Form.useForm();
-  const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (userData && userData.data) {
+      setOriginalData({
+        name: userData.data.name,
+        email: userData.data.email,
+        skills: userData.data.skills || [],
+      });
+      basicDetailsForm.setFieldsValue({
+        name: userData.data.name,
+        email: userData.data.email,
+        skills: userData.data.skills || [],
+      });
+    }
+  }, [userData, basicDetailsForm]);
 
   const handleBasicDetailsSubmit = async (values) => {
     const { name, skills } = values;
@@ -18,6 +37,15 @@ export const BasicDetailsForm = ({ userData }) => {
       name,
       skills,
     };
+
+    if (
+      name === originalData.name &&
+      skills.toString() === originalData.skills.toString()
+    ) {
+      toast.info("No changes made to the data.");
+      return;
+    }
+
     try {
       setBasicDetailsLoading(true);
       const response = await fetch(
@@ -35,6 +63,7 @@ export const BasicDetailsForm = ({ userData }) => {
       const data = await response.json();
 
       if (response.ok) {
+        dispatch(setUserDetails({ data }));
         toast.success("Details Updated Successfully");
       }
     } catch (err) {
@@ -43,16 +72,6 @@ export const BasicDetailsForm = ({ userData }) => {
       setBasicDetailsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (userData && userData.data) {
-      basicDetailsForm.setFieldsValue({
-        name: userData.data.name,
-        email: userData.data.email,
-        skills: userData.data.skills || [],
-      });
-    }
-  }, [userData, basicDetailsForm]);
 
   return (
     <Form
@@ -102,11 +121,9 @@ export const BasicDetailsForm = ({ userData }) => {
           disabled={basicDetailsLoading}
           className="bg-[#3E53D7]"
         >
-          Save Changes
+          {basicDetailsLoading ? "Saving Changes" : "Save Changes"}
         </Button>
       </Form.Item>
     </Form>
   );
 };
-
-// export default BasicDetailsForm;

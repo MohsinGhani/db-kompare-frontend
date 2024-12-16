@@ -2,17 +2,17 @@
 
 import { Collapse } from "antd";
 import React, { useEffect, useState } from "react";
-import { BasicDetailsForm } from "./basic-details-form";
-import { ChangeEmailForm } from "./change-email-form";
-import { ChangePasswordForm } from "./change-password-form";
+import { BasicDetailsForm } from "./basicdetailsForm";
+import { ChangeEmailForm } from "./changeemailForm";
+import { ChangePasswordForm } from "./changepasswordForm";
 import CommonTypography from "@/components/shared/Typography";
-import "./custom-collapse.scss";
+import "./customCollapse.scss";
 import { useSelector } from "react-redux";
 
 const UserProfile = () => {
   const [userData, setUserData] = useState();
   const { userDetails } = useSelector((state) => state.auth);
-  const userId = userDetails?.idToken["custom:userId"];
+  const userId = userDetails?.data?.data?.id;
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
   const fetchUserDetails = async () => {
@@ -73,7 +73,7 @@ const UserProfile = () => {
   ];
 
   return (
-    <div className="bg-white pt-24 px-12 h-full max-w-[75%] ">
+    <div className="bg-white pt-28 pl-28 pb-12 h-full max-w-[75%] ">
       <div className="min-h-[calc(100vh-416px)] h-full">
         <div className=" flex flex-col py-4">
           <CommonTypography className="text-2xl font-semibold">

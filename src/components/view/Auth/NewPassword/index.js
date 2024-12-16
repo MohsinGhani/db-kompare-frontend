@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import CommonButton from "@/components/shared/Button";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
@@ -11,12 +11,14 @@ import { selectEmail } from "@/redux/slices/authSlice";
 import { useRouter } from "next/navigation";
 
 const NewPassword = () => {
+  const [loading, setLoading] = useState(false);
   const email = useSelector(selectEmail);
   const router = useRouter();
   const onFinish = async (values) => {
     const { name, confirmationCode, confirmPassword } = values;
 
     try {
+      setLoading(true);
       await confirmResetPassword({
         username: email,
         confirmationCode,
@@ -27,6 +29,8 @@ const NewPassword = () => {
       toast.success("Password reset successful");
     } catch (err) {
       toast.error(err?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,8 +102,10 @@ const NewPassword = () => {
                   htmlType="submit"
                   className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
                   style={{ height: "45px" }}
+                  disabled={loading}
+                  loading={loading}
                 >
-                  Confirm
+                  {loading ? "Confirming..." : "Confirm"}
                 </CommonButton>
               </Form.Item>
             </Form>

@@ -39,8 +39,8 @@ const Comment = ({
   const [editReplyForm] = Form.useForm();
   const editInputRef = useRef(null);
   const { userDetails } = useSelector((state) => state.auth);
-  const userId = userDetails?.idToken["custom:userId"];
-  const userName = userDetails?.idToken["name"];
+  const userId = userDetails?.data?.data?.id;
+  const userName = userDetails?.data?.data?.name;
   const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 
   const databaseName =
@@ -238,7 +238,9 @@ const Comment = ({
             <div className=" relative flex items-start">
               <Avatar
                 className={`bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-1 mt-[2px] ${
-                  comment.disabled ? "opacity-70 cursor-default" : ""
+                  comment.status === CommentStatus.INACTIVE
+                    ? "opacity-70 cursor-default"
+                    : ""
                 }`}
               >
                 {getInitials(comment.createdBy.name)}
@@ -278,7 +280,7 @@ const Comment = ({
                                 showCount
                               />
                             </Form.Item>
-                            <div className="w-full flex flex-row justify-between ">
+                            <div className="w-full flex flex-row justify-between mt-1 sm:mt-3 ">
                               <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
                                 <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:block">
                                   Rate Db:
@@ -495,7 +497,7 @@ const Comment = ({
                               className="px-1 border rounded-lg border-none focus:ring-0 focus:outline-none h-8 mb-2"
                             />
                           </Form.Item>
-                          <div className="w-full flex flex-row justify-between mt-1">
+                          <div className="w-full flex flex-row justify-between mt-2 sm:mt-3">
                             <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
                               <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:nlock">
                                 Rate Db:

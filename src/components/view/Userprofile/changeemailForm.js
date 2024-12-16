@@ -8,6 +8,7 @@ import CommonButton from "@/components/shared/Button";
 
 export const ChangeEmailForm = ({ email }) => {
   const [emailLoading, setEmailLoading] = useState(false);
+  const [emailModalLoading, setEmailModalLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState(null);
@@ -17,7 +18,7 @@ export const ChangeEmailForm = ({ email }) => {
     const newEmail = values.email;
 
     if (newEmail.trim().toLowerCase() === email.trim().toLowerCase()) {
-      toast.warn("The new email is the same as the current email.");
+      toast.info("The new email is the same as the current email.");
       return;
     }
     try {
@@ -39,6 +40,7 @@ export const ChangeEmailForm = ({ email }) => {
 
   const onFinish = async () => {
     try {
+      setEmailModalLoading(true);
       await confirmUserAttribute({
         confirmationCode: otpCode,
         userAttributeKey: "email",
@@ -48,8 +50,11 @@ export const ChangeEmailForm = ({ email }) => {
     } catch (err) {
       toast.error(err?.message);
       setError(err?.message);
+    } finally {
+      setEmailModalLoading(false);
     }
   };
+
   const onChange = (text) => {
     setOtpCode(text);
   };
@@ -90,9 +95,10 @@ export const ChangeEmailForm = ({ email }) => {
             type="primary"
             htmlType="submit"
             loading={emailLoading}
+            disabled={emailLoading}
             className="bg-[#3E53D7]"
           >
-            Change Email
+            {emailLoading ? "Changing Email..." : "Change Email"}
           </Button>
         </Form.Item>
       </Form>
@@ -133,8 +139,10 @@ export const ChangeEmailForm = ({ email }) => {
                     htmlType="submit"
                     className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
                     style={{ height: "45px" }}
+                    loading={emailModalLoading}
+                    disabled={emailModalLoading}
                   >
-                    Confirm
+                    {emailModalLoading ? "Confirming..." : "Confirm"}
                   </CommonButton>
                 </Form.Item>
               </Form>
@@ -145,5 +153,3 @@ export const ChangeEmailForm = ({ email }) => {
     </div>
   );
 };
-
-// export default ChangeEmailForm;
