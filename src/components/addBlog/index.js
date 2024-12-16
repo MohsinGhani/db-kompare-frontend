@@ -108,7 +108,6 @@ const AddBlog = () => {
         <Form.Item>
           <CommonButton
             className="bg-primary text-white mt-8 md:max-w-[130px] w-full"
-            // style={{ height: "42px" }}
             htmltype="submit"
             disabled={loading}
           >

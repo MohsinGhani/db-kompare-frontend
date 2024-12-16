@@ -30,7 +30,7 @@ const SingleBlogCard = ({ blog }) => {
         />
 
         <div className="absolute top-2 right-2  bg-primary p-2 rounded-full">
-          <Image src={editblogIcon} width={25} height={25} />
+          <Image src={editblogIcon} width={20} height={20} />
         </div>
       </Link>
       <div className="p-3 sm:p-8 md:px-6 md:py-6 lg:p-4 xl:px-5 xl:py-4 2xl:px-8 2xl:pt-8 ">
