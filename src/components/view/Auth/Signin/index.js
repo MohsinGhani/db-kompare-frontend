@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { setAccessTokenFromLocalStorage } from "@/utils/helper";
+import { socialRegisteration } from "@/utils/authServices";
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -97,7 +98,10 @@ const SignIn = () => {
             <p className="mb-6 text-center text-base font-medium text-secondary">
               Login to your account for a faster checkout.
             </p>
-            <button className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]">
+            <button
+              onClick={() => socialRegisteration("Google")}
+              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+            >
               <Image
                 src={googleIcon}
                 alt="Google Icon"
@@ -105,6 +109,18 @@ const SignIn = () => {
                 height={20}
               />
               Sign in with Google
+            </button>
+            <button
+              onClick={() => socialRegisteration("Google")}
+              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+            >
+              <Image
+                src={googleIcon}
+                alt="Google Icon"
+                width={20}
+                height={20}
+              />
+              Sign in with Github
             </button>
 
             <div className="mb-8 flex items-center justify-center">

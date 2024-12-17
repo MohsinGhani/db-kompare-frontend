@@ -5,10 +5,13 @@ import CommonTypography from "../shared/Typography";
 import ProcessDataHtml from "@/utils/processHtml";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { formatDateForHeader } from "@/utils/formatDateAndTime";
+import { useRouter } from "next/navigation";
 
 const { Column, ColumnGroup } = Table;
 
 const RankingTable = ({ previousDays }) => {
+  const router = useRouter();
+
   const [rankingTableData, setRankingTableData] = useState([]);
 
   useEffect(() => {
@@ -178,7 +181,14 @@ const RankingTable = ({ previousDays }) => {
           title={<span style={columnStyle}>DBMS</span>}
           dataIndex="DBMS"
           key="DBMS"
-          render={(text) => <span style={{ color: "#3E53D7" }}>{text}</span>}
+          render={(text) => (
+            <span
+              className="text-[#0000FF] cursor-pointer"
+              onClick={() => router.push(`/db-comparison/${text}`)}
+            >
+              {text}
+            </span>
+          )}
         />
 
         <Column
