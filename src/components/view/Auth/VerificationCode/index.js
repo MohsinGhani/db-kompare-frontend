@@ -63,9 +63,7 @@ const CodeVerification = () => {
             <Form onFinish={onFinish} layout="vertical">
               <div className="my-5">
                 <Input.OTP
-                  type="number"
-                  style={{ width: "100%" }}
-                  formatter={(str) => str.toUpperCase()}
+                  style={{ width: "100%", height: "50px" }}
                   {...sharedProps}
                 />
               </div>
