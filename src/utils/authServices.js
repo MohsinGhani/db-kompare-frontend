@@ -1,4 +1,4 @@
-import { fetchUserAttributes } from "aws-amplify/auth";
+import { fetchUserAttributes, signInWithRedirect } from "aws-amplify/auth";
 import Cookies from "js-cookie";
 import { setCookieHandler } from "./helper";
 
@@ -32,4 +32,15 @@ export const handleLogin = (email, password) => {
       reject(e);
     }
   });
+};
+
+export const socialRegisteration = async (provider, customState) => {
+  const details = {
+    provider,
+  };
+  if (customState) {
+    details["customState"] = customState;
+  }
+
+  return signInWithRedirect(details);
 };
