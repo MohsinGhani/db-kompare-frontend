@@ -1,5 +1,8 @@
-import { fetchUserAttributes } from "aws-amplify/auth";
-import Cookies from "js-cookie";
+import {
+  fetchUserAttributes,
+  signInWithRedirect,
+  fetchAuthSession,
+} from "aws-amplify/auth";
 import { setCookieHandler } from "./helper";
 
 const getJWTTokenFromLocalStorage = () => {
@@ -32,4 +35,22 @@ export const handleLogin = (email, password) => {
       reject(e);
     }
   });
+};
+export const socialRegisteration = async (provider, customState) => {
+  const details = {
+    provider,
+  };
+  if (customState) {
+    details["customState"] = customState;
+  }
+
+  return signInWithRedirect(details);
+};
+
+export const handleFetchAuthSession = async () => {
+  try {
+    await fetchAuthSession();
+  } catch (e) {
+    throw e;
+  }
 };

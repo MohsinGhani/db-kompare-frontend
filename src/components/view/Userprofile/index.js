@@ -73,7 +73,7 @@ const UserProfile = () => {
   ];
 
   return (
-    <div className="bg-white pt-28 pl-28 pb-12 h-full max-w-[75%] ">
+    <div className="bg-white lg:pt-28 lg:pl-28 lg:pb-12 h-full lg:max-w-[75%] px-8 pt-24 pb-8">
       <div className="min-h-[calc(100vh-416px)] h-full">
         <div className=" flex flex-col py-4">
           <CommonTypography className="text-2xl font-semibold">
