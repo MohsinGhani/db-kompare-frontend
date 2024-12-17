@@ -56,7 +56,6 @@
 
 //       const data = await response.json();
 //       if (response.ok) {
-//         console.log(data);
 //         setCommentsData(data.data || []);
 //       } else if (response.status === 404) {
 //         setCommentsData([]);
