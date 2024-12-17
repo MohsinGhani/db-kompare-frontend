@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const getJWTTokenFromLocalStorage = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
@@ -20,4 +21,11 @@ export const setAccessTokenFromLocalStorage = () => {
 
 export const RemoveAccessTokenFormCookies = () => {
   Cookies.remove("accessToken");
+};
+
+export const setCookieHandler = (token) => {
+  const decode = jwtDecode(token);
+  const expires = new Date(decode.exp * 1000);
+
+  Cookies.set("token", token, { expires, secure: true });
 };

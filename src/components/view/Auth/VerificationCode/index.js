@@ -1,18 +1,19 @@
 "use client";
 
 import CommonButton from "@/components/shared/Button";
-import CommonTypography from "@/components/shared/Typography";
 import { selectEmail } from "@/redux/slices/authSlice";
-import { Form, Input } from "antd";
+import { Button, Form, Input } from "antd";
 import { confirmSignUp, resendSignUpCode } from "aws-amplify/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const CodeVerification = () => {
   const [loading, setLoading] = useState(false);
+  const [sendingCodeLoading, setSendingCodeLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState(null);
   const [otpCode, setOtpCode] = useState("");
   const router = useRouter();
@@ -42,12 +43,28 @@ const CodeVerification = () => {
   };
   const handleResendCode = async () => {
     try {
+      setSendingCodeLoading(true);
       await resendSignUpCode({ username: email });
       toast.success("Verfication code sent successfully");
+      setCountdown(60);
     } catch (err) {
       toast.error(err?.message);
+    } finally {
+      setSendingCodeLoading(false);
     }
   };
+
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prevCount) => prevCount - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [countdown]);
   return (
     <div className="relative w-full bg-background overflow-hidden pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[190px]">
       <div className="flex flex-wrap ">
@@ -85,13 +102,23 @@ const CodeVerification = () => {
               </Form.Item>
             </Form>
 
-            <CommonTypography
-              type="link"
-              className=" text-[#2d3a8c] font-normal mt-2 mb-4 flex justify-end"
-              onClick={handleResendCode}
-            >
-              Resend Code
-            </CommonTypography>
+            <div className="flex justify-end mt-1 mb-5 -mr-2">
+              <Button
+                className={`!bg-none !focus:none !shadow-none !border-none hover:!border-none text-[#2d3a8c] font-medium ${
+                  countdown > 0 ? "cursor-not-allowed opacity-70" : ""
+                }`}
+                onClick={handleResendCode}
+                loading={sendingCodeLoading}
+                disabled={sendingCodeLoading || countdown > 0}
+                style={{ background: "none", color: "#2d3a8c" }}
+              >
+                {sendingCodeLoading
+                  ? "Resending Code..."
+                  : countdown > 0
+                  ? `Resend Code (${countdown}s)`
+                  : "Resend Code"}
+              </Button>
+            </div>
 
             <p className="text-center text-base font-medium text-body-color">
               Continue to DB Kompare{" "}

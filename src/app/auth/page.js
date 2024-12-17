@@ -1,7 +1,12 @@
 import React from "react";
+import AuthFlowHandler from "@/components/view/Auth/AuthFlowHandler";
 
-const page = () => {
-  return <div>Auth</div>;
+export const metadata = {
+  title: "Sign In | DB Kompare",
+  description: "This is Sign In DB Kompare",
+};
+const AuthFlowHandlePage = () => {
+  return <AuthFlowHandler />;
 };
 
-export default page;
+export default AuthFlowHandlePage;
