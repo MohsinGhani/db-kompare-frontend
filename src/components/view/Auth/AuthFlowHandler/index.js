@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { Image } from "antd";
 import { handleFetchAuthSession } from "@/utils/authServices";
 
 const getHash = () =>
