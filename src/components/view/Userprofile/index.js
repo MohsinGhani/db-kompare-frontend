@@ -73,17 +73,8 @@ const UserProfile = () => {
   ];
 
   return (
-    <div className="bg-white pt-28 pl-28 pb-12 h-full max-w-[75%] ">
+    <div className="bg-white pb-12 h-full max-w-[75%] ">
       <div className="min-h-[calc(100vh-416px)] h-full">
-        <div className=" flex flex-col py-4">
-          <CommonTypography className="text-2xl font-semibold">
-            Edit Profile
-          </CommonTypography>
-          <CommonTypography className="text-gray-500">
-            Edit and manage your profile
-          </CommonTypography>
-        </div>
-
         <Collapse
           items={items}
           defaultActiveKey={["1", "2", "3"]}

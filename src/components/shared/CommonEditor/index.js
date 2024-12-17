@@ -8,14 +8,7 @@ import ImageResize from "quill-image-resize-module-react";
 
 Quill.register("modules/imageResize", ImageResize);
 
-const CommonEditor = ({
-  label,
-  name,
-  rules = [],
-  editorProps = {},
-  labelLevel = 5,
-  ...rest
-}) => {
+const CommonEditor = ({ value, onChange }) => {
   const modules = {
     toolbar: [
       [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -50,13 +43,14 @@ const CommonEditor = ({
     "indent",
     "image",
   ];
-
+  console.log("value", value);
   return (
     <>
       <ReactQuill
+        value={value}
+        onChange={onChange}
         modules={modules}
         formats={formats}
-        {...editorProps}
         className="h-[350px]"
       />
     </>

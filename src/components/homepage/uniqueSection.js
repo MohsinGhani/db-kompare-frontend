@@ -27,7 +27,7 @@ const MakeUsUnique = () => {
   ];
 
   return (
-    <div className="  text-5xl  text-center xl:px-32 lg:px-4 px-9  py-10 md:py-24 w-full">
+    <div className="container  text-5xl  text-center  py-10 md:py-24 w-full">
       <CommonTypography classes="md:text-5xl text-2xl font-bold">
         What Makes Us Unique
       </CommonTypography>

@@ -44,9 +44,12 @@ const AddBlog = () => {
 
     fetchData();
   }, []);
+  const handleEditorChange = (value) => {
+    form.setFieldsValue({ description: value });
+  };
 
   return (
-    <div className="h-full w-full max-w-[1250px] py-24 px-7 md:py-32 lg:p-28">
+    <div className="h-full w-full max-w-[1100px] py-24 md:py-32  container">
       <CommonTypography classes="text-3xl font-bold">Add Blog</CommonTypography>
       <Form
         form={form}
@@ -95,13 +98,15 @@ const AddBlog = () => {
         </Form.Item>
 
         <Form.Item
-          className="bg-orange"
           name="description"
           rules={[{ required: true, message: "Please add Details" }]}
           style={{ fontSize: "23px" }}
         >
           <div className="md:mb-12 mb-28 mt-5">
-            <CommonEditor />
+            <CommonEditor
+              value={form.getFieldValue("description")}
+              onChange={handleEditorChange}
+            />
           </div>
         </Form.Item>
 

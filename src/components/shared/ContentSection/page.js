@@ -24,7 +24,7 @@ export default function ContentSection({
           </div>
         </div>
       </div>
-      <div className="w-full p-20 lg:px-14 px-8 xl:px-28 md:px-12 flex flex-col gap-20 md:gap-2  items-center h-full">
+      <div className="w-full p-20  px-8 xl:px-28 md:px-12 flex flex-col gap-20 md:gap-2  items-center h-full">
         <div className="md:w-3/5 text-center ">
           <h1 className="md:text-5xl text-2xl font-bold mb-4">{heading2}</h1>
 

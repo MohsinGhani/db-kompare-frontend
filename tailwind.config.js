@@ -6,6 +6,30 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "1.5rem",
+    },
+
+    screens: {
+      xs: "650px",
+      // => @media (min-width: 450px) { ... }
+
+      sm: "768px",
+      // => @media (min-width: 576px) { ... }
+
+      md: "950px",
+      // => @media (min-width: 768px) { ... }
+
+      lg: "1400px",
+      // => @media (min-width: 992px) { ... }
+
+      xl: "1400px",
+      // => @media (min-width: 1200px) { ... }
+
+      "2xl": "1440px",
+      // => @media (min-width: 1400px) { ... }
+    },
     extend: {
       colors: {
         primary: "#3E53D7",

@@ -7,6 +7,7 @@ import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
+import Blog from "@/components/view/Blog";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -103,7 +104,7 @@ const Comparison = ({ params }) => {
       <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
         <ComparisonHeader selectedDatabases={selectedDatabases} />
       </div>
-      <div className="w-full h-auto p-12 md:p-20 px-8 md:px-28 font-medium flex flex-col gap-8 md:gap-5 items-center">
+      <div className="w-full h-auto container font-medium  py-10 flex flex-col gap-8 md:gap-5 items-center">
         <DatabaseSelect
           dbData={dbData}
           selectedDatabases={selectedDatabases}
@@ -140,13 +141,13 @@ const Comparison = ({ params }) => {
             setSelectedDatabasesOptions={setSelectedDatabasesOptions}
           />
         </div>
-
         {/* <div className="w-full md:pt-8 ">
           <CommentsSection
             selectedDatabases={selectedDatabases}
             selectedDatabaseIds={selectedDatabaseIds}
           />
         </div> */}
+        <Blog route="/blog" text="Related Blogs" buttonText="All Blogs" />
       </div>
     </>
   );

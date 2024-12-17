@@ -1,4 +1,4 @@
-import Blog from "@/components/view/blog";
+import Blog from "@/components/view/Blog";
 import React from "react";
 
 export const metadata = {
@@ -7,5 +7,15 @@ export const metadata = {
   },
 };
 export default function index() {
-  return <Blog />;
+  return (
+    <div className="container py-28">
+      {" "}
+      <Blog
+        route="/add-blog"
+        text="My Blog"
+        buttonText="Add Blog"
+        secondText=" Edit and manage your blogs"
+      />
+    </div>
+  );
 }
