@@ -153,7 +153,10 @@ export const ChangeEmailForm = ({ email }) => {
 
               <Form layout="vertical" onFinish={onFinish}>
                 <div className="my-5">
-                  <Input.OTP style={{ width: "100%" }} {...sharedProps} />
+                  <Input.OTP
+                    style={{ width: "100%", height: "50px" }}
+                    {...sharedProps}
+                  />
                 </div>
                 {error && (
                   <p className="text-red-500 text-base my-2 text-start">
