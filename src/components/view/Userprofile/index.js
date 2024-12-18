@@ -4,7 +4,7 @@ import CommonTypography from "@/components/shared/Typography";
 import { Tabs } from "antd";
 import React, { useState } from "react";
 import Blog from "../Blog";
-import UserProfileForm from "./UserProfileForm";
+import UserProfileForm from "./userProfileForm";
 
 export default function UserProfile() {
   const [activeKey, setActiveKey] = useState("1");
