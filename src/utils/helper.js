@@ -12,10 +12,7 @@ export const setAccessTokenFromLocalStorage = () => {
   const accessToken = getAmplifyUserToken();
 
   if (accessToken) {
-    console.log("Access Token from Local Storage:", accessToken);
     Cookies.set("accessToken", accessToken, { expires: 1, secure: true });
-  } else {
-    console.log("No accessToken found in local storage.");
   }
 };
 

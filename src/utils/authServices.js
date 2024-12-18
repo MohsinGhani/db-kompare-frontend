@@ -49,8 +49,7 @@ export const socialRegisteration = async (provider, customState) => {
 
 export const handleFetchAuthSession = async () => {
   try {
-    const session = await fetchAuthSession();
-    console.log("session", session);
+    await fetchAuthSession();
     const accessToken = getAmplifyUserToken();
     setCookieHandler(accessToken);
   } catch (e) {
