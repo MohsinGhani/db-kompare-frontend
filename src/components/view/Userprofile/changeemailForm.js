@@ -10,9 +10,9 @@ import { toast } from "react-toastify";
 import CommonModal from "@/components/shared/CommonModal";
 import CommonButton from "@/components/shared/Button";
 import { useSelector } from "react-redux";
-import CommonTypography from "@/components/shared/Typography";
+import { ProviderType } from "@/utils/const";
 
-const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 export const ChangeEmailForm = ({ email }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -67,7 +67,7 @@ export const ChangeEmailForm = ({ email }) => {
         email,
       };
 
-      await fetch(`${DATABASE_API_URL}/update-user`, {
+      await fetch(`${API_BASE_URL_1}/update-user`, {
         method: "POST",
         headers: {
           "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
@@ -79,7 +79,7 @@ export const ChangeEmailForm = ({ email }) => {
       toast.success("Email updated successfully");
       setIsModalOpen(false);
     } catch (err) {
-      console.error("Error confirming email:", err.message);
+      toast.error(err?.message);
     } finally {
       setEmailModalLoading(false);
     }
@@ -97,7 +97,6 @@ export const ChangeEmailForm = ({ email }) => {
     const fetchCurrentUser = async () => {
       try {
         const session = await fetchAuthSession();
-        console.log("session", session);
         if (session) {
           setProviderName(
             session?.tokens?.idToken?.payload?.identities[0]?.providerName
@@ -121,11 +120,10 @@ export const ChangeEmailForm = ({ email }) => {
 
   return (
     <div>
-      {providerName === "Google" && (
+      {providerName === ProviderType.GOOGLE && (
         <div className=" p-3 rounded bg-yellow-100 border border-yellow-300 text-yellow-800">
           <p className="text-sm font-medium">
-            Email changes are unavailable for Google-authenticated users. To
-            update your email, please create a new account with the desired
+            To update your email, please create a new account with the new
             address.
           </p>
         </div>
@@ -144,7 +142,10 @@ export const ChangeEmailForm = ({ email }) => {
             { type: "email", message: "Please enter a valid email!" },
           ]}
         >
-          <Input className="h-9" disabled={providerName === "Google"} />
+          <Input
+            className="h-9"
+            disabled={providerName === ProviderType.GOOGLE}
+          />
         </Form.Item>
 
         <Form.Item className="mb-1">
@@ -152,12 +153,12 @@ export const ChangeEmailForm = ({ email }) => {
             type="primary"
             htmlType="submit"
             loading={emailLoading}
-            disabled={emailLoading || providerName === "Google"}
+            disabled={emailLoading || providerName === ProviderType.GOOGLE}
             className={`bg-[#3E53D7] ${
-              providerName === "Google" ? "pointer-events-none" : ""
+              providerName === ProviderType.GOOGLE ? "pointer-events-none" : ""
             }`}
           >
-            {emailLoading ? "Changing Email..." : "Change Email"}
+            {emailLoading ? "Loading..." : "Change Email"}
           </Button>
         </Form.Item>
       </Form>
@@ -194,10 +195,12 @@ export const ChangeEmailForm = ({ email }) => {
                 <Form.Item>
                   <CommonButton
                     htmlType="submit"
-                    className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
+                    className={`w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white ${
+                      otpCode.length !== 6 ? "pointer-events-none" : ""
+                    }`}
                     style={{ height: "45px" }}
                     loading={emailModalLoading}
-                    disabled={emailModalLoading}
+                    disabled={emailModalLoading || otpCode.length !== 6}
                   >
                     {emailModalLoading ? "Confirming..." : "Confirm"}
                   </CommonButton>

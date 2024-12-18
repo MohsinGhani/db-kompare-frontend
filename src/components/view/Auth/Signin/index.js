@@ -17,7 +17,7 @@ import { setAccessTokenFromLocalStorage } from "@/utils/helper";
 import { socialRegisteration } from "@/utils/authServices";
 import { toast } from "react-toastify";
 
-const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -61,16 +61,13 @@ const SignIn = () => {
     }
 
     try {
-      const response = await fetch(
-        `${DATABASE_API_URL}/get-user?id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "x-api-key": Y_API_KEY,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL_1}/get-user?id=${userId}`, {
+        method: "GET",
+        headers: {
+          "x-api-key": Y_API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
       if (response.ok) {

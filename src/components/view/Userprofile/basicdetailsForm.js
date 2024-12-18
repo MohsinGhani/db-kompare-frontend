@@ -8,7 +8,7 @@ import { setUserDetails } from "@/redux/slices/authSlice";
 
 const { Option } = Select;
 const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
-const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 export const BasicDetailsForm = ({ userData }) => {
   const [basicDetailsLoading, setBasicDetailsLoading] = useState(false);
@@ -49,7 +49,7 @@ export const BasicDetailsForm = ({ userData }) => {
 
     try {
       setBasicDetailsLoading(true);
-      const response = await fetch(`${DATABASE_API_URL}/update-user`, {
+      const response = await fetch(`${API_BASE_URL_1}/update-user`, {
         method: "POST",
         headers: {
           "x-api-key": Y_API_KEY,

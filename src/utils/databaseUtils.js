@@ -1,5 +1,5 @@
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
-const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 // Helper function to fetch data from the API
 
@@ -18,7 +18,7 @@ const fetchAPI = async (url, options = {}) => {
 // Function to fetch all databases
 
 export const fetchDatabases = async () => {
-  return fetchAPI(`${DATABASE_API_URL}/get-databases`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-databases`, {
     method: "GET",
     headers: {
       "x-api-key": API_KEY,
@@ -30,7 +30,7 @@ export const fetchDatabases = async () => {
 // Function to fetch database by IDs'
 
 export const fetchDatabaseByIds = async (ids) => {
-  return fetchAPI(`${DATABASE_API_URL}/get-database-by-ids`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-database-by-ids`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export const fetchDatabaseByIds = async (ids) => {
 // Function to fetch metrics data
 
 export const fetchMetricsData = async (startDate, endDate) => {
-  return fetchAPI(`${DATABASE_API_URL}/get-metrices`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-metrices`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export const fetchMetricsData = async (startDate, endDate) => {
 // Function to fetch the count of databases
 
 export const fetchDatabasesCount = async () => {
-  return fetchAPI(`${DATABASE_API_URL}/get-databases-count`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-databases-count`, {
     method: "GET",
     headers: {
       "x-api-key": API_KEY,
@@ -68,7 +68,7 @@ export const fetchDatabasesCount = async () => {
 // Function to fetch the ranking of databases
 
 export const fetchDatabaseRanking = async (startDate, endDate) => {
-  return fetchAPI(`${DATABASE_API_URL}//get-rankings`, {
+  return fetchAPI(`${API_BASE_URL_1}//get-rankings`, {
     method: "POST",
     headers: {
       "x-api-key": API_KEY,

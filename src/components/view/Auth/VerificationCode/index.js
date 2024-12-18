@@ -87,10 +87,12 @@ const CodeVerification = () => {
               <Form.Item className="mb-0">
                 <CommonButton
                   htmlType="submit"
-                  className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
+                  className={`w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white ${
+                    otpCode.length !== 6 ? "pointer-events-none" : ""
+                  }`}
                   style={{ height: "45px" }}
                   loading={loading}
-                  disabled={loading}
+                  disabled={loading || otpCode.length !== 6}
                 >
                   {loading ? "Confirming..." : "Confirm"}
                 </CommonButton>

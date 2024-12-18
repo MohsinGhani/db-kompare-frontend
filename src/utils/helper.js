@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-const getJWTTokenFromLocalStorage = () => {
+const getAmplifyUserToken = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
     k.includes("accessToken")
   );
@@ -9,7 +9,7 @@ const getJWTTokenFromLocalStorage = () => {
 };
 
 export const setAccessTokenFromLocalStorage = () => {
-  const accessToken = getJWTTokenFromLocalStorage();
+  const accessToken = getAmplifyUserToken();
 
   if (accessToken) {
     console.log("Access Token from Local Storage:", accessToken);
