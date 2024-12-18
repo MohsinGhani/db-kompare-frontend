@@ -12,6 +12,7 @@ import ExperienceSection from "@/components/homepage/experienceSection";
 import MakeUsUnique from "@/components/homepage/uniqueSection";
 import HomepageCards from "@/components/homepage/cards";
 import { useRouter } from "next/navigation";
+import OurBlogs from "@/components/homepage/ourBlog";
 export default function Homepage() {
   const router = useRouter();
   return (
@@ -64,6 +65,7 @@ export default function Homepage() {
         <WhyUs />
         <ExperienceSection />
         <MakeUsUnique />
+        <OurBlogs />
         <HomepageCards />
       </div>
     </div>

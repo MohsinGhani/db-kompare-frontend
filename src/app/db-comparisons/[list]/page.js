@@ -94,7 +94,7 @@ export default function Page({ params }) {
       paragraph2="The DB-Kompare Ranking is a monthly updated list that evaluates and ranks database management systems based on their popularity."
       imageAlt="blue line"
     >
-      <div className="w-full md:px-20 flex md:mt-8 flex-col gap-10">
+      <div className="w-full container flex md:mt-8 flex-col gap-10">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
         {isLoading ? (
