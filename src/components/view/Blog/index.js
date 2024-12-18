@@ -3,10 +3,9 @@
 import CommonButton from "../../shared/Button";
 import { blogsData } from "../../shared/Db-json/blogData";
 import CommonTypography from "../../shared/Typography";
-import SingleBlogCard from "../../blog/SingleBlogCard";
 import { useRouter } from "next/navigation";
 import BlogSkeleton from "@/components/shared/Skeletons/BlogSkeleton";
-import { usePathname } from "next/navigation";
+import SingleBlogCard from "@/components/blogCard/SingleBlogCard";
 const Blog = ({ route, text, buttonText, secondText }) => {
   const router = useRouter();
   return (

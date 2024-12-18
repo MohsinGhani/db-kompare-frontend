@@ -2,11 +2,11 @@
 import React from "react";
 import CommonTypography from "../shared/Typography";
 import Image from "next/image";
-import SingleBlogCard from "../blog/SingleBlogCard";
 import BlogSkeleton from "../shared/Skeletons/BlogSkeleton";
 import { blogsData } from "../shared/Db-json/blogData";
 import CommonButton from "../shared/Button";
 import { useRouter } from "next/navigation";
+import SingleBlogCard from "../blogCard/SingleBlogCard";
 
 const OurBlogs = () => {
   const router = useRouter();
