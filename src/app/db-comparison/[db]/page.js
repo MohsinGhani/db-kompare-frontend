@@ -1,13 +1,16 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchDatabaseByIds, fetchDatabases } from "@/utils/databaseUtils";
+import {
+  fetchDatabaseByIds,
+  fetchDatabaseRanking,
+  fetchDatabases,
+} from "@/utils/databaseUtils";
 import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
-import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
-import Blog from "@/components/view/Blog";
+import { getPreviousDates } from "@/utils/formatDateAndTime";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -60,10 +63,38 @@ const Comparison = ({ params }) => {
   useEffect(() => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
-        try {
-          const response = await fetchDatabaseByIds(selectedDatabaseIds);
+        const previousDays = getPreviousDates();
 
-          setFilterData(response?.data || []);
+        const yesterdayDate = previousDays[0];
+
+        try {
+          const [response, rankingData] = await Promise.all([
+            fetchDatabaseByIds(selectedDatabaseIds),
+            fetchDatabaseRanking(yesterdayDate, yesterdayDate),
+          ]);
+
+          const modifyData = response?.data?.map((dbEntry) => {
+            const matchingRank = rankingData?.data?.find(
+              (rank) => rank?.database_id === dbEntry?.id
+            );
+            const rankChanges = matchingRank?.rankChanges?.[0] || {};
+            const scoreChanges = matchingRank?.scoreChanges?.[0] || {};
+
+            return {
+              ...dbEntry,
+              db_compare_ranking: {
+                rank: [
+                  `# ${rankChanges.rank || "N/A"}`,
+                  matchingRank?.database_model || "Unknown",
+                ],
+                score: scoreChanges?.totalScore
+                  ? Number(scoreChanges.totalScore).toFixed(2)
+                  : "0",
+              },
+            };
+          });
+
+          setFilterData(modifyData || []);
         } catch (error) {
           console.error("Error fetching database details:", error);
         }

@@ -14,6 +14,8 @@ import CommonTypography from "@/components/shared/Typography";
 import { signUp } from "aws-amplify/auth";
 import { useDispatch } from "react-redux";
 import { setEmail } from "@/redux/slices/authSlice";
+import { socialRegisteration } from "@/utils/authServices";
+
 const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,7 +59,10 @@ const Signup = () => {
               <p className="mb-6 text-center text-base font-medium text-secondary">
                 It’s totally free and super easy
               </p>
-              <button className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]">
+              <button
+                onClick={() => socialRegisteration("Google")}
+                className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+              >
                 <Image
                   src={googleIcon}
                   alt="Google Icon"

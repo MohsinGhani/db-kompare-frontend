@@ -5,6 +5,7 @@ import Image from "next/image";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import Navbar from "@/components/header";
 import Footer from "@/components/footer";
+import NextTopLoader from "nextjs-toploader";
 import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,6 +19,21 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
+      <NextTopLoader
+        color="#4A6CF7"
+        initialPosition={0.08}
+        crawlSpeed={200}
+        height={3}
+        crawl={true}
+        showSpinner={false}
+        easing="ease"
+        speed={200}
+        shadow="0 0 10px #2299DD,0 0 5px #2299DD"
+        template='<div class="bar" role="bar"><div class="peg"></div></div> 
+                <div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'
+        zIndex={4000}
+        showAtBottom={false}
+      />
       <ToastContainer
         style={{
           zIndex: 3000,

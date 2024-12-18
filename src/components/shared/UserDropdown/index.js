@@ -5,7 +5,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Space } from "antd";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { signOut } from "aws-amplify/auth";
 import { useSelector } from "react-redux";
 import { selectUserDetails } from "@/redux/slices/authSlice";
@@ -20,13 +20,10 @@ const CommonUserDropdown = () => {
 
   const handleMenuClick = async ({ key }) => {
     switch (key) {
-      // case "2":
-      //   router.push("/user-profile");
-      //   break;
-      case "3":
+      case "1":
         router.push("/user-profile");
         break;
-      case "4":
+      case "2":
         await signOut();
         RemoveAccessTokenFormCookies();
         window.location.href = "/";
@@ -38,20 +35,15 @@ const CommonUserDropdown = () => {
 
   const menu = {
     items: [
-      // {
-      //   key: "2",
-      //   icon: <UserOutlined />,
-      //   label: "Profile",
-      // },
       {
-        key: "3",
+        key: "1",
         icon: <SettingOutlined className="pr-3 !text-lg " />,
         label: "Settings",
         className:
           "h-14 !pl-5 !text-sm !bg-gray-100 hover:!bg-[#dce0f8] hover:!text-[#3E53D7] !rounded-none transition-all !cursor-pointer ",
       },
       {
-        key: "4",
+        key: "2",
         icon: <LogoutOutlined className="pr-3 !text-lg" />,
         label: "Logout",
         className:
@@ -74,8 +66,10 @@ const CommonUserDropdown = () => {
           <Avatar className="bg-[#F6F6FF] text-[#3E53D7] w-9 h-9 ">
             {getInitials(userName)}
           </Avatar>
-          <span className="capitalize">{userName}</span>
-          <DownOutlined className="text-xs" />
+          <div className="lg:block hidden">
+            <span className="capitalize">{userName}</span>
+            <DownOutlined className="text-xs" />
+          </div>
         </Space>
       </a>
     </Dropdown>

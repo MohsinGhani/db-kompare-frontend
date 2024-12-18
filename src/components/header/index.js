@@ -4,7 +4,7 @@ import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import CommonTypography from "../shared/Typography";
 import { Navlinks } from "@/utils/const";
 import CommonButton from "../shared/Button";
@@ -16,7 +16,6 @@ import {
   selectUserDetails,
   setUserDetails,
 } from "@/redux/slices/authSlice";
-import { Skeleton } from "antd";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -151,41 +150,37 @@ export default function Navbar() {
             </button>
           ))}
         </div>
-        {!authRoutes.includes(path) && (
-          <div className="lg:block hidden">
-            {loading ? (
-              <Skeleton.Button
-                size="medium"
-                className="!min-w-20 !w-32"
-                active
-              />
-            ) : userDetails ? (
-              <CommonUserDropdown />
-            ) : (
-              <CommonButton
-                className="bg-primary text-white"
-                style={{ height: "40px" }}
-                onClick={() => {
-                  router.push("/signin");
-                }}
-              >
-                Vendor Login
-              </CommonButton>
-            )}
-          </div>
-        )}
-
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
-          aria-expanded={isOpen ? "true" : "false"}
-        >
-          {isOpen ? (
-            <CloseOutlined style={{ fontSize: "25px" }} />
-          ) : (
-            <MenuOutlined style={{ fontSize: "25px" }} />
+        <div className="flex flex-row items-center justify-center">
+          {!authRoutes.includes(path) && (
+            <div className="">
+              {loading ? null : userDetails ? (
+                <CommonUserDropdown />
+              ) : (
+                <CommonButton
+                  className="bg-primary text-white"
+                  style={{ height: "40px" }}
+                  onClick={() => {
+                    router.push("/signin");
+                  }}
+                >
+                  Vendor Login
+                </CommonButton>
+              )}
+            </div>
           )}
-        </button>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            aria-expanded={isOpen ? "true" : "false"}
+          >
+            {isOpen ? (
+              <CloseOutlined style={{ fontSize: "28px" }} />
+            ) : (
+              <MenuOutlined style={{ fontSize: "28px" }} />
+            )}
+          </button>
+        </div>
       </div>
       <div
         className={`${

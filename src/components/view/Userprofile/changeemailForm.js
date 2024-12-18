@@ -5,8 +5,13 @@ import { updateUserAttribute, confirmUserAttribute } from "aws-amplify/auth";
 import { toast } from "react-toastify";
 import CommonModal from "@/components/shared/CommonModal";
 import CommonButton from "@/components/shared/Button";
+import { useSelector } from "react-redux";
 
 export const ChangeEmailForm = ({ email }) => {
+  const { userDetails } = useSelector((state) => state.auth);
+
+  const userId = userDetails?.data?.data?.id;
+
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailModalLoading, setEmailModalLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,12 +28,12 @@ export const ChangeEmailForm = ({ email }) => {
     }
     try {
       setEmailLoading(true);
-      // const resp = await updateUserAttribute({
-      //   userAttribute: {
-      //     attributeKey: "email",
-      //     value: newEmail,
-      //   },
-      // });
+      await updateUserAttribute({
+        userAttribute: {
+          attributeKey: "email",
+          value: newEmail,
+        },
+      });
       toast.success("Verification Code is sent to your email successfully");
       setIsModalOpen(true);
     } catch (err) {
@@ -39,6 +44,8 @@ export const ChangeEmailForm = ({ email }) => {
   };
 
   const onFinish = async () => {
+    if (!otpCode) return setError("This field is requied!");
+
     try {
       setEmailModalLoading(true);
       await confirmUserAttribute({
@@ -46,9 +53,28 @@ export const ChangeEmailForm = ({ email }) => {
         userAttributeKey: "email",
       });
 
+      const email = emailForm.getFieldValue("email");
+
+      const payload = {
+        id: userId,
+        email,
+      };
+
+      await fetch(
+        "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/update-user",
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
       toast.success("Email updated successfully");
+      setIsModalOpen(false);
     } catch (err) {
-      toast.error(err?.message);
       setError(err?.message);
     } finally {
       setEmailModalLoading(false);
@@ -103,8 +129,13 @@ export const ChangeEmailForm = ({ email }) => {
         </Form.Item>
       </Form>
       <CommonModal
+        destroyOnClose
         isModalOpen={isModalOpen}
-        handleCancel={() => setIsModalOpen(false)}
+        handleCancel={() => {
+          setIsModalOpen(false);
+          setError("");
+          setOtpCode("");
+        }}
         handleOk={() => {}}
         closable
         centered
@@ -123,9 +154,7 @@ export const ChangeEmailForm = ({ email }) => {
               <Form layout="vertical" onFinish={onFinish}>
                 <div className="my-5">
                   <Input.OTP
-                    type="number"
-                    style={{ width: "100%" }}
-                    formatter={(str) => str.toUpperCase()}
+                    style={{ width: "100%", height: "50px" }}
                     {...sharedProps}
                   />
                 </div>
