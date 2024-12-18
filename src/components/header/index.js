@@ -17,6 +17,8 @@ import {
   setUserDetails,
 } from "@/redux/slices/authSlice";
 
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
@@ -42,19 +44,15 @@ export default function Navbar() {
     }
 
     try {
-      const response = await fetch(
-        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "x-api-key": Y_API_KEY,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL_1}/get-user?id=${userId}`, {
+        method: "GET",
+        headers: {
+          "x-api-key": Y_API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         dispatch(setUserDetails({ data }));
       } else if (response.status === 404) {
@@ -74,7 +72,6 @@ export default function Navbar() {
       try {
         setLoading(true);
         const session = await fetchAuthSession();
-        console.log("Fetched session:", session);
 
         if (!session) {
           setLoading(false);

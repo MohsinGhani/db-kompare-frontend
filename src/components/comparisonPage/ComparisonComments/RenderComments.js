@@ -19,6 +19,7 @@
 // import { useSelector } from "react-redux";
 // import { CommentStatus } from "@/utils/const";
 // import { formatRelativeTime } from "@/utils/formatDateAndTime";
+// import { addComment, updateComment } from "@/utils/commentUtils";
 
 // const Comment = ({
 //   comment,
@@ -26,9 +27,9 @@
 //   fetchComments,
 //   showAllReplies,
 //   toggleShowAllReplies,
-//   deleteComment,
-//   disableComment,
-//   undisableComment,
+//   handleDeleteComment,
+//   handleDisableComment,
+//   handleUndisableComment,
 //   selectedDatabases,
 //   selectedDatabaseIds,
 // }) => {
@@ -41,7 +42,6 @@
 //   const { userDetails } = useSelector((state) => state.auth);
 //   const userId = userDetails?.data?.data?.id;
 //   const userName = userDetails?.data?.data?.name;
-//   const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 
 //   const databaseName =
 //     selectedDatabases && selectedDatabaseIds
@@ -70,7 +70,7 @@
 //         <Popconfirm
 //           title="Are you sure you want to delete this comment?"
 //           onConfirm={() =>
-//             deleteComment(comment.id, comment.parentCommentId || null)
+//             handleDeleteComment(comment.id, comment.parentCommentId || null)
 //           }
 //           okText="Yes"
 //           cancelText="No"
@@ -89,9 +89,9 @@
 //         editText: comment.comment,
 //       });
 //     } else if (key === "disable") {
-//       disableComment(comment.id, comment.parentCommentId || null);
+//       handleDisableComment(comment.id, comment.parentCommentId || null);
 //     } else if (key === "enable") {
-//       undisableComment(comment.id, comment.parentCommentId || null);
+//       handleUndisableComment(comment.id, comment.parentCommentId || null);
 //     }
 //   };
 
@@ -107,26 +107,12 @@
 
 //     try {
 //       setLoading(true);
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/create-comment",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
+//       const response = await addComment(payload);
 
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(errorData.message || "Failed to add reply");
+//       if (response.data) {
+//         message.success("Reply added successfully!");
+//         fetchComments(selectedDatabaseIds);
 //       }
-
-//       const data = await response.json();
-//       message.success("Reply added successfully!");
-//       fetchComments(selectedDatabaseIds);
 //     } catch (error) {
 //       console.error("Error adding reply:", error);
 //       message.error(
@@ -164,27 +150,13 @@
 
 //     try {
 //       setLoading(true);
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/update-comment",
-//         {
-//           method: "PATCH",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
+//       const response = await updateComment(payload);
 
-//       const data = await response.json();
-
-//       if (response.ok) {
+//       if (response.data) {
 //         fetchComments(selectedDatabaseIds);
 //         message.success(
 //           `${isReply ? "Reply" : "Comment"} updated successfully!`
 //         );
-//       } else {
-//         message.error(data.message || "Failed to update comment or reply.");
 //       }
 //     } catch (error) {
 //       console.error("Error editing comment or reply:", error);
@@ -431,14 +403,14 @@
 //                             toggleShowAllReplies={(value) =>
 //                               toggleShowAllReplies(reply.id, value)
 //                             }
-//                             deleteComment={(replyId, parentId) =>
-//                               deleteComment(replyId, parentId)
+//                             handleDeleteComment={(replyId, parentId) =>
+//                               handleDeleteComment(replyId, parentId)
 //                             }
-//                             disableComment={(replyId, parentId) =>
-//                               disableComment(replyId, parentId)
+//                             handleDisableComment={(replyId, parentId) =>
+//                               handleDisableComment(replyId, parentId)
 //                             }
-//                             undisableComment={(replyId, parentId) =>
-//                               undisableComment(replyId, parentId)
+//                             handleUndisableComment={(replyId, parentId) =>
+//                               handleUndisableComment(replyId, parentId)
 //                             }
 //                             fetchComments={() =>
 //                               fetchComments(selectedDatabaseIds)

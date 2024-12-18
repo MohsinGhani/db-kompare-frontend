@@ -18,6 +18,11 @@ export const CommentStatus = {
   INACTIVE: "DISABLED",
 };
 
+export const ProviderType = {
+  GOOGLE: "Google",
+  GITHUB: "GitHub",
+};
+
 export const IT_SKILLS = [
   "JavaScript",
   "Python",

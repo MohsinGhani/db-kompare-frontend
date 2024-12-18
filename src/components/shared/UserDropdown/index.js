@@ -15,7 +15,6 @@ import { getInitials } from "@/utils/getInitials";
 const CommonUserDropdown = () => {
   const router = useRouter();
   const loginUserDetails = useSelector(selectUserDetails);
-  console.log("loginUserDetails", loginUserDetails);
   const userName = loginUserDetails?.data?.data?.name;
 
   const handleMenuClick = async ({ key }) => {

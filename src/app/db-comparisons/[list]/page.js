@@ -5,17 +5,16 @@ import { useRouter } from "next/navigation";
 import ContentSection from "@/components/shared/ContentSection/page";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
-import CommonTypography from "@/components/shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 export default function Page({ params }) {
   const router = useRouter();
   const { list } = params;
 
   const [selectedDatabases, setSelectedDatabases] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
   const [hoverIndex, setHoverIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,9 +61,8 @@ export default function Page({ params }) {
       cleanedSelectedDatabases.length >= 5 &&
       !cleanedSelectedDatabases.includes(option.name)
     ) {
-      setErrorMessage("You can select only up to 5 databases.");
+      toast.error("You can select only up to 5 databases.");
     } else {
-      setErrorMessage("");
       setSelectedDatabases((prevSelected) => {
         const newSelected = prevSelected.includes(option.name)
           ? prevSelected.filter((db) => db !== option.name)
@@ -78,7 +76,7 @@ export default function Page({ params }) {
   // Trigger navigation for database comparison with validation
   const handleCompareClick = () => {
     if (selectedDatabases.includes("list") || selectedDatabases.length === 0) {
-      setErrorMessage("Please select at least one database to compare");
+      toast.error("Please select at least one database to compare");
     } else {
       router.push(
         `/db-comparison/${encodeURIComponent(selectedDatabases.join("-"))}`
@@ -139,15 +137,7 @@ export default function Page({ params }) {
           </div>
         )}
 
-        <div
-          className="flex md:flex-row flex-col md:justify-between justify-center md:items-end  items-center "
-          style={{ justifyContent: errorMessage ? "space-between" : "end" }}
-        >
-          {errorMessage && (
-            <CommonTypography type="text" classes="text-red-500 text-xl mt-2">
-              {errorMessage}
-            </CommonTypography>
-          )}
+        <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center ">
           <CommonButton
             style={{
               width: "280px",

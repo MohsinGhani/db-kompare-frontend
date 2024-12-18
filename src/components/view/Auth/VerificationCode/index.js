@@ -14,7 +14,6 @@ const CodeVerification = () => {
   const [loading, setLoading] = useState(false);
   const [sendingCodeLoading, setSendingCodeLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [error, setError] = useState(null);
   const [otpCode, setOtpCode] = useState("");
   const router = useRouter();
   const email = useSelector(selectEmail);
@@ -30,7 +29,7 @@ const CodeVerification = () => {
       toast.success("Account verified successfully");
     } catch (err) {
       console.log("err", err);
-      setError(err?.message);
+      toast.error(err?.message);
     } finally {
       setLoading(false);
     }
@@ -84,18 +83,16 @@ const CodeVerification = () => {
                   {...sharedProps}
                 />
               </div>
-              {error && (
-                <p className="text-red-500 text-base my-2 text-start">
-                  {error}
-                </p>
-              )}
+
               <Form.Item className="mb-0">
                 <CommonButton
                   htmlType="submit"
-                  className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white"
+                  className={`w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white ${
+                    otpCode.length !== 6 ? "pointer-events-none" : ""
+                  }`}
                   style={{ height: "45px" }}
                   loading={loading}
-                  disabled={loading}
+                  disabled={loading || otpCode.length !== 6}
                 >
                   {loading ? "Confirming..." : "Confirm"}
                 </CommonButton>

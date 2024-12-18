@@ -16,9 +16,14 @@
 // import { useSelector } from "react-redux";
 // import { CommentStatus } from "@/utils/const";
 // import CommonTypography from "@/components/shared/Typography";
+// import {
+//   addComment,
+//   deleteComment,
+//   updateCommentStatus,
+//   fetchCommentsData,
+// } from "@/utils/commentUtils";
 
 // const { Option } = Select;
-// const X_API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 
 // const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
 //   const [commentsData, setCommentsData] = useState([]);
@@ -41,32 +46,15 @@
 //     }
 //     try {
 //       setLoading(true);
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/get-comments",
-//         {
-//           method: "POST",
-//           headers: {
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify({
-//             ids: selectedDatabaseIds,
-//           }),
-//         }
-//       );
-
-//       const data = await response.json();
-//       if (response.ok) {
-//         setCommentsData(data.data || []);
-//       } else if (response.status === 404) {
-//         setCommentsData([]);
-//       }
+//       const data = await fetchCommentsData(selectedDatabaseIds);
+//       setCommentsData(data.data || []);
 //     } catch (error) {
 //       console.error("Error fetching comments:", error);
 //     } finally {
 //       setLoading(false);
 //     }
 //   };
-//   // Function to add a new comment
+
 //   const handleAddComment = async (values) => {
 //     const { comment, databaseId, rating } = values;
 
@@ -79,27 +67,12 @@
 
 //     try {
 //       setAddCommentLoading(true);
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/create-comment",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
-
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(errorData.message || "Failed to add comment");
+//       const response = await addComment(payload);
+//       if (response.data) {
+//         message.success("Comment added successfully");
+//         fetchComments(selectedDatabaseIds);
+//         inputForm.resetFields();
 //       }
-
-//       const data = await response.json();
-//       message.success("Comment added successfully");
-//       fetchComments(selectedDatabaseIds);
-//       inputForm.resetFields();
 //     } catch (error) {
 //       console.error("Error adding comment:", error);
 //       message.error(
@@ -109,37 +82,23 @@
 //       setAddCommentLoading(false);
 //     }
 //   };
-//   // Function to delete a comment or reply
-//   const deleteComment = async (commentId) => {
+
+//   const handleDeleteComment = async (commentId) => {
 //     const payload = { commentId };
 
 //     try {
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/delete-comment",
-//         {
-//           method: "DELETE",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
-
-//       const data = await response.json();
-//       if (response.ok) {
+//       const response = await deleteComment(payload);
+//       if (response.message === "Comment deleted successfully") {
 //         message.success("Comment or reply deleted successfully!");
 //         fetchComments(selectedDatabaseIds);
-//       } else {
-//         message.error(data.message || "Failed to delete comment or reply.");
 //       }
 //     } catch (error) {
 //       console.error("Error deleting comment:", error);
 //       message.error("An error occurred while deleting the comment.");
 //     }
 //   };
-//   // Function to disable a comment
-//   const disableComment = async (commentId, status) => {
+
+//   const handleDisableComment = async (commentId, status) => {
 //     const payload = {
 //       id: commentId,
 //       status: CommentStatus.INACTIVE,
@@ -147,32 +106,14 @@
 //     };
 
 //     try {
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/update-comment-status",
-//         {
-//           method: "PATCH",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
-
-//       const data = await response.json();
-
-//       if (response.ok) {
+//       const response = await updateCommentStatus(payload);
+//       if (response.data) {
 //         message.success(
 //           `Comment or reply ${
 //             status === CommentStatus.INACTIVE ? "disabled" : "enabled"
 //           } successfully!`
 //         );
 //         fetchComments(selectedDatabaseIds);
-//         return data;
-//       } else {
-//         message.error(
-//           data.message || "Failed to update comment or reply status."
-//         );
 //       }
 //     } catch (error) {
 //       console.error("Error updating comment status:", error);
@@ -181,8 +122,8 @@
 //       );
 //     }
 //   };
-//   // Function to enable a comment
-//   const undisableComment = async (commentId, status) => {
+
+//   const handleUndisableComment = async (commentId, status) => {
 //     const payload = {
 //       id: commentId,
 //       status: CommentStatus.ACTIVE,
@@ -190,32 +131,14 @@
 //     };
 
 //     try {
-//       const response = await fetch(
-//         "https://yftbqyckri.execute-api.eu-west-1.amazonaws.com/dev/update-comment-status",
-//         {
-//           method: "PATCH",
-//           headers: {
-//             "Content-Type": "application/json",
-//             "x-api-key": X_API_KEY,
-//           },
-//           body: JSON.stringify(payload),
-//         }
-//       );
-
-//       const data = await response.json();
-
-//       if (response.ok) {
+//       const response = await updateCommentStatus(payload);
+//       if (response.data) {
 //         message.success(
 //           `Comment or reply ${
 //             status === CommentStatus.ACTIVE ? "undisabled" : "enabled"
 //           } successfully!`
 //         );
 //         fetchComments(selectedDatabaseIds);
-//         return data;
-//       } else {
-//         message.error(
-//           data.message || "Failed to update comment or reply status."
-//         );
 //       }
 //     } catch (error) {
 //       console.error("Error updating comment status:", error);
@@ -224,7 +147,7 @@
 //       );
 //     }
 //   };
-//   // Function to toggle the visibility of all replies
+
 //   const toggleShowAllReplies = (commentId, value) => {
 //     setShowAllReplies((prev) => ({
 //       ...prev,
@@ -348,14 +271,14 @@
 //                 toggleShowAllReplies={(value) =>
 //                   toggleShowAllReplies(comment.id, value)
 //                 }
-//                 deleteComment={(commentId, parentCommentId) =>
-//                   deleteComment(commentId, parentCommentId)
+//                 handleDeleteComment={(commentId, parentCommentId) =>
+//                   handleDeleteComment(commentId, parentCommentId)
 //                 }
-//                 disableComment={(commentId, parentCommentId) =>
-//                   disableComment(commentId, parentCommentId)
+//                 handleDisableComment={(commentId, parentCommentId) =>
+//                   handleDisableComment(commentId, parentCommentId)
 //                 }
-//                 undisableComment={(commentId, parentCommentId) =>
-//                   undisableComment(commentId, parentCommentId)
+//                 handleUndisableComment={(commentId, parentCommentId) =>
+//                   handleUndisableComment(commentId, parentCommentId)
 //                 }
 //                 fetchComments={fetchComments}
 //               />

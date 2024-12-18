@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import googleIcon from "@/../public/assets/icons/googleIcon.svg";
+import githubIcon from "@/../public/assets/icons/githubIcon.svg";
 import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import CommonModal from "@/components/shared/CommonModal";
@@ -15,10 +16,10 @@ import { signUp } from "aws-amplify/auth";
 import { useDispatch } from "react-redux";
 import { setEmail } from "@/redux/slices/authSlice";
 import { socialRegisteration } from "@/utils/authServices";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [isModalOpen, setIsModal] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ const Signup = () => {
       setIsModal(true);
     } catch (err) {
       console.error(err);
-      setError(err?.message);
+      toast.error(err?.message);
     } finally {
       setLoading(false);
     }
@@ -70,6 +71,19 @@ const Signup = () => {
                   height={20}
                 />
                 Sign in with Google
+              </button>
+
+              <button
+                onClick={() => socialRegisteration({ custom: "GitHub" })}
+                className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+              >
+                <Image
+                  src={githubIcon}
+                  alt="Github Icon"
+                  width={20}
+                  height={20}
+                />
+                Sign in with Github
               </button>
 
               <div className="mb-8 flex items-center justify-center">
@@ -170,11 +184,7 @@ const Signup = () => {
                     </p>
                   </Checkbox>
                 </Form.Item> */}
-                {error && (
-                  <p className="text-red-500 text-base my-2 text-start">
-                    {error}
-                  </p>
-                )}
+
                 <Form.Item>
                   <CommonButton
                     htmlType="submit"

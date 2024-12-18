@@ -24,7 +24,6 @@ const NewPassword = () => {
         confirmationCode,
         newPassword: confirmPassword,
       });
-      console.log("values", values);
       router.push("/signin");
       toast.success("Password reset successful");
     } catch (err) {

@@ -5,7 +5,7 @@ import {
 } from "aws-amplify/auth";
 import { setCookieHandler } from "./helper";
 
-const getJWTTokenFromLocalStorage = () => {
+const getAmplifyUserToken = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
     k.includes("accessToken")
   );
@@ -23,7 +23,7 @@ export const handleLogin = (email, password) => {
 
       if (user.nextStep.signInStep === "DONE") {
         attributes = await fetchUserAttributes();
-        const jwtToken = getJWTTokenFromLocalStorage();
+        const jwtToken = getAmplifyUserToken();
         setCookieHandler(jwtToken);
       }
 
@@ -50,6 +50,8 @@ export const socialRegisteration = async (provider, customState) => {
 export const handleFetchAuthSession = async () => {
   try {
     await fetchAuthSession();
+    const accessToken = getAmplifyUserToken();
+    setCookieHandler(accessToken);
   } catch (e) {
     throw e;
   }

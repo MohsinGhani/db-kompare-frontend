@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
-const getJWTTokenFromLocalStorage = () => {
+const getAmplifyUserToken = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
     k.includes("accessToken")
   );
@@ -9,13 +9,10 @@ const getJWTTokenFromLocalStorage = () => {
 };
 
 export const setAccessTokenFromLocalStorage = () => {
-  const accessToken = getJWTTokenFromLocalStorage();
+  const accessToken = getAmplifyUserToken();
 
   if (accessToken) {
-    console.log("Access Token from Local Storage:", accessToken);
     Cookies.set("accessToken", accessToken, { expires: 1, secure: true });
-  } else {
-    console.log("No accessToken found in local storage.");
   }
 };
 
@@ -23,9 +20,9 @@ export const RemoveAccessTokenFormCookies = () => {
   Cookies.remove("accessToken");
 };
 
-export const setCookieHandler = (token) => {
-  const decode = jwtDecode(token);
+export const setCookieHandler = (accessToken) => {
+  const decode = jwtDecode(accessToken);
   const expires = new Date(decode.exp * 1000);
 
-  Cookies.set("token", token, { expires, secure: true });
+  Cookies.set("accessToken", accessToken, { expires, secure: true });
 };
