@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import CommonTypography from "../shared/Typography";
-import Image from "next/image";
 import BlogSkeleton from "../shared/Skeletons/BlogSkeleton";
 import { blogsData } from "../shared/Db-json/blogData";
 import CommonButton from "../shared/Button";

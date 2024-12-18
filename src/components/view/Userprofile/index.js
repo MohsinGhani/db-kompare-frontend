@@ -1,89 +1,51 @@
 "use client";
 
-import { Collapse } from "antd";
-import React, { useEffect, useState } from "react";
-import { BasicDetailsForm } from "./basicdetailsForm";
-import { ChangeEmailForm } from "./changeemailForm";
-import { ChangePasswordForm } from "./changepasswordForm";
 import CommonTypography from "@/components/shared/Typography";
-import "./customCollapse.scss";
-import { useSelector } from "react-redux";
+import { Tabs } from "antd";
+import React, { useState } from "react";
+import Blog from "../Blog";
+import UserProfileForm from "./UserProfileForm";
 
-const UserProfile = () => {
-  const [userData, setUserData] = useState();
-  const { userDetails } = useSelector((state) => state.auth);
-  const userId = userDetails?.data?.data?.id;
-  const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
+export default function UserProfile() {
+  const [activeKey, setActiveKey] = useState("1");
 
-  const fetchUserDetails = async () => {
-    if (!userId) {
-      console.warn("User ID is undefined. Skipping fetch.");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "x-api-key": Y_API_KEY,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = await response.json();
-      console.log(data);
-      if (response.ok) {
-        setUserData(data);
-      } else if (response.status === 404) {
-        console.warn("User not found.");
-      } else {
-        console.error("Unexpected response status:", response.status);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
+  const onChange = (key) => {
+    setActiveKey(key);
   };
 
-  useEffect(() => {
-    fetchUserDetails();
-  }, [userId]);
+  console.log(activeKey);
 
   const items = [
     {
       key: "1",
-      label: "Basic Details",
-      children: <BasicDetailsForm userData={userData} />,
-      className: "!px-0 mb-6 bg-[#FAFAFA]",
+      label: "Profile",
+      children: <UserProfileForm />,
     },
     {
       key: "2",
-      label: "Change Email",
-      children: <ChangeEmailForm email={userData?.data?.email} />,
-      className: "!px-0 mb-6 bg-[#FAFAFA]",
-    },
-    {
-      key: "3",
-      label: "Change Password",
-      children: <ChangePasswordForm email={userData?.data?.email} />,
-      className: "!px-0 mb-6 bg-[#FAFAFA]",
+      label: "My Blogs",
+      children: (
+        <Blog
+          route="/add-blog"
+          text="Blogs"
+          buttonText="Add Blog"
+          secondText=" Edit and manage your blogs"
+        />
+      ),
     },
   ];
 
   return (
-    <div className="bg-white pb-12 h-full max-w-[75%] ">
-      <div className="min-h-[calc(100vh-416px)] h-full">
-        <Collapse
-          items={items}
-          defaultActiveKey={["1", "2", "3"]}
-          expandIconPosition="end"
-          className=" border-none custom-collapse bg-white mt-2"
-        ></Collapse>
+    <div className="container py-32">
+      <div className="flex flex-col mb-5">
+        <CommonTypography type="title">
+          {activeKey === "1" ? "Profile" : "Blog"}
+        </CommonTypography>
+        <CommonTypography classes="text-[#565758] text-base">
+          Edit and manage your {activeKey === "1" ? "Profile" : "Blog"}
+        </CommonTypography>
       </div>
+      <Tabs activeKey={activeKey} items={items} onChange={onChange} />
     </div>
   );
-};
-
-export default UserProfile;
+}
