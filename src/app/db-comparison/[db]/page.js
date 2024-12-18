@@ -11,6 +11,7 @@ import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
+import Blog from "@/components/view/Blog";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
