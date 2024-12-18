@@ -23,9 +23,9 @@ export const RemoveAccessTokenFormCookies = () => {
   Cookies.remove("accessToken");
 };
 
-export const setCookieHandler = (token) => {
-  const decode = jwtDecode(token);
+export const setCookieHandler = (accessToken) => {
+  const decode = jwtDecode(accessToken);
   const expires = new Date(decode.exp * 1000);
 
-  Cookies.set("token", token, { expires, secure: true });
+  Cookies.set("accessToken", accessToken, { expires, secure: true });
 };

@@ -9,6 +9,8 @@ import CommonTypography from "@/components/shared/Typography";
 import "./customCollapse.scss";
 import { useSelector } from "react-redux";
 
+const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
+
 const UserProfile = () => {
   const [userData, setUserData] = useState();
   const { userDetails } = useSelector((state) => state.auth);
@@ -23,7 +25,7 @@ const UserProfile = () => {
 
     try {
       const response = await fetch(
-        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
+        `${DATABASE_API_URL}/get-user?id=${userId}`,
         {
           method: "GET",
           headers: {
@@ -34,7 +36,6 @@ const UserProfile = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setUserData(data);
       } else if (response.status === 404) {

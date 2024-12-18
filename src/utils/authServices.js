@@ -50,6 +50,8 @@ export const socialRegisteration = async (provider, customState) => {
 export const handleFetchAuthSession = async () => {
   try {
     await fetchAuthSession();
+    const accessToken = getJWTTokenFromLocalStorage();
+    setCookieHandler(accessToken);
   } catch (e) {
     throw e;
   }

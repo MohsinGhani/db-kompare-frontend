@@ -1,11 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button } from "antd";
-import { updateUserAttribute, confirmUserAttribute } from "aws-amplify/auth";
+import {
+  updateUserAttribute,
+  confirmUserAttribute,
+  fetchAuthSession,
+} from "aws-amplify/auth";
 import { toast } from "react-toastify";
 import CommonModal from "@/components/shared/CommonModal";
 import CommonButton from "@/components/shared/Button";
 import { useSelector } from "react-redux";
+import CommonTypography from "@/components/shared/Typography";
+
+const DATABASE_API_URL = process.env.NEXT_PUBLIC_DATABASE_API_URL;
 
 export const ChangeEmailForm = ({ email }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -16,8 +23,8 @@ export const ChangeEmailForm = ({ email }) => {
   const [emailModalLoading, setEmailModalLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [error, setError] = useState(null);
   const [emailForm] = Form.useForm();
+  const [providerName, setProviderName] = useState("");
 
   const handleEmailSubmit = async (values) => {
     const newEmail = values.email;
@@ -44,7 +51,7 @@ export const ChangeEmailForm = ({ email }) => {
   };
 
   const onFinish = async () => {
-    if (!otpCode) return setError("This field is requied!");
+    if (!otpCode) return;
 
     try {
       setEmailModalLoading(true);
@@ -60,22 +67,19 @@ export const ChangeEmailForm = ({ email }) => {
         email,
       };
 
-      await fetch(
-        "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/update-user",
-        {
-          method: "POST",
-          headers: {
-            "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      await fetch(`${DATABASE_API_URL}/update-user`, {
+        method: "POST",
+        headers: {
+          "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       toast.success("Email updated successfully");
       setIsModalOpen(false);
     } catch (err) {
-      setError(err?.message);
+      console.error("Error confirming email:", err.message);
     } finally {
       setEmailModalLoading(false);
     }
@@ -90,6 +94,24 @@ export const ChangeEmailForm = ({ email }) => {
   };
 
   useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const session = await fetchAuthSession();
+        console.log("session", session);
+        if (session) {
+          setProviderName(
+            session?.tokens?.idToken?.payload?.identities[0]?.providerName
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  useEffect(() => {
     if (email) {
       emailForm.setFieldsValue({
         email: email,
@@ -99,6 +121,15 @@ export const ChangeEmailForm = ({ email }) => {
 
   return (
     <div>
+      {providerName === "Google" && (
+        <div className=" p-3 rounded bg-yellow-100 border border-yellow-300 text-yellow-800">
+          <p className="text-sm font-medium">
+            Email changes are unavailable for Google-authenticated users. To
+            update your email, please create a new account with the desired
+            address.
+          </p>
+        </div>
+      )}
       <Form
         form={emailForm}
         layout="vertical"
@@ -113,7 +144,7 @@ export const ChangeEmailForm = ({ email }) => {
             { type: "email", message: "Please enter a valid email!" },
           ]}
         >
-          <Input className="h-9" />
+          <Input className="h-9" disabled={providerName === "Google"} />
         </Form.Item>
 
         <Form.Item className="mb-1">
@@ -121,8 +152,10 @@ export const ChangeEmailForm = ({ email }) => {
             type="primary"
             htmlType="submit"
             loading={emailLoading}
-            disabled={emailLoading}
-            className="bg-[#3E53D7]"
+            disabled={emailLoading || providerName === "Google"}
+            className={`bg-[#3E53D7] ${
+              providerName === "Google" ? "pointer-events-none" : ""
+            }`}
           >
             {emailLoading ? "Changing Email..." : "Change Email"}
           </Button>
@@ -133,7 +166,6 @@ export const ChangeEmailForm = ({ email }) => {
         isModalOpen={isModalOpen}
         handleCancel={() => {
           setIsModalOpen(false);
-          setError("");
           setOtpCode("");
         }}
         handleOk={() => {}}
@@ -158,11 +190,7 @@ export const ChangeEmailForm = ({ email }) => {
                     {...sharedProps}
                   />
                 </div>
-                {error && (
-                  <p className="text-red-500 text-base my-2 text-start">
-                    {error}
-                  </p>
-                )}
+
                 <Form.Item>
                   <CommonButton
                     htmlType="submit"
