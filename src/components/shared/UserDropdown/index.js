@@ -68,7 +68,7 @@ const CommonUserDropdown = () => {
           </Avatar>
           <div className="lg:block hidden">
             <span className="capitalize">{userName}</span>
-            <DownOutlined className="text-xs" />
+            <DownOutlined className="text-xs ml-2" />
           </div>
         </Space>
       </a>

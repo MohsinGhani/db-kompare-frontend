@@ -61,7 +61,7 @@ const Signup = () => {
               </p>
               <button
                 onClick={() => socialRegisteration("Google")}
-                className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+                className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
               >
                 <Image
                   src={googleIcon}
