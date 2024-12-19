@@ -3,28 +3,37 @@
 //     list-style: none;
 //     position: relative;
 
-//     // Top-level children: no lines
-//     > .cmnt-tree-child {
+//     .cmnt-tree-child {
 //       position: relative;
-//       &::before,
-//       &::after {
-//         content: none;
+
+//       // Apply the vertical line to the parent comment
+//       &::before {
+//         content: "";
+//         position: absolute;
+//         top: 2px;
+//         left: 20px; // Align with the avatar's position
+//         border-left: 1px solid #d9d9d9;
+//         height: 100%;
 //       }
+
+//       &:not(:has(.cmnt-tree-child))::before {
+//         display: none; /* Hide the line if there are no child comments */
+//       }
+
+//       .cmnt-tree-child {
+//         // Remove vertical and horizontal lines from replies
+//         &::before,
+//         &::after {
+//           content: none;
+//         }
+//       }
+
+//       // Horizontal line connecting parent to child
 //     }
 
 //     .cmnt-tree {
 //       .cmnt-tree-child {
 //         position: relative;
-
-//         &::before {
-//           content: "";
-//           position: absolute;
-//           top: -90px;
-//           left: -31px;
-//           border-left: 1px solid #d9d9d9;
-//           width: 1px;
-//           height: 100%;
-//         }
 
 //         &::after {
 //           content: "";
@@ -34,10 +43,24 @@
 //           left: -30px;
 //           width: 30px;
 //         }
+
+//         .cmnt-tree {
+//           list-style: none;
+//           padding-left: 20px; // Indent for replies
+//         }
 //       }
 //     }
 //   }
-
+//   .childreply {
+//     &:nth-last-child(1) {
+//       &::after {
+//         content: "";
+//         height: 100%;
+//         width: 5%;
+//         background-color: white;
+//       }
+//     }
+//   }
 //   .rate-container {
 //     margin-top: 10px;
 //     ul {

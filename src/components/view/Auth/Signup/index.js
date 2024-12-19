@@ -18,28 +18,58 @@ import { setEmail } from "@/redux/slices/authSlice";
 import { socialRegisteration } from "@/utils/authServices";
 import { toast } from "react-toastify";
 
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
+
 const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModal] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
+
+  const checkUserExists = async (email) => {
+    if (!email) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${API_BASE_URL_1}/is-user-exist?email=${email}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": Y_API_KEY,
+          },
+        }
+      );
+
+      const data = await response.json();
+      return data?.data[0]?.email === email;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      await signUp({
-        username: values.email,
-        password: values.password,
-        options: {
-          userAttributes: {
-            name: values.name,
-          },
-        },
-        autoConfirmUser: true,
-      });
-      dispatch(setEmail(values.email));
 
-      setIsModal(true);
+      const exists = await checkUserExists(values.email);
+      if (exists) {
+        toast.error("User already exists");
+      } else {
+        await signUp({
+          username: values.email,
+          password: values.password,
+          options: {
+            userAttributes: {
+              name: values.name,
+            },
+          },
+          autoConfirmUser: true,
+        });
+        dispatch(setEmail(values.email));
+        setIsModal(true);
+      }
     } catch (err) {
       console.error(err);
       toast.error(err?.message);

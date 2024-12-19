@@ -20,12 +20,12 @@ export const BasicDetailsForm = ({ userData }) => {
     if (userData && userData.data) {
       setOriginalData({
         name: userData.data.name,
-        email: userData.data.email,
+        disabledEmail: userData.data.email,
         skills: userData.data.skills || [],
       });
       basicDetailsForm.setFieldsValue({
         name: userData.data.name,
-        email: userData.data.email,
+        disabledEmail: userData.data.email,
         skills: userData.data.skills || [],
       });
     }
@@ -89,7 +89,7 @@ export const BasicDetailsForm = ({ userData }) => {
         </Form.Item>
 
         <Form.Item
-          name="email"
+          name="disabledEmail"
           label="Email"
           className="w-full mb-2"
           rules={[

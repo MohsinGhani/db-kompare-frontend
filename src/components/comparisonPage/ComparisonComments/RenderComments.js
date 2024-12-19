@@ -32,6 +32,7 @@
 //   handleUndisableComment,
 //   selectedDatabases,
 //   selectedDatabaseIds,
+//   className,
 // }) => {
 //   const [showEditInput, setShowEditInput] = useState(false);
 //   const [showAddReplyInput, setShowAddReplyInput] = useState(false);
@@ -202,10 +203,11 @@
 //   return (
 //     <div className="treeview">
 //       <ul className="cmnt-tree">
+//         {level === 0 && (
+//           <div className="bg-[#D9D9D9] h-[1px] w-full opacity-70 my-5"></div>
+//         )}
 //         <li className="cmnt-tree-child">
-//           {level === 0 && (
-//             <div className="bg-[#D9D9D9] h-[1px] w-full opacity-70 my-5"></div>
-//           )}
+//           <div className=""></div>
 //           <div className={` ${level > 0 ? "pl-0" : ""}`}>
 //             <div className=" relative flex items-start">
 //               <Avatar
@@ -394,8 +396,11 @@
 //                   <ul className="cmnt-tree">
 //                     {comment.replies
 //                       .slice(0, showAllReplies ? comment.replies.length : 2)
-//                       .map((reply) => (
-//                         <li className="cmnt-tree-child" key={reply.id}>
+//                       .map((reply, index) => (
+//                         <li
+//                           className={`cmnt-tree-child ${className}`}
+//                           key={reply.id}
+//                         >
 //                           <Comment
 //                             comment={reply}
 //                             level={level + 1}
@@ -416,98 +421,105 @@
 //                               fetchComments(selectedDatabaseIds)
 //                             }
 //                           />
+//                           {index ===
+//                             comment.replies.slice(
+//                               0,
+//                               showAllReplies ? comment.replies.length : 2
+//                             ).length -
+//                               1 &&
+//                             comment.replies.length > 2 && (
+//                               <CommonTypography
+//                                 type="text"
+//                                 className="text-[#3E53D7] ml-[72px] mt-2 underline border-none shadow-none cursor-pointer"
+//                                 onClick={() =>
+//                                   toggleShowAllReplies(!showAllReplies)
+//                                 }
+//                               >
+//                                 {showAllReplies
+//                                   ? "Load Less Replies"
+//                                   : "Load More Replies"}
+//                               </CommonTypography>
+//                             )}
 //                         </li>
 //                       ))}
-//                     {comment.replies.length > 2 && (
-//                       <CommonTypography
-//                         type="text"
-//                         className="text-[#3E53D7] ml-8 md:ml-14 mt-2 underline border-none shadow-none cursor-pointer"
-//                         onClick={() => toggleShowAllReplies(!showAllReplies)}
-//                       >
-//                         {showAllReplies
-//                           ? "Load Less Replies"
-//                           : "Load More Replies"}
-//                       </CommonTypography>
-//                     )}
 //                   </ul>
-//                 )}
-
-//                 {showAddReplyInput && (
-//                   <div className="mx-0 md:mx-3 mt-4 flex flex-row items-start">
-//                     <Avatar className="bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-[6px] mt-[2px] opacity-70 cursor-default">
-//                       {getInitials(userName)}
-//                     </Avatar>
-//                     <div className="w-full ml-2">
-//                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md md:inline-block hidden">
-//                         Replying to {comment.createdBy.name}
-//                       </p>
-//                       <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md inline-block md:hidden">
-//                         Replying
-//                       </p>
-//                       <Card className="w-full rounded-xl p-1 sm:p-2">
-//                         <Form
-//                           layout="inline"
-//                           onFinish={handleAddReply}
-//                           className="w-full"
-//                           form={addReplyForm}
-//                         >
-//                           <Form.Item
-//                             name="reply"
-//                             rules={[
-//                               {
-//                                 required: true,
-//                                 message: "Please add a reply!",
-//                               },
-//                             ]}
-//                             className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
-//                           >
-//                             <Input.TextArea
-//                               autoSize={{ minRows: 2, maxRows: 4 }}
-//                               maxLength={1000}
-//                               showCount
-//                               placeholder="Add a reply"
-//                               className="px-1 border rounded-lg border-none focus:ring-0 focus:outline-none h-8 mb-2"
-//                             />
-//                           </Form.Item>
-//                           <div className="w-full flex flex-row justify-between mt-2 sm:mt-3">
-//                             <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
-//                               <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:nlock">
-//                                 Rate Db:
-//                               </CommonTypography>
-//                               <Form.Item className="!p-0 !m-0 " name="rating">
-//                                 <Rate
-//                                   defaultValue={3}
-//                                   className="text-[#FFC412] !text-sm"
-//                                 />
-//                               </Form.Item>
-//                             </div>
-
-//                             <Form.Item>
-//                               <Button
-//                                 className="-mr-2 sm:mr-0"
-//                                 type="text"
-//                                 htmlType="submit"
-//                                 disabled={loading}
-//                                 loading={loading}
-//                                 icon={
-//                                   <img
-//                                     src="/assets/icons/send-icon.svg"
-//                                     className="w-4 h-4 cursor-pointer"
-//                                     alt="Send Icon"
-//                                   />
-//                                 }
-//                               />
-//                             </Form.Item>
-//                           </div>
-//                         </Form>
-//                       </Card>
-//                     </div>
-//                   </div>
 //                 )}
 //               </div>
 //             </div>
 //           </div>
 //         </li>
+//         {showAddReplyInput && (
+//           <div className="sm:pl-14 mx-0 md:mx-3 mt-4 flex flex-row items-start">
+//             <Avatar className="bg-[#F6F6FF] text-[#3E53D7] rounded-full p-[18px] mr-[6px] mt-[2px] opacity-70 cursor-default">
+//               {getInitials(userName)}
+//             </Avatar>
+//             <div className="w-full ml-2">
+//               <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md md:inline-block hidden">
+//                 Replying to {comment.createdBy.name}
+//               </p>
+//               <p className="text-xs text-[#3E53D7] font-normal bg-[#F6F6FF] py-1 px-4 rounded-md inline-block md:hidden">
+//                 Replying
+//               </p>
+//               <Card className="w-full rounded-xl p-1 sm:p-2">
+//                 <Form
+//                   layout="inline"
+//                   onFinish={handleAddReply}
+//                   className="w-full"
+//                   form={addReplyForm}
+//                 >
+//                   <Form.Item
+//                     name="reply"
+//                     rules={[
+//                       {
+//                         required: true,
+//                         message: "Please add a reply!",
+//                       },
+//                     ]}
+//                     className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
+//                   >
+//                     <Input.TextArea
+//                       autoSize={{ minRows: 2, maxRows: 4 }}
+//                       maxLength={1000}
+//                       showCount
+//                       placeholder="Add a reply"
+//                       className="px-1 border rounded-lg border-none focus:ring-0 focus:outline-none h-8 mb-2"
+//                     />
+//                   </Form.Item>
+//                   <div className="w-full flex flex-row justify-between mt-2 sm:mt-3">
+//                     <div className="flex items-center border border-[#D9D9D9] rounded-md px-2 h-8 sm:ml-2">
+//                       <CommonTypography className="text-sm text-[#747474] font-normal opacity-50 pr-2 hidden sm:nlock">
+//                         Rate Db:
+//                       </CommonTypography>
+//                       <Form.Item className="!p-0 !m-0 " name="rating">
+//                         <Rate
+//                           defaultValue={3}
+//                           className="text-[#FFC412] !text-sm"
+//                         />
+//                       </Form.Item>
+//                     </div>
+
+//                     <Form.Item>
+//                       <Button
+//                         className="-mr-2 sm:mr-0"
+//                         type="text"
+//                         htmlType="submit"
+//                         disabled={loading}
+//                         loading={loading}
+//                         icon={
+//                           <img
+//                             src="/assets/icons/send-icon.svg"
+//                             className="w-4 h-4 cursor-pointer"
+//                             alt="Send Icon"
+//                           />
+//                         }
+//                       />
+//                     </Form.Item>
+//                   </div>
+//                 </Form>
+//               </Card>
+//             </div>
+//           </div>
+//         )}
 //       </ul>
 //     </div>
 //   );
