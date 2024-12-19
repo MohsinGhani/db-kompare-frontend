@@ -94,6 +94,18 @@ export default function Navbar() {
     }
   }, [path, dispatch, userDetails]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
   return (
     <div
       className={`w-full h-20 pt-3 z-10 ${
@@ -151,15 +163,17 @@ export default function Navbar() {
               {loading ? null : userDetails ? (
                 <CommonUserDropdown />
               ) : (
-                <CommonButton
-                  className="bg-primary text-white"
-                  style={{ height: "40px" }}
-                  onClick={() => {
-                    router.push("/signin");
-                  }}
-                >
-                  Vendor Login
-                </CommonButton>
+                <div className="sm:block hidden">
+                  <CommonButton
+                    className="bg-primary text-white mr-2"
+                    style={{ height: "40px" }}
+                    onClick={() => {
+                      router.push("/signin");
+                    }}
+                  >
+                    Vendor Login
+                  </CommonButton>
+                </div>
               )}
             </div>
           )}
@@ -205,6 +219,26 @@ export default function Navbar() {
               </button>
             </li>
           ))}
+          <li className="w-full">
+            {!authRoutes.includes(path) && (
+              <div className="">
+                {loading ? null : userDetails ? null : (
+                  <div className="sm:hidden block w-full">
+                    <CommonButton
+                      className="bg-primary text-white mr-2 w-full"
+                      style={{ height: "40px" }}
+                      onClick={() => {
+                        router.push("/signin");
+                        setIsOpen(false);
+                      }}
+                    >
+                      Vendor Login
+                    </CommonButton>
+                  </div>
+                )}
+              </div>
+            )}
+          </li>
         </ul>
       </div>
     </div>

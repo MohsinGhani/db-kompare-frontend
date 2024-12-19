@@ -281,6 +281,7 @@
 //                   handleUndisableComment(commentId, parentCommentId)
 //                 }
 //                 fetchComments={fetchComments}
+//                 className="childreply"
 //               />
 //             ))}
 //           </div>
