@@ -6,8 +6,30 @@ import CommonTypography from "../../shared/Typography";
 import { useRouter } from "next/navigation";
 import BlogSkeleton from "@/components/shared/Skeletons/BlogSkeleton";
 import SingleBlogCard from "@/components/blogCard/SingleBlogCard";
+import { fetchBlogsData } from "@/utils/blogUtil";
+import { useEffect, useState } from "react";
+
 const Blog = ({ route, text, buttonText, secondText }) => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleFetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchBlogsData();
+      if (response.data) {
+        console.log(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchBlogs();
+  }, []);
   return (
     <div>
       <div className=" w-full items-center flex justify-between ">

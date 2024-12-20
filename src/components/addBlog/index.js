@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Form } from "antd";
+import { Form, message } from "antd";
 import { useParams } from "next/navigation";
 import CommonEditor from "../shared/CommonEditor";
 import CommonButton from "../shared/Button";
@@ -10,19 +10,45 @@ import CustomSelect from "../shared/CustomSelect";
 import ImageUploader from "./ImageUploader";
 import CommonTypography from "../shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
+import { useSelector } from "react-redux";
+import { addBlog } from "@/utils/blogUtil";
+import { BlogStatus } from "@/utils/const";
 
 const AddBlog = () => {
   const [form] = Form.useForm();
   const { id } = useParams();
   const [databases, setDatabases] = useState([]);
-  const [loading, setLoading] = useState(false); //TODO:Later we Implement loading state
+  const [addBlogLoading, setAddBlogLoading] = useState(false);
+  const { userDetails } = useSelector((state) => state.auth);
+  const userId = userDetails?.data?.data?.id;
 
   const handleImageUpload = (file) => {
     form.setFieldsValue({ image: file });
   };
 
   const onFinish = async (values) => {
-    console.log("values", values);
+    const payload = {
+      title: values.title,
+      description: values.description,
+      createdBy: userId,
+      status: BlogStatus.PUBLIC,
+      databases: values.tags,
+    };
+    console.log(payload);
+
+    try {
+      setAddBlogLoading(true);
+      const response = await addBlog(payload);
+      if (response.data) {
+        message.success("Blog added successfully");
+        form.resetFields();
+      }
+    } catch (error) {
+      console.error("Error adding blog:", error);
+      message.error(error.message || "An error occurred while adding the blog");
+    } finally {
+      setAddBlogLoading(false);
+    }
   };
 
   // Fetch databases (names and IDs) for the tags select
@@ -89,7 +115,7 @@ const AddBlog = () => {
             options={databases.map((db) => ({
               id: db.id,
               label: db.name,
-              value: db.name,
+              value: db.id,
             }))}
             mode="tags"
             size="large"
@@ -114,10 +140,10 @@ const AddBlog = () => {
           <CommonButton
             className="bg-primary text-white mt-8 md:max-w-[130px] w-full"
             htmltype="submit"
-            disabled={loading}
+            loading={addBlogLoading}
+            disabled={addBlogLoading}
           >
-            {/* {loading ? "Uploading..." : "Upload"} */}
-            Upload
+            {addBlogLoading ? "Uploading..." : "Upload"}
           </CommonButton>
         </Form.Item>
       </Form>

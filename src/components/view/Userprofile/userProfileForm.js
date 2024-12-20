@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { BasicDetailsForm } from "./basicdetailsForm";
 import { ChangeEmailForm } from "./changeemailForm";
 import { ChangePasswordForm } from "./changepasswordForm";
-import CommonTypography from "@/components/shared/Typography";
 import "./customCollapse.scss";
 import { useSelector } from "react-redux";
 
