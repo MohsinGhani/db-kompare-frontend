@@ -50,8 +50,14 @@ body {
   background-color: #677af5;
   color: white;
 }
-:where(.css-dev-only-do-not-override-apn68).ant-otp .ant-otp-input {
-  height: 50px;
+
+.ant-otp-input {
+  height: 50px !important;
+}
+@media (max-width: 500px) {
+  .ant-otp-input {
+    height: 35px !important;
+  }
 }
 
 :where(.css-dev-only-do-not-override-apn68).ant-card .ant-card-body {

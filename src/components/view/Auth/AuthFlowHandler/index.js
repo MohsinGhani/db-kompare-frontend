@@ -34,26 +34,12 @@ const AuthFlowHandler = () => {
 
   useEffect(() => {
     setLoader(true);
-    if (userDetails && !has_auth_error) {
-      router.replace("/");
+    if (!userDetails && !has_auth_error) {
       authFlowHandler();
+    } else if (userDetails && !has_auth_error) {
+      router.replace("/");
     }
-    setLoader(false);
   }, [userDetails]);
-
-  if (loader && !has_auth_error && !userDetails)
-    return (
-      <>
-        <div className="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2">
-          <Image
-            src={loadingAnimationIcon}
-            alt="logo"
-            width={100}
-            height={100}
-          />
-        </div>
-      </>
-    );
 
   if (!isClient) return null;
 
@@ -65,6 +51,17 @@ const AuthFlowHandler = () => {
           <span className="text-primary">dbkompare@gmail.com</span> with your
           registered username or email address. We will try to resolve your
           issue ASAP. Thank you!
+        </div>
+      )}
+
+      {loader && !has_auth_error && !userDetails && (
+        <div className="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2">
+          <Image
+            src="/assets/icons/Animation-loader.gif"
+            alt="logo"
+            width={100}
+            height={100}
+          />
         </div>
       )}
     </div>

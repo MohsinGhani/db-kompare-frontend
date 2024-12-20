@@ -1,84 +1,43 @@
-// body {
-//   margin-bottom: 6em;
-// }
-
-// $border-color: #e3e5ef;
-// $primary-color: #bada55;
-
 // .treeview {
-//   //Variables
-//   $_treeview-level-size: 55px;
-//   //General styles for bootstrap
-//   .btn-default {
-//     border-color: $border-color;
-
-//     &:hover {
-//       background-color: #f7faea;
-//       color: $primary-color;
-//     }
-//   }
-//   // Targetting the HTML Elements for treeview
 //   .cmnt-tree {
 //     list-style: none;
 //     position: relative;
-//     .cmnt-tree-child {
-//       padding: 10px 0px 0px 0px;
-//       &::before {
-//         content: "";
-//         position: absolute;
-//         top: 0;
-//         left: -31px;
-//         border-left: 1px solid #d9d9d9;
-//         width: 1px;
-//         height: 100%;
-//       }
 
+//     // Top-level children: no lines
+//     > .cmnt-tree-child {
+//       position: relative;
+//       &::before,
 //       &::after {
-//         content: "";
-//         position: absolute;
-//         border-top: 1px solid #d9d9d9;
-//         top: 38px;
-//         left: -30px;
-//         width: 30px;
+//         content: none;
+//       }
+//     }
+
+//     .cmnt-tree {
+//       .cmnt-tree-child {
+//         position: relative;
+
+//         &::before {
+//           content: "";
+//           position: absolute;
+//           top: -90px;
+//           left: -31px;
+//           border-left: 1px solid #d9d9d9;
+//           width: 1px;
+//           height: 100%;
+//         }
+
+//         &::after {
+//           content: "";
+//           position: absolute;
+//           border-top: 1px solid #d9d9d9;
+//           top: 20px;
+//           left: -30px;
+//           width: 30px;
+//         }
 //       }
 //     }
 //   }
 
-//   // First Level Elements
-//   & > .cmnt-tree {
-//     & > .cmnt-tree-child {
-//       &:after,
-//       &:last-child:before {
-//         content: unset;
-//       }
-
-//       &:before {
-//         top: 90px;
-//         left: 36px;
-//       }
-
-//       &:not(:last-child) > .cmnt-tree > .cmnt-tree-child {
-//         &:before {
-//           content: unset;
-//         }
-//       }
-
-//       & > .treeview__level {
-//         &:before {
-//           height: $_treeview-level-size + 5;
-//           width: $_treeview-level-size + 5;
-//           top: -9.5px;
-//           background-color: #54a6d9;
-//           border: 7.5px solid #d5e9f6;
-//           font-size: 22px;
-//         }
-//       }
-
-//       & > .cmnt-tree {
-//         padding-left: 34px;
-//       }
-//     }
-//   }
 //   .rate-container {
 //     margin-top: 10px;
 //     ul {

@@ -3,6 +3,7 @@
 import CommonButton from "@/components/shared/Button";
 import Link from "next/link";
 import googleIcon from "@/../public/assets/icons/googleIcon.svg";
+import githubIcon from "@/../public/assets/icons/githubIcon.svg";
 import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
@@ -14,10 +15,12 @@ import { useState } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { setAccessTokenFromLocalStorage } from "@/utils/helper";
 import { socialRegisteration } from "@/utils/authServices";
+import { toast } from "react-toastify";
+
+const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
@@ -47,7 +50,7 @@ const SignIn = () => {
         dispatch(setEmail(values.email));
         router.push("/verification-code");
       } else {
-        setError(err.message);
+        toast.error(err?.message);
       }
     }
   };
@@ -58,19 +61,15 @@ const SignIn = () => {
     }
 
     try {
-      const response = await fetch(
-        `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-user?id=${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "x-api-key": Y_API_KEY,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL_1}/get-user?id=${userId}`, {
+        method: "GET",
+        headers: {
+          "x-api-key": Y_API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         dispatch(setUserDetails({ data }));
         setAccessTokenFromLocalStorage();
@@ -100,7 +99,7 @@ const SignIn = () => {
             </p>
             <button
               onClick={() => socialRegisteration("Google")}
-              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
             >
               <Image
                 src={googleIcon}
@@ -110,18 +109,18 @@ const SignIn = () => {
               />
               Sign in with Google
             </button>
-            {/* <button
-              onClick={() => socialRegisteration("Google")}
-              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-[#f8f8f8] px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+            <button
+              onClick={() => socialRegisteration({ custom: "GitHub" })}
+              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
             >
               <Image
-                src={googleIcon}
-                alt="Google Icon"
+                src={githubIcon}
+                alt="Github Icon"
                 width={20}
                 height={20}
               />
               Sign in with Github
-            </button> */}
+            </button>
 
             <div className="mb-8 flex items-center justify-center">
               <span className="hidden h-[1px] w-full max-w-[60px] bg-[#D9D9D9] sm:block"></span>
@@ -163,11 +162,7 @@ const SignIn = () => {
                 >
                   Forgot Password?
                 </Link>
-                {error && (
-                  <p className="text-red-500 text-base my-2 text-start">
-                    {error}
-                  </p>
-                )}
+
                 <CommonButton
                   htmlType="submit"
                   className="w-full bg-primary h-7 hover:bg-[#2d3a8c] text-white flex items-center justify-center gap-2"
