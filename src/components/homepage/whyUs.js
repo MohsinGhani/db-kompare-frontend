@@ -11,7 +11,7 @@ export default function WhyUs() {
     "Access the latest resources and solutions, all in one location.",
   ];
   return (
-    <div className="flex flex-col w-full xl:px-32 lg:px-4 px-9 md:py-9 items-center">
+    <div className="flex flex-col w-full container md:py-9 items-center">
       <div className="md:flex justify-between w-full py-4">
         <div className="md:w-2/4 hidden md:flex justify-center">
           <Image src={chooseUs} alt="Cube" width={600} />

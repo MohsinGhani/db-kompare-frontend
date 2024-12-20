@@ -69,3 +69,37 @@ body {
   > .ant-collapse-content-box {
   padding: 0px;
 }
+:where(.css-dev-only-do-not-override-apn68).ant-upload-wrapper
+  .ant-upload-drag
+  .ant-upload-btn {
+  background-color: white;
+}
+:where(.css-apn68).ant-upload-wrapper .ant-upload-drag .ant-upload-btn {
+  background-color: white;
+}
+
+:where(
+    .css-dev-only-do-not-override-apn68
+  ).ant-input-outlined.ant-input-status-error:not(.ant-input-disabled) {
+  border-color: #d9d9d9;
+}
+:where(.css-apn68).ant-input-outlined.ant-input-status-error:not(
+    .ant-input-disabled
+  ) {
+  border-color: #d9d9d9;
+}
+:where(
+    .css-dev-only-do-not-override-apn68
+  ).ant-select-outlined.ant-select-status-error:not(.ant-select-customize-input)
+  .ant-select-selector {
+  border: 1px solid #d9d9d9;
+}
+:where(.css-apn68).ant-select-outlined.ant-select-status-error:not(
+    .ant-select-customize-input
+  )
+  .ant-select-selector {
+  border: 1px solid #d9d9d9;
+}
+:where(.css-apn68).ant-card .ant-card-body {
+  padding: 0px;
+}
