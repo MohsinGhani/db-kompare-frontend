@@ -8,7 +8,7 @@ import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import { signIn } from "aws-amplify/auth";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { setEmail, setUserDetails } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useState } from "react";

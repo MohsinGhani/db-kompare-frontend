@@ -1,24 +1,28 @@
 "use client";
 
 import CommonButton from "../../shared/Button";
-import { blogsData } from "../../shared/Db-json/blogData";
-import CommonTypography from "../../shared/Typography";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import BlogSkeleton from "@/components/shared/Skeletons/BlogSkeleton";
 import SingleBlogCard from "@/components/blogCard/SingleBlogCard";
-import { fetchBlogsData } from "@/utils/blogUtil";
+import { fetchBlogsByDatabaseIds, fetchBlogsData } from "@/utils/blogUtil";
 import { useEffect, useState } from "react";
 
-const Blog = ({ route, text, buttonText, secondText }) => {
+const Blog = ({ addroute, text, buttonText, selectedDatabaseIds }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [blogsData, setBlogsData] = useState([]);
 
   const handleFetchBlogs = async () => {
     try {
       setLoading(true);
-      const response = await fetchBlogsData();
+      let response;
+      if (selectedDatabaseIds && selectedDatabaseIds.length > 0) {
+        response = await fetchBlogsByDatabaseIds(selectedDatabaseIds);
+      } else {
+        response = await fetchBlogsData();
+      }
       if (response.data) {
-        console.log(response.data);
+        setBlogsData(response.data);
       }
     } catch (error) {
       console.error("Error fetching blogs:", error);
@@ -29,26 +33,16 @@ const Blog = ({ route, text, buttonText, secondText }) => {
 
   useEffect(() => {
     handleFetchBlogs();
-  }, []);
+  }, [selectedDatabaseIds]);
+
   return (
-    <div>
+    <div className="w-full">
       <div className=" w-full items-center flex justify-between ">
         <div className="flex-col flex gap-1 w-full ">
           {text && (
-            <div className="flex justify-between  my-8 pt-40  md:pt-0">
-              <div className="flex-col flex">
-                <CommonTypography classes="text-3xl font-bold">
-                  {text}
-                </CommonTypography>
-                {secondText && (
-                  <CommonTypography classes="text-base text-secondary">
-                    {secondText}
-                  </CommonTypography>
-                )}
-              </div>
-
+            <div className="flex justify-end my-4 md:pt-0">
               <CommonButton
-                onClick={() => router.push(route)}
+                onClick={() => router.push(addroute)}
                 className="bg-primary text-white"
                 style={{ height: "42px" }}
               >
@@ -60,7 +54,7 @@ const Blog = ({ route, text, buttonText, secondText }) => {
       </div>
       <div className=" mt-4 w-full">
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3">
-          {!blogsData
+          {loading
             ? [1, 2, 3].map((item, key) => <BlogSkeleton key={key} />)
             : blogsData?.map((blog) => (
                 <div key={blog.id} className="w-full">

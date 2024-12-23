@@ -5,7 +5,7 @@ import { selectEmail } from "@/redux/slices/authSlice";
 import { Button, Form, Input } from "antd";
 import { confirmSignUp, resendSignUpCode } from "aws-amplify/auth";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";

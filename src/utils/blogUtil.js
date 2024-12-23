@@ -28,7 +28,7 @@ export const fetchBlogsData = async () => {
   });
 };
 
-// Function to add comment
+// Function to add blog
 
 export const addBlog = async (payload) => {
   return fetchAPI(`${API_BASE_URL_1}/create-blog`, {
@@ -39,4 +39,42 @@ export const addBlog = async (payload) => {
     },
     body: JSON.stringify(payload),
   });
+};
+
+// Function to edit blog
+
+export const editBlog = async (payload) => {
+  return fetchAPI(`${API_BASE_URL_1}/edit-blog`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": Y_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+// Function to fetch blog by id
+
+export const fetchBlogById = async (blogId) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-blog/${blogId}`, {
+    method: "GET",
+    headers: {
+      "x-api-key": Y_API_KEY,
+    },
+  });
+};
+
+// Function to fetch blogs by databasesId
+
+export const fetchBlogsByDatabaseIds = async (databaseIds) => {
+  return fetchAPI(
+    `${API_BASE_URL_1}/get-blogs?status=${BlogStatus.PUBLIC}&databases=${databaseIds}`,
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": Y_API_KEY,
+      },
+    }
+  );
 };

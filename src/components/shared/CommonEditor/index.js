@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Form } from "antd";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import ImageResize from "quill-image-resize-module-react";
@@ -43,7 +42,6 @@ const CommonEditor = ({ value, onChange }) => {
     "indent",
     "image",
   ];
-  console.log("value", value);
   return (
     <>
       <ReactQuill

@@ -33,7 +33,7 @@ const UserProfileForm = () => {
       );
 
       const data = await response.json();
-      console.log(data);
+
       if (response.ok) {
         setUserData(data);
       } else if (response.status === 404) {
@@ -67,13 +67,13 @@ const UserProfileForm = () => {
       key: "3",
       label: "Change Password",
       children: <ChangePasswordForm email={userData?.data?.email} />,
-      className: "!px-0 mb-6 bg-[#FAFAFA]",
+      className: "!px-0 bg-[#FAFAFA]",
     },
   ];
 
   return (
-    <div className="bg-white pb-12 h-full max-w-[75%] ">
-      <div className="min-h-[calc(100vh-416px)] h-full">
+    <div className="bg-white h-full lg:max-w-[75%]">
+      <div className="min-h-full h-full">
         <Collapse
           items={items}
           defaultActiveKey={["1", "2", "3"]}

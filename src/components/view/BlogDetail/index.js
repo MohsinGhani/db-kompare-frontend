@@ -1,19 +1,83 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Avatar, Tag } from "antd";
-import { blogsData } from "@/components/shared/Db-json/blogData";
 import { getInitials } from "@/utils/getInitials";
+import { fetchBlogById } from "@/utils/blogUtil";
+import { fetchDatabaseByIds } from "@/utils/databaseUtils";
+import { formatReadableDate } from "@/utils/formatDateAndTime";
+import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
+
 const BlogDetail = ({ id }) => {
-  const [blog, setBlog] = useState(null);
+  const [blog, setBlog] = useState();
+  const [databasesTags, setDatabasesTags] = useState([]);
+  const [loadingBlog, setLoadingBlog] = useState(false);
+  const [loadingDatabases, setLoadingDatabases] = useState(false);
+
+  const handleFetchBlogById = async () => {
+    try {
+      setLoadingBlog(true);
+      const response = await fetchBlogById(id);
+      if (response.data) {
+        setBlog(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching blog:", error);
+    } finally {
+      setLoadingBlog(false);
+    }
+  };
+
+  const handleFetchDatabasesByIds = async (databaseIds) => {
+    if (!Array.isArray(databaseIds) || databaseIds.length === 0) {
+      setDatabasesTags([]);
+      return;
+    }
+
+    try {
+      setLoadingDatabases(true);
+      const response = await fetchDatabaseByIds(databaseIds);
+      if (response.data) {
+        const databaseNames = response.data.map((db) => db.name);
+        setDatabasesTags(databaseNames);
+      }
+    } catch (error) {
+      console.error("Error fetching databases:", error);
+    } finally {
+      setLoadingDatabases(false);
+    }
+  };
 
   useEffect(() => {
-    const selectedBlog = blogsData.find((blog) => blog.id === parseInt(id));
-    setBlog(selectedBlog);
+    if (blog && Array.isArray(blog.databases)) {
+      handleFetchDatabasesByIds(blog.databases);
+    }
+  }, [blog]);
+
+  useEffect(() => {
+    handleFetchBlogById();
   }, [id]);
 
+  if (loadingBlog || loadingDatabases) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Image
+          src={loadingAnimationIcon}
+          alt="Loading..."
+          width={100}
+          height={100}
+        />
+      </div>
+    );
+  }
+
   if (!blog) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>No blog found.</p>
+      </div>
+    );
   }
 
   return (
@@ -31,12 +95,12 @@ const BlogDetail = ({ id }) => {
                     <div className="mr-4">
                       <Avatar className="bg-primary text-white w-9 h-9 ">
                         {" "}
-                        {getInitials(blog.author)}
+                        {getInitials(blog?.author || "Unknown Author")}
                       </Avatar>
                     </div>
                     <div className="w-full">
                       <span className="text-base font-medium text-body-color">
-                        {blog.author}
+                        {blog?.author || "Unknown Author"}
                       </span>
                     </div>
                   </div>
@@ -60,7 +124,7 @@ const BlogDetail = ({ id }) => {
                           <path d="M13.2637 3.3697H7.64754V2.58105C8.19721 2.43765 8.62738 1.91189 8.62738 1.31442C8.62738 0.597464 8.02992 0 7.28906 0C6.54821 0 5.95074 0.597464 5.95074 1.31442C5.95074 1.91189 6.35702 2.41376 6.93058 2.58105V3.3697H1.31442C0.597464 3.3697 0 3.96716 0 4.68412V13.2637C0 13.9807 0.597464 14.5781 1.31442 14.5781H13.2637C13.9807 14.5781 14.5781 13.9807 14.5781 13.2637V4.68412C14.5781 3.96716 13.9807 3.3697 13.2637 3.3697ZM6.6677 1.31442C6.6677 0.979841 6.93058 0.716957 7.28906 0.716957C7.62364 0.716957 7.91042 0.979841 7.91042 1.31442C7.91042 1.649 7.64754 1.91189 7.28906 1.91189C6.95448 1.91189 6.6677 1.6251 6.6677 1.31442ZM1.31442 4.08665H13.2637C13.5983 4.08665 13.8612 4.34954 13.8612 4.68412V6.45261H0.716957V4.68412C0.716957 4.34954 0.979841 4.08665 1.31442 4.08665ZM13.2637 13.8612H1.31442C0.979841 13.8612 0.716957 13.5983 0.716957 13.2637V7.16957H13.8612V13.2637C13.8612 13.5983 13.5983 13.8612 13.2637 13.8612Z"></path>
                         </svg>
                       </span>
-                      {blog.date}
+                      {formatReadableDate(blog?.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -69,7 +133,7 @@ const BlogDetail = ({ id }) => {
                 <div className="mb-3 w-full overflow-hidden rounded">
                   <div className="relative w-full ">
                     <img
-                      src={blog.imageUrl}
+                      src={blog?.imageUrl}
                       alt="Blog Image"
                       className="w-full h-[500px] object-cover rounded-lg"
                     />
@@ -78,7 +142,7 @@ const BlogDetail = ({ id }) => {
                 <div className="pt-5">
                   <p
                     className="text-[#565758] text-base"
-                    dangerouslySetInnerHTML={{ __html: blog.content }}
+                    dangerouslySetInnerHTML={{ __html: blog.description }}
                   ></p>
                 </div>
                 <div>
@@ -86,7 +150,7 @@ const BlogDetail = ({ id }) => {
                     Popular Tags :
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {blog.databaseTags.map((tag) => (
+                    {databasesTags.map((tag) => (
                       <Tag
                         key={tag}
                         className="px-3 py-2 bg-[#F0F2F9] text-black rounded-sm text-sm font-medium border-none"

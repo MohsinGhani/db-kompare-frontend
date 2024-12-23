@@ -11,7 +11,7 @@ export default function index() {
     <div className="container py-28">
       {" "}
       <Blog
-        route="/add-blog"
+        addroute="add-blog"
         text="My Blog"
         buttonText="Add Blog"
         secondText=" Edit and manage your blogs"

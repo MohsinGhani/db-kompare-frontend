@@ -5,16 +5,22 @@ import { Avatar, Card } from "antd";
 import editblogIcon from "@/../public/assets/icons/pencilIcon.svg";
 import { getInitials } from "@/utils/getInitials";
 import { usePathname } from "next/navigation";
+import { formatReadableDate } from "@/utils/formatDateAndTime";
+
 const SingleBlogCard = ({ blog }) => {
   const pathname = usePathname();
-  const { id, title, author, content, date, imageUrl } = blog;
+  const { id, title, description, createdAt, imageUrl } = blog;
+  let author = blog?.createdBy?.name || "Unknown Author";
 
   const countAlphabets = (str) => str.replace(/[^A-Za-z]/g, "").length;
 
   const truncatedContent = (() => {
-    const textLength = countAlphabets(content);
-    return textLength > 150 ? content.slice(0, 150) + "..." : blog.content;
+    const textLength = countAlphabets(description);
+    return textLength > 150
+      ? description.slice(0, 150) + "..."
+      : blog.description;
   })();
+
   return (
     <Card
       hoverable
@@ -34,16 +40,26 @@ const SingleBlogCard = ({ blog }) => {
             objectFit: "cover",
           }}
         />
-        {pathname === "/user-profile" || pathname === "/blog" ? (
-          <div className="absolute top-2 right-2 bg-primary p-2 rounded-full">
-            <Image src={editblogIcon} width={20} height={20} alt="Edit Icon" />
-          </div>
-        ) : null}
       </Link>
-      <div className="p-3  h-[100%] sm:p-8 md:px-6 md:py-6 lg:p-4 xl:px-5 xl:py-4 2xl:px-8 2xl:pt-8 ">
+      {pathname === "/user-profile" || pathname === "/blog" ? (
+        <Link
+          href={`/edit-blog/${id}`}
+          className="absolute top-2 right-2 bg-primary p-2 rounded-full"
+        >
+          <Image
+            src={editblogIcon}
+            width={20}
+            height={20}
+            alt="Edit Icon"
+            className="hover:w-6 hover:h-6  transition-all"
+          />
+        </Link>
+      ) : null}
+
+      <div className="p-3 h-[100%] sm:p-8 md:px-6 md:py-6 lg:p-4 xl:px-5 xl:py-4 2xl:px-8 2xl:pt-8 ">
         <Link
           href={`/blog/${id}`}
-          className="  block text-lg  font-bold text-black hover:text-primary  sm:text-2xl"
+          className="block text-lg font-bold text-black hover:text-primary sm:text-2xl"
         >
           <h3>{title}</h3>
         </Link>
@@ -65,7 +81,9 @@ const SingleBlogCard = ({ blog }) => {
           </div>
           <div className="inline-block">
             <h4 className="mb-1 text-sm font-medium text-dark">Date</h4>
-            <p className="text-xs text-[#788293]">{date}</p>
+            <p className="text-xs text-[#788293]">
+              {formatReadableDate(createdAt)}
+            </p>
           </div>
         </div>
       </div>

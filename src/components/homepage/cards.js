@@ -1,7 +1,7 @@
 import React from "react";
 import CommonTypography from "../shared/Typography";
 import CommonButton from "../shared/Button";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 const HomepageCards = () => {
   const router = useRouter();

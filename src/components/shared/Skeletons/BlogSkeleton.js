@@ -8,7 +8,7 @@ const BlogSkeleton = () => {
       size={10}
       className="h-full min-h-[500px] w-full rounded-md p-4 shadow-md"
     >
-      <Skeleton.Image active className="w-100 !h-[240px]" />
+      <Skeleton.Image active className="!w-full !h-[240px]" />
       <Skeleton className="mt-10" />
     </Flex>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import ContentSection from "@/components/shared/ContentSection/page";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";

@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
 import {
   fetchDatabaseByIds,
@@ -12,6 +12,7 @@ import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
 import Blog from "@/components/view/Blog";
+// import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -173,13 +174,20 @@ const Comparison = ({ params }) => {
             setSelectedDatabasesOptions={setSelectedDatabasesOptions}
           />
         </div>
+
+        <Blog
+          addroute="/blog"
+          text="Related Blogs"
+          buttonText="All Blogs"
+          selectedDatabaseIds={selectedDatabaseIds}
+        />
+
         {/* <div className="w-full md:pt-8 ">
           <CommentsSection
             selectedDatabases={selectedDatabases}
             selectedDatabaseIds={selectedDatabaseIds}
           />
         </div> */}
-        <Blog route="/blog" text="Related Blogs" buttonText="All Blogs" />
       </div>
     </>
   );

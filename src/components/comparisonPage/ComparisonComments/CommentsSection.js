@@ -47,7 +47,9 @@
 //     try {
 //       setLoading(true);
 //       const data = await fetchCommentsData(selectedDatabaseIds);
-//       setCommentsData(data.data || []);
+//       if (data) {
+//         setCommentsData(data.data || []);
+//       }
 //     } catch (error) {
 //       console.error("Error fetching comments:", error);
 //     } finally {
@@ -181,7 +183,6 @@
 //             <Form.Item
 //               name="comment"
 //               rules={[
-//                 { required: true, message: "Please add a comment!" },
 //                 {
 //                   max: 1000,
 //                   message: "Comment cannot exceed 1000 characters!",

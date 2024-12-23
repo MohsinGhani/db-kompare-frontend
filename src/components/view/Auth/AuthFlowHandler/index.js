@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useSelector } from "react-redux";
 import { Image } from "antd";
 import { handleFetchAuthSession } from "@/utils/authServices";

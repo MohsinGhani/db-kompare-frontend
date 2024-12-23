@@ -4,7 +4,7 @@ import CommonButton from "@/components/shared/Button";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { Checkbox, Form } from "antd";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import googleIcon from "@/../public/assets/icons/googleIcon.svg";
 import githubIcon from "@/../public/assets/icons/githubIcon.svg";

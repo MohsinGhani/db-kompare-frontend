@@ -14,7 +14,7 @@ const ExperienceSection = () => {
         const result = await fetchDatabasesCount();
         setDatabasesCount(result.data.count);
       } catch (error) {
-        // console.log(error.message);
+        console.log(error.message);
       }
     };
     fetchData();

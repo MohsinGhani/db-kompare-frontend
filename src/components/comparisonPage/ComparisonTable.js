@@ -1,7 +1,7 @@
 "use client";
 import { Skeleton, Table, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import ProcessDataHtml from "@/utils/processHtml";
 import { useState, useEffect } from "react";
 import { rowLabels } from "@/utils/rowLabels";

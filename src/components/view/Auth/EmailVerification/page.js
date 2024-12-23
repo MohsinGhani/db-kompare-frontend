@@ -4,7 +4,7 @@ import CommonButton from "@/components/shared/Button";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { resetPassword } from "aws-amplify/auth";
 import { useDispatch } from "react-redux";
 import { setEmail } from "@/redux/slices/authSlice";

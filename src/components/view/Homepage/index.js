@@ -11,7 +11,7 @@ import WhyUs from "@/components/homepage/whyUs";
 import ExperienceSection from "@/components/homepage/experienceSection";
 import MakeUsUnique from "@/components/homepage/uniqueSection";
 import HomepageCards from "@/components/homepage/cards";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import OurBlogs from "@/components/homepage/ourBlog";
 export default function Homepage() {
   const router = useRouter();

@@ -1,17 +1,38 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CommonTypography from "../shared/Typography";
 import BlogSkeleton from "../shared/Skeletons/BlogSkeleton";
-import { blogsData } from "../shared/Db-json/blogData";
 import CommonButton from "../shared/Button";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import SingleBlogCard from "../blogCard/SingleBlogCard";
+import { fetchBlogsData } from "@/utils/blogUtil";
 
 const OurBlogs = () => {
+  const [loading, setLoading] = useState(false);
+  const [blogsData, setBlogsData] = useState([]);
   const router = useRouter();
+
+  const handleFetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchBlogsData();
+      if (response.data) {
+        setBlogsData(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchBlogs();
+  }, []);
+
   return (
     <div className="container ">
-      <div className="  text-5xl items-center flex  flex-col   py-10  w-full">
+      <div className="  text-5xl items-center flex flex-col py-10 w-full">
         <div className="text-center w-full">
           <CommonTypography classes="md:text-5xl text-2xl font-bold ">
             Our Blogs
@@ -21,9 +42,11 @@ const OurBlogs = () => {
             Revolutionizing How You Discover and Compare Knowledge
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3">
-          {!blogsData
-            ? [1, 2, 3].map((item, key) => <BlogSkeleton key={key} />)
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3 w-full">
+          {loading
+            ? [1, 2, 3].map((key) => (
+                <BlogSkeleton key={key} className="w-full" />
+              ))
             : blogsData.slice(0, 3).map((blog) => (
                 <div key={blog.id} className="w-full">
                   <SingleBlogCard blog={blog} />

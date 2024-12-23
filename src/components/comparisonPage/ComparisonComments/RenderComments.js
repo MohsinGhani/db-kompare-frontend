@@ -88,6 +88,7 @@
 //       editReplyForm.setFieldsValue({
 //         id: comment.id,
 //         editText: comment.comment,
+//         rating: comment.rating,
 //       });
 //     } else if (key === "disable") {
 //       handleDisableComment(comment.id, comment.parentCommentId || null);
@@ -128,14 +129,14 @@
 
 //   const handleAddReply = (values) => {
 //     const { reply, rating } = values;
-//     if (!reply.trim()) {
-//       message.error("Please enter a reply.");
-//       return;
-//     }
+//     // if (!reply.trim()) {
+//     //   message.error("Please enter a reply.");
+//     //   return;
+//     // }
 
 //     const newReplyData = {
 //       createdBy: userId,
-//       text: reply.trim(),
+//       text: reply && reply.trim(),
 //       replies: [],
 //       parentCommentId: comment.id,
 //     };
@@ -170,12 +171,12 @@
 
 //   const handleEdit = (values) => {
 //     const rating = values.rating;
-//     const newText = values.editText.trim();
+//     const newText = values?.editText?.trim();
 
-//     if (!newText) {
-//       message.error("Please enter text.");
-//       return;
-//     }
+//     // if (!newText) {
+//     //   message.error("Please enter text.");
+//     //   return;
+//     // }
 
 //     if (level === 0) {
 //       editCommentOrReply(values.id, newText, false, rating);
@@ -238,12 +239,12 @@
 //                           <div className="w-full justify-between items-center">
 //                             <Form.Item
 //                               name="editText"
-//                               rules={[
-//                                 {
-//                                   required: true,
-//                                   message: "Please enter updated text!",
-//                                 },
-//                               ]}
+//                               // rules={[
+//                               //   {
+//                               //     required: true,
+//                               //     message: "Please enter updated text!",
+//                               //   },
+//                               // ]}
 //                               className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
 //                             >
 //                               <Input.TextArea
@@ -469,12 +470,12 @@
 //                 >
 //                   <Form.Item
 //                     name="reply"
-//                     rules={[
-//                       {
-//                         required: true,
-//                         message: "Please add a reply!",
-//                       },
-//                     ]}
+//                     // rules={[
+//                     //   {
+//                     //     required: true,
+//                     //     message: "Please add a reply!",
+//                     //   },
+//                     // ]}
 //                     className="w-full m-0 sm:px-2 sm:py-1 pb-2 sm:pb-0"
 //                   >
 //                     <Input.TextArea

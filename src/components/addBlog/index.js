@@ -7,12 +7,13 @@ import CommonEditor from "../shared/CommonEditor";
 import CommonButton from "../shared/Button";
 import CommonInput from "../shared/CommonInput";
 import CustomSelect from "../shared/CustomSelect";
-import ImageUploader from "./ImageUploader";
+import ImageUploader from "../shared/ImageUploader";
 import CommonTypography from "../shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
 import { useSelector } from "react-redux";
 import { addBlog } from "@/utils/blogUtil";
 import { BlogStatus } from "@/utils/const";
+import { useRouter } from "nextjs-toploader/app";
 
 const AddBlog = () => {
   const [form] = Form.useForm();
@@ -21,6 +22,7 @@ const AddBlog = () => {
   const [addBlogLoading, setAddBlogLoading] = useState(false);
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.data?.data?.id;
+  const route = useRouter();
 
   const handleImageUpload = (file) => {
     form.setFieldsValue({ image: file });
@@ -34,7 +36,6 @@ const AddBlog = () => {
       status: BlogStatus.PUBLIC,
       databases: values.tags,
     };
-    console.log(payload);
 
     try {
       setAddBlogLoading(true);
@@ -42,6 +43,7 @@ const AddBlog = () => {
       if (response.data) {
         message.success("Blog added successfully");
         form.resetFields();
+        route.push(`/blog/${response.data.id}`);
       }
     } catch (error) {
       console.error("Error adding blog:", error);

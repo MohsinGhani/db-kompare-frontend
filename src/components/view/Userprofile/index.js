@@ -24,7 +24,7 @@ export default function UserProfile() {
       label: "My Blogs",
       children: (
         <Blog
-          route="/add-blog"
+          addroute="add-blog"
           text="Blogs"
           buttonText="Add Blog"
           secondText=" Edit and manage your blogs"
@@ -34,7 +34,7 @@ export default function UserProfile() {
   ];
 
   return (
-    <div className="container py-32">
+    <div className="container py-32 ">
       <div className="flex flex-col mb-5">
         <CommonTypography type="title">
           {activeKey === "1" ? "Profile" : "Blog"}
