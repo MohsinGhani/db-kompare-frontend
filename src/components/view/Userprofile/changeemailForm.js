@@ -98,9 +98,10 @@ export const ChangeEmailForm = ({ email }) => {
       try {
         const session = await fetchAuthSession();
         if (session) {
-          setProviderName(
-            session?.tokens?.idToken?.payload?.identities[0]?.providerName
-          );
+          const identities = session?.tokens?.idToken?.payload?.identities;
+          if (identities && identities.length > 0) {
+            setProviderName(identities[0]?.providerName || "");
+          }
         }
       } catch (error) {
         console.error("Error fetching current user:", error);
