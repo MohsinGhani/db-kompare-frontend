@@ -10,9 +10,10 @@ const getAmplifyUserToken = () => {
 
 export const setAccessTokenFromLocalStorage = () => {
   const accessToken = getAmplifyUserToken();
-
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 1);
   if (accessToken) {
-    Cookies.set("accessToken", accessToken, { expires: 1, secure: true });
+    Cookies.set("accessToken", accessToken, { expires, secure: true });
   }
 };
 
@@ -25,4 +26,25 @@ export const setCookieHandler = (accessToken) => {
   const expires = new Date(decode.exp * 1000);
 
   Cookies.set("accessToken", accessToken, { expires, secure: true });
+};
+
+export const validateSession = () => {
+  if (typeof window !== "undefined") {
+    const cookieToken = Cookies.get("accessToken");
+    const localStorageToken = getAmplifyUserToken();
+
+    if (!cookieToken) {
+      if (localStorageToken) {
+        const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
+          k.includes("accessToken")
+        );
+        localStorage.removeItem(getAcceessToken[0]);
+        window.location.reload();
+      }
+
+      return false;
+    }
+
+    return true;
+  }
 };

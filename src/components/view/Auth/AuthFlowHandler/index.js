@@ -44,7 +44,7 @@ const AuthFlowHandler = () => {
   if (!isClient) return null;
 
   return (
-    <div className="mx-auto flex h-[70vh] w-full max-w-[800px] items-center justify-center">
+    <div className="mx-auto flex h-screen w-full max-w-[800px] items-center justify-center">
       {has_auth_error && (
         <div className="text-center font-[500]">
           There was an issue with your profile. Please email{" "}
