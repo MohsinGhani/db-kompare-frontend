@@ -35,3 +35,8 @@ export const IT_SKILLS = [
   "SQL",
   "Git",
 ];
+
+export const UserRole = {
+  ADMIN: "ADMIN",
+  VENDOR: "VENDOR",
+};
