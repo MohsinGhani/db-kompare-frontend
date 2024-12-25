@@ -42,17 +42,23 @@ const OurBlogs = () => {
             Revolutionizing How You Discover and Compare Knowledge
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3 w-full">
+
+        <div
+          className={`grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 ${
+            blogsData.length <= 2 ? "xl:grid-cols-3" : "xl:grid-cols-3"
+          }  w-full`}
+        >
           {loading
             ? [1, 2, 3].map((key) => (
                 <BlogSkeleton key={key} className="w-full" />
               ))
             : blogsData.slice(0, 3).map((blog) => (
-                <div key={blog.id} className="w-full">
+                <div key={blog.id} className="w-full ">
                   <SingleBlogCard blog={blog} />
                 </div>
               ))}
         </div>
+
         <CommonButton
           onClick={() => router.push("/our-blogs")}
           className="bg-primary text-white mt-8 md:w-40 text-base font-bold"

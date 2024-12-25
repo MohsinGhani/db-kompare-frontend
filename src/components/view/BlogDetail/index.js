@@ -2,18 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Avatar, Tag } from "antd";
 import { getInitials } from "@/utils/getInitials";
 import { fetchBlogById } from "@/utils/blogUtil";
 import { fetchDatabaseByIds } from "@/utils/databaseUtils";
 import { formatReadableDate } from "@/utils/formatDateAndTime";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
+import { useSelector } from "react-redux";
+import { UserRole } from "@/utils/const";
 
 const BlogDetail = ({ id }) => {
   const [blog, setBlog] = useState();
   const [databasesTags, setDatabasesTags] = useState([]);
   const [loadingBlog, setLoadingBlog] = useState(false);
   const [loadingDatabases, setLoadingDatabases] = useState(false);
+  const imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`;
+  const { userDetails } = useSelector((state) => state.auth);
+  const userRole = userDetails?.data?.data?.role;
 
   const handleFetchBlogById = async () => {
     try {
@@ -86,6 +92,22 @@ const BlogDetail = ({ id }) => {
         <div className="-mx-4 flex flex-wrap justify-center">
           <div className="w-full px-4 lg:w-10/12">
             <div>
+              {userRole === UserRole.ADMIN && (
+                <div className="flex flex-row items-center justify-end">
+                  <Link
+                    href={`/edit-blog/${id}`}
+                    className="text-[#3E53D7] text-lg font-medium mr-4 underline"
+                  >
+                    Delete
+                  </Link>
+                  <Link
+                    href={`/edit-blog/${id}`}
+                    className="text-[#3E53D7] text-lg font-medium underline"
+                  >
+                    Edit
+                  </Link>
+                </div>
+              )}
               <h2 className="mb-8 text-3xl font-bold  text-black sm:text-4xl ">
                 {blog.title}
               </h2>
@@ -95,12 +117,12 @@ const BlogDetail = ({ id }) => {
                     <div className="mr-4">
                       <Avatar className="bg-primary text-white w-9 h-9 ">
                         {" "}
-                        {getInitials(blog?.author || "Unknown Author")}
+                        {getInitials(blog?.createdBy?.name || "Unknown Author")}
                       </Avatar>
                     </div>
                     <div className="w-full">
                       <span className="text-base font-medium text-body-color">
-                        {blog?.author || "Unknown Author"}
+                        {blog?.createdBy?.name || "Unknown Author"}
                       </span>
                     </div>
                   </div>
@@ -133,7 +155,7 @@ const BlogDetail = ({ id }) => {
                 <div className="mb-3 w-full overflow-hidden rounded">
                   <div className="relative w-full ">
                     <img
-                      src={blog?.imageUrl}
+                      src={imageUrl}
                       alt="Blog Image"
                       className="w-full h-[500px] object-cover rounded-lg"
                     />

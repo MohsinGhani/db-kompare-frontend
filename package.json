@@ -28,7 +28,8 @@
     "react-quill": "^2.0.0",
     "react-redux": "^9.1.2",
     "react-toastify": "^10.0.6",
-    "sass": "^1.80.6"
+    "sass": "^1.80.6",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
     "eslint": "^8",

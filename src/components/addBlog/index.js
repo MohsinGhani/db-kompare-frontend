@@ -14,6 +14,8 @@ import { useSelector } from "react-redux";
 import { addBlog } from "@/utils/blogUtil";
 import { BlogStatus } from "@/utils/const";
 import { useRouter } from "nextjs-toploader/app";
+import { ulid } from "ulid";
+import { _putFileToS3 } from "@/utils/s3Services";
 
 const AddBlog = () => {
   const [form] = Form.useForm();
@@ -29,16 +31,18 @@ const AddBlog = () => {
   };
 
   const onFinish = async (values) => {
+    const id = ulid();
     const payload = {
+      id,
       title: values.title,
       description: values.description,
       createdBy: userId,
       status: BlogStatus.PUBLIC,
       databases: values.tags,
     };
-
     try {
       setAddBlogLoading(true);
+      await _putFileToS3(`BLOG/${id}.webp`, values.image);
       const response = await addBlog(payload);
       if (response.data) {
         message.success("Blog added successfully");
