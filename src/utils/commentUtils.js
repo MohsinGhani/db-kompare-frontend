@@ -80,3 +80,16 @@ export const updateComment = async (payload) => {
     body: JSON.stringify(payload),
   });
 };
+
+//Function to get db rating based on comments
+
+export const fetchDBRating = async (payload) => {
+  return fetchAPI(`${API_BASE_URL_2}/db-rating`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+};

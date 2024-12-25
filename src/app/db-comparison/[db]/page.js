@@ -11,6 +11,7 @@ import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
+import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -173,12 +174,12 @@ const Comparison = ({ params }) => {
           />
         </div>
 
-        {/* <div className="w-full md:pt-8 ">
+        <div className="w-full md:pt-8 ">
           <CommentsSection
             selectedDatabases={selectedDatabases}
             selectedDatabaseIds={selectedDatabaseIds}
           />
-        </div> */}
+        </div>
       </div>
     </>
   );
