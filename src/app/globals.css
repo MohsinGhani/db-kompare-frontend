@@ -60,7 +60,7 @@ body {
   }
 }
 
-:where(.css-dev-only-do-not-override-apn68).ant-card .ant-card-body {
+.ant-card .ant-card-body {
   padding: 0px;
 }
 

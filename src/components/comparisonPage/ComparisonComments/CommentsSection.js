@@ -172,7 +172,7 @@ const CommentsSection = ({ selectedDatabases, selectedDatabaseIds }) => {
         </div>
       </div>
 
-      <Card className="w-full mt-6 rounded-xl p-2 md:p-3">
+      <Card className="w-full mt-6 rounded-xl !p-2 !md:p-3">
         <div className="space-y-6">
           <Form
             onFinish={(values) => {
