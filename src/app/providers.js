@@ -1,14 +1,22 @@
 //src/app/providers.js
-
 "use client";
 
 import { store } from "@/redux/store";
 import { ApolloWrapper } from "../../lib/ApolloWrapper";
+import { ConfigProvider } from "antd";
 import { Provider } from "react-redux";
 export function Providers({ children }) {
   return (
     <Provider store={store}>
-      <ApolloWrapper>{children}</ApolloWrapper>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#3E53D7",
+          },
+        }}
+      >
+        <ApolloWrapper>{children}</ApolloWrapper>
+      </ConfigProvider>
     </Provider>
   );
 }

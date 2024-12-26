@@ -16,6 +16,7 @@ import { BlogStatus } from "@/utils/const";
 import { useRouter } from "nextjs-toploader/app";
 import { ulid } from "ulid";
 import { _putFileToS3 } from "@/utils/s3Services";
+import { toast } from "react-toastify";
 
 const AddBlog = () => {
   const [form] = Form.useForm();
@@ -42,16 +43,16 @@ const AddBlog = () => {
     };
     try {
       setAddBlogLoading(true);
-      await _putFileToS3(`BLOG/${id}.webp`, values.image);
+      await _putFileToS3(`BLOG/${id}.webp`, values?.image);
       const response = await addBlog(payload);
       if (response.data) {
-        message.success("Blog added successfully");
+        toast.success("Blog added successfully");
         form.resetFields();
-        route.push(`/blog/${response.data.id}`);
+        route.push(`/blog/${response?.data?.id}`);
       }
     } catch (error) {
       console.error("Error adding blog:", error);
-      message.error(error.message || "An error occurred while adding the blog");
+      toast.error(error?.message || "An error occurred while adding the blog");
     } finally {
       setAddBlogLoading(false);
     }
@@ -81,18 +82,23 @@ const AddBlog = () => {
   };
 
   return (
-    <div className="h-full w-full max-w-[1100px] py-24 md:py-32  container">
+    <div className="h-full w-full max-w-[1200px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60 ">
       <CommonTypography classes="text-3xl font-bold">Add Blog</CommonTypography>
       <Form
         form={form}
         requiredMark={false}
-        style={{ marginTop: "20px" }}
+        style={{ marginTop: "40px" }}
         onFinish={onFinish}
         layout="vertical"
       >
         <Form.Item
           name="image"
           rules={[{ required: true, message: "Please add an image" }]}
+          label={
+            <CommonTypography classes="text-base font-semibold">
+              Image
+            </CommonTypography>
+          }
         >
           <ImageUploader
             s3Image={id && `BLOG/${id}`}
@@ -133,8 +139,13 @@ const AddBlog = () => {
           name="description"
           rules={[{ required: true, message: "Please add Details" }]}
           style={{ fontSize: "23px" }}
+          label={
+            <CommonTypography classes="text-base font-semibold">
+              Description
+            </CommonTypography>
+          }
         >
-          <div className="md:mb-12 mb-28 mt-5">
+          <div className="md:mb-12 mb-28">
             <CommonEditor
               value={form.getFieldValue("description")}
               onChange={handleEditorChange}
@@ -144,7 +155,9 @@ const AddBlog = () => {
 
         <Form.Item>
           <CommonButton
-            className="bg-primary text-white mt-8 md:max-w-[130px] w-full"
+            className={`bg-primary text-white ${
+              addBlogLoading ? "md:max-w-[160px]" : "md:max-w-[140px]"
+            }  w-full`}
             htmltype="submit"
             loading={addBlogLoading}
             disabled={addBlogLoading}

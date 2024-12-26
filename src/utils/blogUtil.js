@@ -1,4 +1,4 @@
-import { BlogStatus } from "./const";
+import { BlogStatus, BlogType } from "./const";
 
 const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
@@ -54,6 +54,32 @@ export const editBlog = async (payload) => {
   });
 };
 
+// Function to delete blog
+
+export const deleteBlog = async (payload) => {
+  return fetchAPI(`${API_BASE_URL_1}/delete-blog`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": Y_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+// Function to save blog
+
+export const saveBlog = async (payload) => {
+  return fetchAPI(`${API_BASE_URL_1}/save-blog`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": Y_API_KEY,
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
 // Function to fetch blog by id
 
 export const fetchBlogById = async (blogId) => {
@@ -70,6 +96,20 @@ export const fetchBlogById = async (blogId) => {
 export const fetchBlogsByDatabaseIds = async (databaseIds) => {
   return fetchAPI(
     `${API_BASE_URL_1}/get-blogs?status=${BlogStatus.PUBLIC}&databases=${databaseIds}`,
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": Y_API_KEY,
+      },
+    }
+  );
+};
+
+// Function to fetch saved blogs by userId
+
+export const fetchSavedBlogsByUserId = async (userId) => {
+  return fetchAPI(
+    `${API_BASE_URL_1}/get-saved-blogs?userId=${userId}&type=${BlogType.SAVED_BLOG}`,
     {
       method: "GET",
       headers: {

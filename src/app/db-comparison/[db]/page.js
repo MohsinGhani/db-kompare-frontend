@@ -178,8 +178,7 @@ const Comparison = ({ params }) => {
 
         <Blog
           addroute="/blog"
-          text="Related Blogs"
-          buttonText="All Blogs"
+          // text="Related Blogs"
           selectedDatabaseIds={selectedDatabaseIds}
         />
 

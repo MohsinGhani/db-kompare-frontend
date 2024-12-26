@@ -1,4 +1,5 @@
 import Blog from "@/components/view/Blog";
+import { BlogType } from "@/utils/const";
 import React from "react";
 
 export const metadata = {
@@ -11,6 +12,7 @@ export default function index() {
     <div className="container py-28">
       {" "}
       <Blog
+        type={BlogType.BLOG}
         addroute="add-blog"
         text="My Blog"
         buttonText="Add Blog"

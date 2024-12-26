@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Form, message } from "antd";
 import { useParams } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import CommonEditor from "../shared/CommonEditor";
 import CommonButton from "../shared/Button";
 import CommonInput from "../shared/CommonInput";
@@ -13,8 +14,9 @@ import CommonTypography from "../shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
 import { BlogStatus } from "@/utils/const";
 import { editBlog, fetchBlogById } from "@/utils/blogUtil";
-import { useRouter } from "nextjs-toploader/app";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
+import { _putFileToS3, _removeFileFromS3 } from "@/utils/s3Services";
+import { toast } from "react-toastify";
 
 const EditBlog = () => {
   const [form] = Form.useForm();
@@ -24,12 +26,16 @@ const EditBlog = () => {
   const [loadingBlog, setLoadingBlog] = useState(false);
   const [editBlogLoading, setEditBlogLoading] = useState(false);
   const route = useRouter();
+  const imageUrl = id
+    ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`
+    : null;
 
   const handleImageUpload = (file) => {
     form.setFieldsValue({ image: file });
   };
 
   const onFinish = async (values) => {
+    console.log("values", values);
     const payload = {
       id: id,
       title: values.title,
@@ -40,16 +46,21 @@ const EditBlog = () => {
 
     try {
       setEditBlogLoading(true);
+      if (values.image) {
+        await _removeFileFromS3(`BLOG/${id}.webp`);
+
+        await _putFileToS3(`BLOG/${id}.webp`, values.image);
+      }
       const response = await editBlog(payload);
       if (response.data) {
-        message.success("Blog updated successfully");
+        toast.success("Blog updated successfully");
         form.resetFields();
         route.push(`/blog/${id}`);
       }
     } catch (error) {
       console.error("Error updating blog:", error);
-      message.error(
-        error.message || "An error occurred while updating the blog"
+      toast.error(
+        error?.message || "An error occurred while updating the blog"
       );
     } finally {
       setEditBlogLoading(false);
@@ -109,7 +120,7 @@ const EditBlog = () => {
   };
 
   return (
-    <div className="h-full w-full min-h-screen max-w-[1100px] py-24 md:py-32 container">
+    <div className="h-full w-full min-h-screen max-w-[1200px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60">
       {loadingBlog ? (
         <div className="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2">
           <Image
@@ -128,16 +139,20 @@ const EditBlog = () => {
           <Form
             form={form}
             requiredMark={false}
-            style={{ marginTop: "20px" }}
+            style={{ marginTop: "40px" }}
             onFinish={onFinish}
             layout="vertical"
           >
             <Form.Item
               name="image"
-              rules={[{ required: true, message: "Please add an image" }]}
+              label={
+                <CommonTypography classes="text-base font-semibold">
+                  Image
+                </CommonTypography>
+              }
             >
               <ImageUploader
-                s3Image={id && `BLOG/${id}`}
+                initialImageUrl={imageUrl}
                 onImageUpload={handleImageUpload}
               />
             </Form.Item>
@@ -175,8 +190,13 @@ const EditBlog = () => {
               name="description"
               rules={[{ required: true, message: "Please add Details" }]}
               style={{ fontSize: "23px" }}
+              label={
+                <CommonTypography classes="text-base font-semibold ">
+                  Description
+                </CommonTypography>
+              }
             >
-              <div className="md:mb-12 mb-28 mt-5">
+              <div className="md:mb-12 mb-28 ">
                 <CommonEditor
                   value={form.getFieldValue("description")}
                   onChange={handleEditorChange}
@@ -186,7 +206,7 @@ const EditBlog = () => {
 
             <Form.Item>
               <CommonButton
-                className={`bg-primary text-white mt-8 md:max-w-[130px] w-full ${
+                className={`bg-primary text-white md:max-w-[140px] w-full ${
                   editBlogLoading ? "md:max-w-[160px]" : ""
                 }`}
                 htmltype="submit"

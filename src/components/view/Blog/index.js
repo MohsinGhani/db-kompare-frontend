@@ -4,25 +4,39 @@ import CommonButton from "../../shared/Button";
 import { useRouter } from "nextjs-toploader/app";
 import BlogSkeleton from "@/components/shared/Skeletons/BlogSkeleton";
 import SingleBlogCard from "@/components/blogCard/SingleBlogCard";
-import { fetchBlogsByDatabaseIds, fetchBlogsData } from "@/utils/blogUtil";
+import {
+  fetchBlogsByDatabaseIds,
+  fetchBlogsData,
+  fetchSavedBlogsByUserId,
+} from "@/utils/blogUtil";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-const Blog = ({ addroute, text, buttonText, selectedDatabaseIds }) => {
+const Blog = ({ addroute, text, buttonText, selectedDatabaseIds, type }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [blogsData, setBlogsData] = useState([]);
+  const { userDetails } = useSelector((state) => state.auth);
+  const userId = userDetails?.data?.data?.id;
 
   const handleFetchBlogs = async () => {
     try {
       setLoading(true);
       let response;
-      if (selectedDatabaseIds && selectedDatabaseIds.length > 0) {
-        response = await fetchBlogsByDatabaseIds(selectedDatabaseIds);
+      if (type === "SAVED_BLOG") {
+        response = await fetchSavedBlogsByUserId(userId);
+        if (response.data) {
+          setBlogsData(response.data.items);
+        }
       } else {
-        response = await fetchBlogsData();
-      }
-      if (response.data) {
-        setBlogsData(response.data);
+        if (selectedDatabaseIds && selectedDatabaseIds.length > 0) {
+          response = await fetchBlogsByDatabaseIds(selectedDatabaseIds);
+        } else {
+          response = await fetchBlogsData();
+        }
+        if (response.data) {
+          setBlogsData(response.data);
+        }
       }
     } catch (error) {
       console.error("Error fetching blogs:", error);

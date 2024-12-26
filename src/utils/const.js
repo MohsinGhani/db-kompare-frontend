@@ -45,3 +45,8 @@ export const UserRole = {
   ADMIN: "ADMIN",
   VENDOR: "VENDOR",
 };
+
+export const BlogType = {
+  BLOG: "BLOG",
+  SAVED_BLOG: "SAVED_BLOG",
+};

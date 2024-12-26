@@ -32,7 +32,7 @@ const OurBlogs = () => {
 
   return (
     <div className="container ">
-      <div className="  text-5xl items-center flex flex-col py-10 w-full">
+      <div className=" text-5xl items-center flex flex-col py-10 w-full">
         <div className="text-center w-full">
           <CommonTypography classes="md:text-5xl text-2xl font-bold ">
             Our Blogs
@@ -44,8 +44,12 @@ const OurBlogs = () => {
         </div>
 
         <div
-          className={`grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 ${
-            blogsData.length <= 2 ? "xl:grid-cols-3" : "xl:grid-cols-3"
+          className={`grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8  ${
+            blogsData.length === 2
+              ? "max-w-[950px]"
+              : blogsData.length === 1
+              ? "max-w-[475px] grid-cols-1 md:grid-cols-1 lg:grid-cols-1"
+              : "lg:grid-cols-3"
           }  w-full`}
         >
           {loading
@@ -59,14 +63,16 @@ const OurBlogs = () => {
               ))}
         </div>
 
-        <CommonButton
-          onClick={() => router.push("/our-blogs")}
-          className="bg-primary text-white mt-8 md:w-40 text-base font-bold"
-          style={{ height: "49px" }}
-        >
-          {" "}
-          View all
-        </CommonButton>
+        {blogsData.length > 3 && (
+          <CommonButton
+            onClick={() => router.push("/our-blogs")}
+            className="bg-primary text-white mt-8 md:w-40 text-base font-bold"
+            style={{ height: "49px" }}
+          >
+            {" "}
+            View all
+          </CommonButton>
+        )}
       </div>
     </div>
   );

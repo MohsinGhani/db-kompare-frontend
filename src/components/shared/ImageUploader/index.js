@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { message, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import uploadFile from "@/../public/assets/icons/uploadFile.svg";
@@ -8,8 +8,14 @@ import Image from "next/image";
 
 const { Dragger } = Upload;
 
-const ImageUploader = ({ onImageUpload }) => {
+const ImageUploader = ({ onImageUpload, initialImageUrl }) => {
   const [file, setFile] = useState(null);
+
+  useEffect(() => {
+    if (initialImageUrl) {
+      setFile(initialImageUrl);
+    }
+  }, [initialImageUrl]);
 
   const props = {
     name: "file",
@@ -51,7 +57,7 @@ const ImageUploader = ({ onImageUpload }) => {
         <ImgCrop rotationSlider aspect={4 / 2}>
           <Dragger
             {...props}
-            className="block h-[240px] bg-white border border-gray-300 rounded-lg border-dashed"
+            className="block h-[220px] bg-white border border-gray-300 rounded-lg border-dashed max-w-[500px]"
           >
             <p className="ant-upload-drag-icon flex justify-center">
               <Image
@@ -71,17 +77,22 @@ const ImageUploader = ({ onImageUpload }) => {
       )}
 
       {file && (
-        <div className="group relative max-w-full">
+        <div className="group relative max-w-[500px]">
           <img
             src={file}
             alt="Uploaded"
-            className="aspect-[2/1] w-full rounded-[10px]"
+            className="aspect-[2/1] w-full rounded-[10px] transition-transform duration-300 group-hover:brightness-80"
           />
 
           <div className="absolute inset-0 aspect-[2/1] h-auto w-full rounded-[10px] bg-black opacity-0 transition-opacity group-hover:opacity-50"></div>
           <ImgCrop rotationSlider aspect={4 / 2}>
             <Upload {...props} showUploadList={false}>
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded bg-white px-4 py-2 text-black opacity-0 transition-opacity group-hover:opacity-100">
+              <div
+                className="absolute left-1/2 top-[45%] transform -translate-x-1/2 -translate-y-1/2 
+                           cursor-pointer rounded bg-white px-4 py-2 text-black 
+                           opacity-0 transition-opacity duration-300 
+                           group-hover:opacity-100 hover:bg-gray-100 "
+              >
                 Change Image
               </div>
             </Upload>

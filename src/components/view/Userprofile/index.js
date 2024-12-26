@@ -5,6 +5,7 @@ import { Tabs } from "antd";
 import React, { useState } from "react";
 import Blog from "../Blog";
 import UserProfileForm from "./userProfileForm";
+import { BlogType } from "@/utils/const";
 
 export default function UserProfile() {
   const [activeKey, setActiveKey] = useState("1");
@@ -24,6 +25,20 @@ export default function UserProfile() {
       label: "My Blogs",
       children: (
         <Blog
+          type={BlogType.BLOG}
+          addroute="add-blog"
+          text="Blogs"
+          buttonText="Add Blog"
+          secondText=" Edit and manage your blogs"
+        />
+      ),
+    },
+    {
+      key: "3",
+      label: "Saved Blogs",
+      children: (
+        <Blog
+          type={BlogType.SAVED_BLOG}
           addroute="add-blog"
           text="Blogs"
           buttonText="Add Blog"
