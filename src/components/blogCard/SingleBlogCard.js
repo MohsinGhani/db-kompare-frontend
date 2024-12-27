@@ -11,7 +11,7 @@ const SingleBlogCard = ({ blog }) => {
   let author = blog?.createdBy?.name || "Unknown Author";
   const imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`;
 
-  const countAlphabets = (str) => str.replace(/[^A-Za-z]/g, "").length;
+  const countAlphabets = (str) => str?.replace(/[^A-Za-z]/g, "")?.length;
 
   const truncatedContent = (() => {
     const textLength = countAlphabets(description);

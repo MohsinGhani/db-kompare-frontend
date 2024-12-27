@@ -7,7 +7,6 @@ const API_BASE_URL_2 = process.env.NEXT_PUBLIC_API_BASE_URL_2;
 
 const fetchAPI = async (url, options = {}) => {
   const response = await fetch(url, options);
-  console.log(response);
 
   if (!response.ok) {
     throw new Error(`Network response was not ok: ${response.statusText}`);

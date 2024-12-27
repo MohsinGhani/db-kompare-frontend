@@ -177,9 +177,10 @@ const Comparison = ({ params }) => {
         </div>
 
         <Blog
-          addroute="/blog"
-          // text="Related Blogs"
+          // addroute="/blog"
+          text="Related Blogs"
           selectedDatabaseIds={selectedDatabaseIds}
+          fetchAllBlogs={false}
         />
 
         <div className="w-full md:pt-8 ">

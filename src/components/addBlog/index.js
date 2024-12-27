@@ -82,7 +82,7 @@ const AddBlog = () => {
   };
 
   return (
-    <div className="h-full w-full max-w-[1200px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60 ">
+    <div className="h-full w-full max-w-[1300px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60 ">
       <CommonTypography classes="text-3xl font-bold">Add Blog</CommonTypography>
       <Form
         form={form}

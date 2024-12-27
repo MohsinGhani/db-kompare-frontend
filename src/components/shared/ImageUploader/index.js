@@ -81,7 +81,7 @@ const ImageUploader = ({ onImageUpload, initialImageUrl }) => {
           <img
             src={file}
             alt="Uploaded"
-            className="aspect-[2/1] w-full rounded-[10px] transition-transform duration-300 group-hover:brightness-80"
+            className="aspect-[2/1] w-full rounded-[10px] transition-transform duration-300 group-hover:brightness-80 inline"
           />
 
           <div className="absolute inset-0 aspect-[2/1] h-auto w-full rounded-[10px] bg-black opacity-0 transition-opacity group-hover:opacity-50"></div>

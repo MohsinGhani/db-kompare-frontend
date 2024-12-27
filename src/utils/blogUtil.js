@@ -82,8 +82,8 @@ export const saveBlog = async (payload) => {
 
 // Function to fetch blog by id
 
-export const fetchBlogById = async (blogId) => {
-  return fetchAPI(`${API_BASE_URL_1}/get-blog/${blogId}`, {
+export const fetchBlogById = async (blogId, userId) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-blog/${blogId}?userId=${userId}`, {
     method: "GET",
     headers: {
       "x-api-key": Y_API_KEY,
@@ -107,9 +107,9 @@ export const fetchBlogsByDatabaseIds = async (databaseIds) => {
 
 // Function to fetch saved blogs by userId
 
-export const fetchSavedBlogsByUserId = async (userId) => {
+export const fetchBlogsByUserId = async (userId, BlogType) => {
   return fetchAPI(
-    `${API_BASE_URL_1}/get-saved-blogs?userId=${userId}&type=${BlogType.SAVED_BLOG}`,
+    `${API_BASE_URL_1}/get-saved-blogs?userId=${userId}&type=${BlogType}`,
     {
       method: "GET",
       headers: {

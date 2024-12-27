@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Form, message } from "antd";
+import { Form } from "antd";
 import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import CommonEditor from "../shared/CommonEditor";
@@ -35,7 +35,6 @@ const EditBlog = () => {
   };
 
   const onFinish = async (values) => {
-    console.log("values", values);
     const payload = {
       id: id,
       title: values.title,
@@ -120,7 +119,7 @@ const EditBlog = () => {
   };
 
   return (
-    <div className="h-full w-full min-h-screen max-w-[1200px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60">
+    <div className="h-full w-full min-h-screen max-w-[1300px] py-24 px-10 sm:px-20 md:py-32 md:px-20 lg:pl-60">
       {loadingBlog ? (
         <div className="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2">
           <Image

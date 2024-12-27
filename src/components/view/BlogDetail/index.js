@@ -9,19 +9,19 @@ import { getInitials } from "@/utils/getInitials";
 import { deleteBlog, fetchBlogById, saveBlog } from "@/utils/blogUtil";
 import { fetchDatabaseByIds } from "@/utils/databaseUtils";
 import { formatReadableDate } from "@/utils/formatDateAndTime";
-import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import { useSelector } from "react-redux";
 import { BlogType, UserRole } from "@/utils/const";
 import { toast } from "react-toastify";
 import { _removeFileFromS3 } from "@/utils/s3Services";
 import { LoadingOutlined } from "@ant-design/icons";
+import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 
 const BlogDetail = ({ id }) => {
   const [blog, setBlog] = useState();
   const [databasesTags, setDatabasesTags] = useState([]);
   const [loadingSaveBlog, setLoadingSaveBlog] = useState(false);
   const [loadingBlog, setLoadingBlog] = useState(false);
-  const [loadingDatabases, setLoadingDatabases] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
   const imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`;
   const { userDetails } = useSelector((state) => state.auth);
@@ -32,9 +32,10 @@ const BlogDetail = ({ id }) => {
   const handleFetchBlogById = async () => {
     try {
       setLoadingBlog(true);
-      const response = await fetchBlogById(id);
+      const response = await fetchBlogById(id, userId);
       if (response.data) {
         setBlog(response.data);
+        setIsSaved(response.data.isSaved);
       }
     } catch (error) {
       console.error("Error fetching blog:", error);
@@ -48,9 +49,7 @@ const BlogDetail = ({ id }) => {
       setDatabasesTags([]);
       return;
     }
-
     try {
-      setLoadingDatabases(true);
       const response = await fetchDatabaseByIds(databaseIds);
       if (response.data) {
         const databaseNames = response.data.map((db) => db.name);
@@ -58,12 +57,40 @@ const BlogDetail = ({ id }) => {
       }
     } catch (error) {
       console.error("Error fetching databases:", error);
+    }
+  };
+
+  const handleUnSaveBlog = async () => {
+    if (loadingSaveBlog) return;
+    setIsSaved(false);
+
+    const payload = {
+      userId: userId,
+      blogId: id,
+      type: BlogType.SAVED_BLOG,
+    };
+    try {
+      setLoadingSaveBlog(true);
+      const response = await deleteBlog(payload);
+      if (response) {
+        toast.success("Blog unsaved successfully");
+      }
+    } catch (error) {
+      toast.error(error?.message);
+      setIsSaved(true);
     } finally {
-      setLoadingDatabases(false);
+      setLoadingSaveBlog(false);
     }
   };
 
   const handleSaveBlog = async () => {
+    if (loadingSaveBlog) return;
+    if (userDetails === null) {
+      toast.info("Please login to save the blog.");
+      return;
+    }
+    setIsSaved(true);
+
     const payload = {
       blogId: id,
       userId: userId,
@@ -76,6 +103,7 @@ const BlogDetail = ({ id }) => {
       }
     } catch (error) {
       toast.error(error?.message);
+      setIsSaved(false);
     } finally {
       setLoadingSaveBlog(false);
     }
@@ -113,13 +141,13 @@ const BlogDetail = ({ id }) => {
     if (blog && Array.isArray(blog.databases)) {
       handleFetchDatabasesByIds(blog.databases);
     }
-  }, [blog]);
+  }, [blog?.databases]);
 
   useEffect(() => {
     handleFetchBlogById();
   }, [id]);
 
-  if (loadingBlog || loadingDatabases) {
+  if (loadingBlog) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Image
@@ -139,7 +167,6 @@ const BlogDetail = ({ id }) => {
       </div>
     );
   }
-
   return (
     <section className="pb-[60px] pt-[150px] ">
       <div className="container">
@@ -214,11 +241,18 @@ const BlogDetail = ({ id }) => {
                         size="medium"
                         className="mr-1"
                       />
+                    ) : isSaved ? (
+                      <img
+                        src="/assets/icons/savedBlogIcon.svg"
+                        alt="savedIcon"
+                        className="w-6 cursor-pointer hover:opacity-60 transition-all"
+                        onClick={handleUnSaveBlog}
+                      />
                     ) : (
                       <img
                         src="/assets/icons/saveBlogIcon.svg"
                         alt="saveIcon"
-                        className="w-7 cursor-pointer hover:opacity-60 transition-all"
+                        className="w-8 cursor-pointer hover:opacity-60 transition-all"
                         onClick={handleSaveBlog}
                       />
                     )}
@@ -235,11 +269,11 @@ const BlogDetail = ({ id }) => {
                     />
                   </div>
                 </div>
-                <div className="pt-5">
-                  <p
-                    className="text-[#565758] text-base"
+                <div className="pt-5 w-full">
+                  <div
+                    className="text-[#565758] text-base prose w-full min-w-full"
                     dangerouslySetInnerHTML={{ __html: blog.description }}
-                  ></p>
+                  ></div>
                 </div>
                 <div>
                   <h3 className="mt-10 mb-4 text-base font-medium text-[#788293]">

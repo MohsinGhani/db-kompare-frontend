@@ -34,7 +34,6 @@ export default function Navbar() {
     "/verification-code",
   ];
   const dispatch = useDispatch();
-  const email = useSelector(selectEmail);
   const userDetails = useSelector(selectUserDetails);
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
