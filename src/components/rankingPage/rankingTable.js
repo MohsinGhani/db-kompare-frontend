@@ -6,6 +6,8 @@ import ProcessDataHtml from "@/utils/processHtml";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { formatDateForHeader } from "@/utils/formatDateAndTime";
 import { useRouter } from "nextjs-toploader/app";
+import RankingOptions from "./rankingOptions";
+import { rankingOptions } from "@/utils/const";
 
 const { Column, ColumnGroup } = Table;
 
@@ -13,6 +15,11 @@ const RankingTable = ({ previousDays }) => {
   const router = useRouter();
 
   const [rankingTableData, setRankingTableData] = useState([]);
+  const [selectedOption, setSelectedOption] = useState("Complete ranking");
+
+  const handleRankingChange = (selectedOption) => {
+    setSelectedOption(selectedOption);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,8 +154,17 @@ const RankingTable = ({ previousDays }) => {
     return dataRow;
   });
 
+  const filteredData = formattedData.filter((db) => {
+    if (selectedOption === "Complete ranking") {
+      return true;
+    }
+
+    // Assuming rankingOptions have values that correspond to database_model
+    return db.DatabaseModel.toLowerCase() === selectedOption.toLowerCase();
+  });
+
   // Sorting formatted data by the latest score date (first date in previousDays)
-  const sortedData = formattedData.sort((a, b) => {
+  const sortedData = filteredData.sort((a, b) => {
     const latestDate = previousDays[0];
     const scoreA = a[`score_${latestDate}`] || 0;
     const scoreB = b[`score_${latestDate}`] || 0;
@@ -156,58 +172,68 @@ const RankingTable = ({ previousDays }) => {
   });
 
   return (
-    <div className="w-full">
-      <CommonTypography classes="font-semibold text-3xl">
+    <div className="w-full md:mt-12 lg:mt-2">
+      <CommonTypography classes="font-semibold text-3xl ">
         DB-Kompare Ranking
       </CommonTypography>
-      <Table
-        pagination={false}
-        dataSource={sortedData}
-        rowKey="DBMS"
-        bordered
-        scroll={{ x: 400 }}
-        className="my-5"
-        style={{ background: "gray" }}
-        rowClassName={(record, index) =>
-          index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
-        }
-      >
-        <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
-          {rankColumns}
-        </ColumnGroup>
+      <div className="flex flex-row items-start justify-between w-full">
+        <div className="my-5 min-w-[150px] sm:min-w-[250px] mr-4">
+          <RankingOptions
+            rankingOptions={rankingOptions}
+            onChange={handleRankingChange}
+          />
+        </div>
+        <div className="w-full overflow-auto">
+          <Table
+            pagination={false}
+            dataSource={sortedData}
+            rowKey="DBMS"
+            bordered
+            scroll={{ x: 400 }}
+            className="my-5"
+            style={{ background: "gray" }}
+            rowClassName={(record, index) =>
+              index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
+            }
+          >
+            <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
+              {rankColumns}
+            </ColumnGroup>
 
-        <Column
-          minWidth={200}
-          title={<span style={columnStyle}>DBMS</span>}
-          dataIndex="DBMS"
-          key="DBMS"
-          render={(text) => (
-            <span
-              className="text-[#0000FF] cursor-pointer"
-              onClick={() => router.push(`/db-comparison/${text}`)}
+            <Column
+              minWidth={200}
+              title={<span style={columnStyle}>DBMS</span>}
+              dataIndex="DBMS"
+              key="DBMS"
+              render={(text) => (
+                <span
+                  className="text-[#0000FF] cursor-pointer"
+                  onClick={() => router.push(`/db-comparison/${text}`)}
+                >
+                  {text}
+                </span>
+              )}
+            />
+
+            <Column
+              minWidth={200}
+              title={<span style={columnStyle}>Database Model</span>}
+              dataIndex="DatabaseModel"
+              key="DatabaseModel"
+              render={(text, record) => (
+                <ProcessDataHtml htmlString={text} record={record} />
+              )}
+            />
+
+            <ColumnGroup
+              title={<span style={columnStyle}>Score</span>}
+              className="bg-pink-800"
             >
-              {text}
-            </span>
-          )}
-        />
-
-        <Column
-          minWidth={200}
-          title={<span style={columnStyle}>Database Model</span>}
-          dataIndex="DatabaseModel"
-          key="DatabaseModel"
-          render={(text, record) => (
-            <ProcessDataHtml htmlString={text} record={record} />
-          )}
-        />
-
-        <ColumnGroup
-          title={<span style={columnStyle}>Score</span>}
-          className="bg-pink-800"
-        >
-          {scoreColumns}
-        </ColumnGroup>
-      </Table>
+              {scoreColumns}
+            </ColumnGroup>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 };

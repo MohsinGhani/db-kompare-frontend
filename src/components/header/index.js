@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
-import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
+import { CloseOutlined, DownOutlined, MenuOutlined } from "@ant-design/icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import CommonTypography from "../shared/Typography";
-import { Navlinks } from "@/utils/const";
+import { Navlinks, categoriesItems } from "@/utils/const";
 import CommonButton from "../shared/Button";
 import CommonUserDropdown from "../shared/UserDropdown";
 import { fetchAuthSession } from "aws-amplify/auth";
@@ -21,6 +21,7 @@ const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -105,6 +106,8 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
+  const items = categoriesItems;
+
   return (
     <div
       className={`w-full h-20 pt-3 z-10 ${
@@ -136,7 +139,7 @@ export default function Navbar() {
             DB Kompare
           </CommonTypography>
         </div>
-        <div className="hidden lg:flex space-x-8">
+        <div className="hidden lg:flex space-x-8 items-center">
           {Navlinks.map((link, index) => (
             <button
               key={index}
@@ -157,6 +160,50 @@ export default function Navbar() {
               {link.label}
             </button>
           ))}
+
+          <button
+            onClick={() => setIsCategoriesOpen(!isCategoriesOpen)} // Toggle category list
+            className="flex items-center space-x-2"
+          >
+            <span>Categories</span>
+            <DownOutlined />
+          </button>
+          {isCategoriesOpen && (
+            <div className="absolute top-16  pt-4 bg-white shadow-xl p-4 w-[900px] rounded-xl transition-all">
+              <div className="flex">
+                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
+                  {items.slice(0, 8).map((item) => (
+                    <li key={item.key} className="py-1 text-sm font-light">
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+
+                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
+                  {items.slice(8, 16).map((item) => (
+                    <li key={item.key} className="py-1 text-sm font-light">
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+
+                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
+                  {items.slice(16, 24).map((item) => (
+                    <li key={item.key} className="py-1 text-sm font-light">
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
+                  {items.slice(24, 30).map((item) => (
+                    <li key={item.key} className="py-1 text-sm font-light">
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex flex-row items-center justify-center">
           {!authRoutes.includes(path) && (

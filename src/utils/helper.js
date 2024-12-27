@@ -71,3 +71,12 @@ export const compressImage = (file, maxFileSize) => {
     });
   }
 };
+
+export const stripHtml = (html) => {
+  if (typeof window !== "undefined") {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  }
+  return html.replace(/<[^>]*>?/gm, "").trim();
+};
