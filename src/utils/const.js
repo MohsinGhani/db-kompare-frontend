@@ -103,3 +103,31 @@ export const categoriesItems = [
   { key: "29", label: "SSIS Documentation" },
   { key: "30", label: "Version Control" },
 ];
+
+export const filterOptions = {
+  freeEdition: [
+    { value: "All", label: "All" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+  ],
+  erDiagram: [
+    { value: "All", label: "All" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+  ],
+  runsOn: [
+    { value: "Linux", label: "Linux" },
+    { value: "MacOS", label: "MacOS" },
+    { value: "Windows", label: "Windows" },
+  ],
+  forwardEngineering: [
+    { value: "All", label: "All" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+  ],
+  synchronization: [
+    { value: "All", label: "All" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+  ],
+};

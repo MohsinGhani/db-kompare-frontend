@@ -183,7 +183,10 @@ export default function Navbar() {
                         <li
                           key={item.key}
                           className="py-1 hover:text-[#3E53D7] hover:!text-medium hover:cursor-pointer"
-                          // onClick={}
+                          onClick={() => {
+                            setIsCategoriesOpen(false);
+                            router.push(`/db-tool/${item.label}`);
+                          }}
                         >
                           {item.label}
                         </li>
