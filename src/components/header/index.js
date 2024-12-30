@@ -139,7 +139,7 @@ export default function Navbar() {
             DB Kompare
           </CommonTypography>
         </div>
-        <div className="hidden lg:flex space-x-8 items-center">
+        <div className="hidden lg:flex items-center relative">
           {Navlinks.map((link, index) => (
             <button
               key={index}
@@ -150,7 +150,7 @@ export default function Navbar() {
                   router.push(link.href);
                 }
               }}
-              className={`py-2 px-3 ${
+              className={`py-2 px-5 ${
                 path === link.href ||
                 (isDbComparisonPage && link.href === "/db-comparison")
                   ? "font-semibold text-black"
@@ -160,51 +160,41 @@ export default function Navbar() {
               {link.label}
             </button>
           ))}
-
           <button
-            onClick={() => setIsCategoriesOpen(!isCategoriesOpen)} // Toggle category list
-            className="flex items-center space-x-2"
+            onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+            className="flex items-center relative ml-3"
           >
-            <span>Categories</span>
-            <DownOutlined />
+            <div className="flex items-center">
+              <span>Categories</span>
+              <DownOutlined className="ml-2 mt-[1px] w-[14px]" />
+            </div>
           </button>
           {isCategoriesOpen && (
-            <div className="absolute top-16  pt-4 bg-white shadow-xl p-4 w-[900px] rounded-xl transition-all">
-              <div className="flex">
-                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
-                  {items.slice(0, 8).map((item) => (
-                    <li key={item.key} className="py-1 text-sm font-light">
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-
-                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
-                  {items.slice(8, 16).map((item) => (
-                    <li key={item.key} className="py-1 text-sm font-light">
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-
-                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
-                  {items.slice(16, 24).map((item) => (
-                    <li key={item.key} className="py-1 text-sm font-light">
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-                <ul className="text-black text-lg font-normal gap-2 flex flex-col w-1/2">
-                  {items.slice(24, 30).map((item) => (
-                    <li key={item.key} className="py-1 text-sm font-light">
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
+            <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 bg-white shadow-xl px-8 p-4 max-w-4xl w-full sm:w-11/12 md:w-3/4 lg:w-[850px] rounded-xl transition-all duration-300 z-20">
+              <div className="flex flex-wrap justify-start gap-9">
+                {Array.from({ length: 3 }).map((_, colIndex) => (
+                  <ul
+                    key={colIndex}
+                    className="text-gray-600 text-[13px] font-normal flex flex-col gap-1 w-full sm:w-1/2 md:w-1/3 lg:w-[30%]"
+                  >
+                    {items
+                      .filter((_, index) => index % 3 === colIndex)
+                      .map((item) => (
+                        <li
+                          key={item.key}
+                          className="py-1 hover:text-[#3E53D7] hover:!text-medium hover:cursor-pointer"
+                          // onClick={}
+                        >
+                          {item.label}
+                        </li>
+                      ))}
+                  </ul>
+                ))}
               </div>
             </div>
           )}
         </div>
+
         <div className="flex flex-row items-center justify-center">
           {!authRoutes.includes(path) && (
             <div className="">
@@ -242,7 +232,7 @@ export default function Navbar() {
       <div
         className={`${
           isOpen ? "block" : "hidden"
-        } lg:hidden fixed top-20 left-0 p-7 w-full bg-white z-30 transition-all duration-300 ease-in-out`}
+        } lg:hidden fixed top-20 left-0 p-7 w-full bg-white z-30 transition-all duration-300 ease-in-out `}
       >
         <ul className="text-black text-lg font-normal gap-3 flex flex-col p-4 md:p-0 h-auto justify-start items-start">
           {Navlinks.map((link, index) => (
@@ -267,6 +257,38 @@ export default function Navbar() {
               </button>
             </li>
           ))}
+
+          <li className="w-full ">
+            <button
+              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+              className="flex items-center w-full pb-2 px-3 text-left text-black hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:px-0"
+            >
+              <span>Categories</span>
+              <DownOutlined
+                className={`ml-2 mt-[1px] w-[14px] transition-transform duration-200 ${
+                  isCategoriesOpen ? "transform rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isCategoriesOpen && (
+              <ul className="w-full pl-8 text-black text-sm font-normal gap-1 max-h-[280px]  overflow-y-auto">
+                {items.map((item) => (
+                  <li key={item.key} className="py-2">
+                    <CommonTypography
+                      onClick={() => {
+                        // router.push(item.href); // Assuming each item has an href
+                        setIsOpen(false);
+                        setIsCategoriesOpen(false);
+                      }}
+                    >
+                      {item.label}
+                    </CommonTypography>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
           <li className="w-full">
             {!authRoutes.includes(path) && (
               <div className="">

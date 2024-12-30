@@ -1,37 +1,47 @@
 import { useState } from "react";
-import { Card } from "antd";
+import { Card, Radio } from "antd";
 import CommonTypography from "../shared/Typography";
 
-const RankingOptions = ({ rankingOptions, onChange }) => {
+const RankingOptions = ({
+  rankingOptions,
+  onChange,
+  isSmallDevice = false,
+}) => {
   const [selectedOption, setSelectedOption] = useState(rankingOptions[0].value);
 
-  const handleOptionChange = (value) => {
+  const handleOptionChange = (e) => {
+    const value = e.target.value;
     setSelectedOption(value);
     onChange && onChange(value);
   };
 
   return (
-    <Card className="w-full bg-white rounded-lg shadow-md p-5 max-w-[250px]">
-      <CommonTypography className="font-medium text-base">
+    <Card
+      className={`w-full bg-white rounded-lg shadow-md   ${
+        isSmallDevice
+          ? "border-none shadow-none p-0 h-full"
+          : "p-5 min-h-[725px]"
+      }`}
+    >
+      <CommonTypography className="font-medium text-base ">
         Select a ranking
       </CommonTypography>
-      <div className="flex flex-col gap-2 mt-3">
-        {rankingOptions.map((option, index) => (
-          <CommonTypography
-            key={index}
-            className="flex items-center gap-1 sm:gap-3 cursor-pointer text-gray-800 text-[9px] sm:text-sm"
-          >
-            <input
-              type="radio"
-              name="rankingOption"
+      <div className="flex flex-col gap-3 mt-6 xl:mt-4">
+        <Radio.Group
+          onChange={handleOptionChange}
+          value={selectedOption}
+          className="flex flex-col gap-[18px]"
+        >
+          {rankingOptions.map((option, index) => (
+            <Radio
+              key={index}
               value={option.value}
-              checked={selectedOption === option.value}
-              onChange={() => handleOptionChange(option.value)}
-              className="cursor-pointer w-2 sm:w-4"
-            />
-            {option.label}
-          </CommonTypography>
-        ))}
+              className="text-black opacity-85 text-sm"
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </Radio.Group>
       </div>
     </Card>
   );

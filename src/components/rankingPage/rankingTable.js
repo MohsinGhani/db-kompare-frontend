@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Table } from "antd";
+import { Button, Drawer, Table } from "antd";
 import { fetchDatabaseRanking } from "@/utils/databaseUtils";
 import CommonTypography from "../shared/Typography";
 import ProcessDataHtml from "@/utils/processHtml";
-import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import {
+  CaretDownOutlined,
+  CaretUpOutlined,
+  FilterOutlined,
+} from "@ant-design/icons";
 import { formatDateForHeader } from "@/utils/formatDateAndTime";
 import { useRouter } from "nextjs-toploader/app";
 import RankingOptions from "./rankingOptions";
@@ -15,10 +19,20 @@ const RankingTable = ({ previousDays }) => {
   const router = useRouter();
 
   const [rankingTableData, setRankingTableData] = useState([]);
-  const [selectedOption, setSelectedOption] = useState("Complete ranking");
+  const [open, setOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("All");
 
   const handleRankingChange = (selectedOption) => {
     setSelectedOption(selectedOption);
+    console.log("Selected option:", selectedOption);
+  };
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
   };
 
   useEffect(() => {
@@ -89,7 +103,7 @@ const RankingTable = ({ previousDays }) => {
     return (
       <Column
         key={`score-${date}`}
-        minWidth={100}
+        minWidth={160}
         title={<span style={columnStyle}>{formattedDate}</span>}
         dataIndex={`score_${date}`}
         render={(text) => {
@@ -155,12 +169,14 @@ const RankingTable = ({ previousDays }) => {
   });
 
   const filteredData = formattedData.filter((db) => {
-    if (selectedOption === "Complete ranking") {
+    if (selectedOption === "All") {
       return true;
     }
+    const dbModelText = db.DatabaseModel.replace(/<[^>]+>/g, "")
+      .trim()
+      .toLowerCase();
 
-    // Assuming rankingOptions have values that correspond to database_model
-    return db.DatabaseModel.toLowerCase() === selectedOption.toLowerCase();
+    return dbModelText === selectedOption.toLowerCase();
   });
 
   // Sorting formatted data by the latest score date (first date in previousDays)
@@ -172,26 +188,45 @@ const RankingTable = ({ previousDays }) => {
   });
 
   return (
-    <div className="w-full md:mt-12 lg:mt-2">
-      <CommonTypography classes="font-semibold text-3xl ">
-        DB-Kompare Ranking
-      </CommonTypography>
-      <div className="flex flex-row items-start justify-between w-full">
-        <div className="my-5 min-w-[150px] sm:min-w-[250px] mr-4">
+    <div className="w-full mt-0 md:mt-12 lg:mt-0">
+      <div className="flex flex-row items-center justify-between lg:mt-6 mb-5">
+        <CommonTypography classes="font-semibold text-xl sm:text-3xl ">
+          DB-Kompare Ranking
+        </CommonTypography>
+        <div className="md:hidden">
+          <Button
+            icon={<FilterOutlined />}
+            type="text"
+            size="large"
+            onClick={showDrawer}
+          >
+            <CommonTypography className="text-[18px] font-semibold">
+              Filters
+            </CommonTypography>
+          </Button>
+        </div>
+      </div>
+      <div className="md:flex md:flex-row items-start justify-between w-full">
+        <div className=" hidden md:block min-w-[150px] sm:min-w-[200px] md:min-w-[250px] mr-4 ">
           <RankingOptions
             rankingOptions={rankingOptions}
             onChange={handleRankingChange}
           />
         </div>
-        <div className="w-full overflow-auto">
+        <div className="w-full overflow-y-auto min-h-[750px] max-h-[750px] ">
           <Table
+            className="border border-gray-200 rounded-lg shadow-md custom-table"
             pagination={false}
             dataSource={sortedData}
             rowKey="DBMS"
-            bordered
             scroll={{ x: 400 }}
-            className="my-5"
-            style={{ background: "gray" }}
+            style={{
+              background: "white",
+
+              height: "725px",
+              minHeight: "725px",
+              maxHeight: "725px",
+            }}
             rowClassName={(record, index) =>
               index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
             }
@@ -234,6 +269,24 @@ const RankingTable = ({ previousDays }) => {
           </Table>
         </div>
       </div>
+      <Drawer
+        title={
+          <CommonTypography className="text-[20px] font-bold">
+            Filters
+          </CommonTypography>
+        }
+        onClose={onClose}
+        open={open}
+      >
+        <RankingOptions
+          rankingOptions={rankingOptions}
+          onChange={(selectedOption) => {
+            handleRankingChange(selectedOption);
+            onClose();
+          }}
+          isSmallDevice={true}
+        />
+      </Drawer>
     </div>
   );
 };

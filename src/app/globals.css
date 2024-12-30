@@ -103,3 +103,12 @@ body {
 :where(.css-apn68).ant-card .ant-card-body {
   padding: 0px;
 }
+
+.custom-table .ant-empty {
+  height: 100%;
+  min-height: 578px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
