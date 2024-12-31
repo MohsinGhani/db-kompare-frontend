@@ -8,7 +8,7 @@ import { confirmResetPassword } from "aws-amplify/auth";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { selectEmail } from "@/redux/slices/authSlice";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 const NewPassword = () => {
   const [loading, setLoading] = useState(false);

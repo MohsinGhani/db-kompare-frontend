@@ -29,7 +29,7 @@ const DatabaseSelect = ({
           }))}
           placeholder="Select Database"
           maxSelection={4}
-          className="2xl:w-[550px] w-full lg:w-full md:h-[47px] h-auto"
+          className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto"
         />
 
         <CommonButton

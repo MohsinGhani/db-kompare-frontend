@@ -5,7 +5,7 @@ import CommonTypography from "../shared/Typography";
 import ProcessDataHtml from "@/utils/processHtml";
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
 import { formatDateForHeader } from "@/utils/formatDateAndTime";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 const { Column, ColumnGroup } = Table;
 

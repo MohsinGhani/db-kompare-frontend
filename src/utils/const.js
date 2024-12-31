@@ -18,6 +18,11 @@ export const CommentStatus = {
   INACTIVE: "DISABLED",
 };
 
+export const BlogStatus = {
+  PUBLIC: "PUBLIC",
+  PRIVATE: "PRIVATE",
+};
+
 export const ProviderType = {
   GOOGLE: "Google",
   GITHUB: "GitHub",
@@ -39,4 +44,9 @@ export const IT_SKILLS = [
 export const UserRole = {
   ADMIN: "ADMIN",
   VENDOR: "VENDOR",
+};
+
+export const BlogType = {
+  BLOG: "BLOG",
+  SAVED_BLOG: "SAVED_BLOG",
 };

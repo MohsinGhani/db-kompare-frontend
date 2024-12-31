@@ -3,7 +3,7 @@
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import CommonTypography from "../shared/Typography";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { Navlinks } from "@/utils/const";
 const socialLinks = [
   { href: "/assets/icons/facebook.svg", alt: "Facebook" },

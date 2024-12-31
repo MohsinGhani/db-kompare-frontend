@@ -34,7 +34,6 @@ export default function Navbar() {
     "/verification-code",
   ];
   const dispatch = useDispatch();
-  const email = useSelector(selectEmail);
   const userDetails = useSelector(selectUserDetails);
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
@@ -115,7 +114,9 @@ export default function Navbar() {
       }`}
     >
       <div
-        className={`w-full 2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
+        className={`${
+          authRoutes.includes(path) ? "w-[90%]" : "w-full"
+        }  2xl:px-20 lg:pl-6 px-3 flex justify-between items-center`}
       >
         <div
           className="flex items-center gap-2 justify-center cursor-pointer"

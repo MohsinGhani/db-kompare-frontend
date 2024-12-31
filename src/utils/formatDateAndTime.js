@@ -83,3 +83,31 @@ export const formatRelativeTime = (dateString) => {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   }
 };
+
+export const formatReadableDate = (date) => {
+  if (!date) return null;
+
+  let parsedDate;
+
+  if (typeof date === "number") {
+    parsedDate = new Date(date);
+  } else if (typeof date === "string") {
+    parsedDate = new Date(date);
+  } else if (date instanceof Date) {
+    parsedDate = date;
+  } else {
+    console.error(
+      "Invalid input type. Expected a timestamp, date string, or Date object."
+    );
+    return null;
+  }
+
+  if (isNaN(parsedDate.getTime())) {
+    console.error("Invalid date.");
+    return null;
+  }
+
+  const options = { year: "numeric", month: "long", day: "numeric" };
+
+  return parsedDate.toLocaleDateString(undefined, options);
+};

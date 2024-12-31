@@ -204,7 +204,6 @@ const Comment = ({
   const handleEdit = (values) => {
     const rating = values.rating;
     const newText = values?.editText?.trim();
-    console.log("values", values);
 
     // if (!newText) {
     //   message.error("Please enter text.");

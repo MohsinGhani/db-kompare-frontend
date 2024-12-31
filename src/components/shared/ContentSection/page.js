@@ -1,7 +1,6 @@
 import Image from "next/image";
 import React from "react";
 import blueline from "../../../../public/assets/images/blueLine.png";
-import CommonTypography from "../Typography";
 
 export default function ContentSection({
   heading1,
@@ -13,7 +12,7 @@ export default function ContentSection({
 }) {
   return (
     <>
-      <div className="lg:px-28 md:px-3  bg-custom-gradient bg-cover bg-center h-auto ">
+      <div className="lg:px-28 md:px-3 bg-custom-gradient bg-cover bg-center h-auto ">
         <div className="flex justify-between items-center h-full text-black md:pt-32">
           <div className="my-20 flex gap-7 justify-center text-center px-12 md:px-52 flex-col items-center w-full">
             <h1 className="md:text-5xl text-2xl font-bold">{heading1}</h1>
@@ -24,7 +23,7 @@ export default function ContentSection({
           </div>
         </div>
       </div>
-      <div className="w-full p-20 lg:px-14 px-8 xl:px-28 md:px-12 flex flex-col gap-20 md:gap-2  items-center h-full">
+      <div className="w-full p-20  px-8 xl:px-28 md:px-12 flex flex-col gap-20 md:gap-2  items-center h-full">
         <div className="md:w-3/5 text-center ">
           <h1 className="md:text-5xl text-2xl font-bold mb-4">{heading2}</h1>
 

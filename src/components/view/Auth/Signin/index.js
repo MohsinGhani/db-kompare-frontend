@@ -8,12 +8,15 @@ import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
 import { signIn } from "aws-amplify/auth";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { setEmail, setUserDetails } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
-import { setAccessTokenFromLocalStorage } from "@/utils/helper";
+import {
+  setAccessTokenFromLocalStorage,
+  validateSession,
+} from "@/utils/helper";
 import { socialRegisteration } from "@/utils/authServices";
 import { toast } from "react-toastify";
 
@@ -86,6 +89,9 @@ const SignIn = () => {
     }
   };
 
+  useEffect(() => {
+    const resp = validateSession();
+  }, []);
   return (
     <div className="w-full overflow-hidden bg-background pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[140px]">
       <div className="flex flex-wrap">
