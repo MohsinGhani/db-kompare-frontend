@@ -1,4 +1,4 @@
-import { BlogStatus, BlogType } from "./const";
+import { BlogStatus } from "./const";
 
 const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;

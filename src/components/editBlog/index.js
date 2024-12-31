@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Form } from "antd";
+import { Form, Radio } from "antd";
 import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import CommonEditor from "../shared/CommonEditor";
@@ -39,7 +39,7 @@ const EditBlog = () => {
       id: id,
       title: values.title,
       description: values.description,
-      status: BlogStatus.PUBLIC,
+      status: values.status,
       databases: values.tags,
     };
 
@@ -90,6 +90,7 @@ const EditBlog = () => {
         title: blogData.title,
         description: blogData.description,
         tags: blogData.databases,
+        status: blogData.status,
       });
     }
   }, [blogData]);
@@ -183,6 +184,20 @@ const EditBlog = () => {
                 size="large"
                 placeholder="Select tags"
               />
+            </Form.Item>
+
+            <Form.Item
+              name="status"
+              label={
+                <CommonTypography classes="text-base font-semibold">
+                  Please select whether the blog is private or public.
+                </CommonTypography>
+              }
+            >
+              <Radio.Group>
+                <Radio value="PUBLIC">Public</Radio>
+                <Radio value="PRIVATE">Private</Radio>
+              </Radio.Group>
             </Form.Item>
 
             <Form.Item
