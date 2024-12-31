@@ -105,34 +105,36 @@ export default function Page({ params }) {
         ) : (
           <div className="grid w-full grid-cols-1  sm:grid-cols-2  xl:grid-cols-5  md:grid-cols-3 gap-4 p-2">
             <>
-              {filteredOptions.map((option, index) => (
-                <CommonButton
-                  key={option.name}
-                  style={{
-                    width: "100%",
-                    fontWeight: "600",
-                    fontSize: "16px",
-                    border:
-                      selectedDatabases.includes(option.name) ||
-                      hoverIndex === index
-                        ? "2px solid #3E53D7"
-                        : "2px solid #D9D9D9",
-                    height: "60px",
-                    background: "transparent",
-                    color:
-                      selectedDatabases.includes(option.name) ||
-                      hoverIndex === index
-                        ? "#3E53D7"
-                        : "black",
-                    borderRadius: "16px",
-                  }}
-                  onMouseEnter={() => setHoverIndex(index)}
-                  onMouseLeave={() => setHoverIndex(null)}
-                  onClick={() => handleDatabaseClick(option)}
-                >
-                  {option.name}
-                </CommonButton>
-              ))}
+              {filteredOptions
+                .sort((a, b) => a?.name?.localeCompare(b.name))
+                .map((option, index) => (
+                  <CommonButton
+                    key={option.name}
+                    style={{
+                      width: "100%",
+                      fontWeight: "600",
+                      fontSize: "16px",
+                      border:
+                        selectedDatabases.includes(option.name) ||
+                        hoverIndex === index
+                          ? "2px solid #3E53D7"
+                          : "2px solid #D9D9D9",
+                      height: "60px",
+                      background: "transparent",
+                      color:
+                        selectedDatabases.includes(option.name) ||
+                        hoverIndex === index
+                          ? "#3E53D7"
+                          : "black",
+                      borderRadius: "16px",
+                    }}
+                    onMouseEnter={() => setHoverIndex(index)}
+                    onMouseLeave={() => setHoverIndex(null)}
+                    onClick={() => handleDatabaseClick(option)}
+                  >
+                    {option.name}
+                  </CommonButton>
+                ))}
             </>
           </div>
         )}
