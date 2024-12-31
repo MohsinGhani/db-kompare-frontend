@@ -29,7 +29,9 @@ const ComparisonTable = ({
         acc[label] =
           data[key] !== undefined
             ? key === "db_compare_ranking"
-              ? `Score: ${data[key].score}, Rank: ${data[key].rank.join(", ")}`
+              ? `Score: ${data[key].score}, Rank: ${data[key]?.rank?.join(
+                  ", "
+                )}`
               : Array.isArray(data[key])
               ? data[key].join(", ")
               : data[key]
