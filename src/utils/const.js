@@ -12,3 +12,9 @@ export const DropdownOptions = [
   { value: "googleScore", label: "Google Search" },
   { value: "bingScore", label: "Bing Search" },
 ];
+
+export const DATABASE_STATUS = {
+  ALL: "ALL",
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};

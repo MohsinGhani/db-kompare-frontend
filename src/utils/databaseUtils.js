@@ -1,3 +1,5 @@
+import { DATABASE_STATUS } from "./const";
+
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 // Helper function to fetch data from the API
@@ -18,7 +20,7 @@ const fetchAPI = async (url, options = {}) => {
 
 export const fetchDatabases = async () => {
   return fetchAPI(
-    "https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases",
+    `https://b8iy915ig0.execute-api.eu-west-1.amazonaws.com/dev/get-databases?status=${DATABASE_STATUS.ACTIVE}`,
     {
       method: "GET",
       headers: {
