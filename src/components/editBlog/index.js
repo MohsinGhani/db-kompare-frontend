@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Form } from "antd";
+import { Form, Radio } from "antd";
 import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import CommonEditor from "../shared/CommonEditor";
@@ -12,7 +12,6 @@ import CustomSelect from "../shared/CustomSelect";
 import ImageUploader from "../shared/ImageUploader";
 import CommonTypography from "../shared/Typography";
 import { fetchDatabases } from "@/utils/databaseUtils";
-import { BlogStatus } from "@/utils/const";
 import { editBlog, fetchBlogById } from "@/utils/blogUtil";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import { _putFileToS3, _removeFileFromS3 } from "@/utils/s3Services";
@@ -26,8 +25,10 @@ const EditBlog = () => {
   const [loadingBlog, setLoadingBlog] = useState(false);
   const [editBlogLoading, setEditBlogLoading] = useState(false);
   const route = useRouter();
-  const imageUrl = id
-    ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`
+  const imageUrl = blogData
+    ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp?${
+        blogData.updatedAt || Date.now()
+      }`
     : null;
 
   const handleImageUpload = (file) => {
@@ -39,7 +40,7 @@ const EditBlog = () => {
       id: id,
       title: values.title,
       description: values.description,
-      status: BlogStatus.PUBLIC,
+      status: values.status,
       databases: values.tags,
     };
 
@@ -90,6 +91,7 @@ const EditBlog = () => {
         title: blogData.title,
         description: blogData.description,
         tags: blogData.databases,
+        status: blogData.status,
       });
     }
   }, [blogData]);
@@ -183,6 +185,20 @@ const EditBlog = () => {
                 size="large"
                 placeholder="Select tags"
               />
+            </Form.Item>
+
+            <Form.Item
+              name="status"
+              label={
+                <CommonTypography classes="text-base font-semibold">
+                  Please select whether the blog is private or public.
+                </CommonTypography>
+              }
+            >
+              <Radio.Group>
+                <Radio value="PUBLIC">Public</Radio>
+                <Radio value="PRIVATE">Private</Radio>
+              </Radio.Group>
             </Form.Item>
 
             <Form.Item

@@ -1,4 +1,4 @@
-import { BlogStatus, BlogType } from "./const";
+import { BlogStatus } from "./const";
 
 const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
@@ -19,8 +19,13 @@ const fetchAPI = async (url, options = {}) => {
 
 // Function to fetch blogs
 
-export const fetchBlogsData = async () => {
-  return fetchAPI(`${API_BASE_URL_1}/get-blogs?status=${BlogStatus.PUBLIC}`, {
+export const fetchBlogsData = async (blogStatus) => {
+  let url =
+    blogStatus === "PUBLIC"
+      ? `${API_BASE_URL_1}/get-blogs?status=${blogStatus}`
+      : `${API_BASE_URL_1}/get-blogs?isPublished=YES`;
+
+  return fetchAPI(url, {
     method: "GET",
     headers: {
       "x-api-key": Y_API_KEY,
@@ -93,16 +98,17 @@ export const fetchBlogById = async (blogId, userId) => {
 
 // Function to fetch blogs by databasesId
 
-export const fetchBlogsByDatabaseIds = async (databaseIds) => {
-  return fetchAPI(
-    `${API_BASE_URL_1}/get-blogs?status=${BlogStatus.PUBLIC}&databases=${databaseIds}`,
-    {
-      method: "GET",
-      headers: {
-        "x-api-key": Y_API_KEY,
-      },
-    }
-  );
+export const fetchBlogsByDatabaseIds = async (databaseIds, blogStatus) => {
+  let url =
+    blogStatus === "PUBLIC"
+      ? `${API_BASE_URL_1}/get-blogs?status=${blogStatus}&databases=${databaseIds}`
+      : `${API_BASE_URL_1}/get-blogs?isPublished=YES&databases=${databaseIds}`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": Y_API_KEY,
+    },
+  });
 };
 
 // Function to fetch saved blogs by userId

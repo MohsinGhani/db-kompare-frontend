@@ -23,7 +23,11 @@ const BlogDetail = ({ id }) => {
   const [loadingBlog, setLoadingBlog] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
-  const imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`;
+  const imageUrl = blog
+    ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp?${
+        blog.updatedAt || Date.now()
+      }`
+    : null;
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.data?.data?.id;
   const userRole = userDetails?.data?.data?.role;

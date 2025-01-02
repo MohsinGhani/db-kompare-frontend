@@ -11,7 +11,7 @@ import {
 } from "@/utils/blogUtil";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { BlogType } from "@/utils/const";
+import { BlogStatus, BlogType } from "@/utils/const";
 import CommonTypography from "@/components/shared/Typography";
 
 const Blog = ({
@@ -27,24 +27,29 @@ const Blog = ({
   const [blogsData, setBlogsData] = useState([]);
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.data?.data?.id;
+  console.log("userId", userId);
 
   const handleFetchBlogs = async () => {
     try {
       setLoading(true);
       let response;
+      const blogStatus = userDetails ? BlogStatus.PRIVATE : BlogStatus.PUBLIC;
       if (type === BlogType.SAVED_BLOG || type === BlogType.BLOG) {
         response = await fetchBlogsByUserId(userId, type);
         if (response.data) {
           setBlogsData(response.data.items);
         }
       } else if (selectedDatabaseIds && selectedDatabaseIds.length > 0) {
-        response = await fetchBlogsByDatabaseIds(selectedDatabaseIds);
+        response = await fetchBlogsByDatabaseIds(
+          selectedDatabaseIds,
+          blogStatus
+        );
         if (response.data) {
           setBlogsData(response.data);
         }
       } else {
         if (fetchAllBlogs) {
-          response = await fetchBlogsData();
+          response = await fetchBlogsData(blogStatus);
           if (response.data) {
             setBlogsData(response.data);
           }

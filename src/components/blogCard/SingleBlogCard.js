@@ -9,7 +9,11 @@ const SingleBlogCard = ({ blog }) => {
   const pathname = usePathname();
   const { id, title, description, createdAt } = blog;
   let author = blog?.createdBy?.name || "Unknown Author";
-  const imageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp`;
+  const imageUrl = blog
+    ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp?${
+        blog.updatedAt || Date.now()
+      }`
+    : null;
 
   const countAlphabets = (str) => str?.replace(/[^A-Za-z]/g, "")?.length;
 

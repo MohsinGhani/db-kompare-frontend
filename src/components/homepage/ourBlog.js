@@ -6,18 +6,29 @@ import CommonButton from "../shared/Button";
 import { useRouter } from "nextjs-toploader/app";
 import SingleBlogCard from "../blogCard/SingleBlogCard";
 import { fetchBlogsData } from "@/utils/blogUtil";
+import { useSelector } from "react-redux";
+import { BlogStatus } from "@/utils/const";
 
 const OurBlogs = () => {
   const [loading, setLoading] = useState(false);
   const [blogsData, setBlogsData] = useState([]);
+  const { userDetails } = useSelector((state) => state.auth);
   const router = useRouter();
 
   const handleFetchBlogs = async () => {
     try {
       setLoading(true);
-      const response = await fetchBlogsData();
-      if (response.data) {
-        setBlogsData(response.data);
+      if (userDetails) {
+        const response = await fetchBlogsData(BlogStatus.PRIVATE);
+        if (response.data) {
+          setBlogsData(response.data);
+        }
+      } else {
+        const response = await fetchBlogsData(BlogStatus.PUBLIC);
+        if (response.data) {
+          console.log(response.data);
+          setBlogsData(response.data);
+        }
       }
     } catch (error) {
       console.error("Error fetching blogs:", error);
