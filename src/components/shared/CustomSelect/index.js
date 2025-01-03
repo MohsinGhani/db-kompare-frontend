@@ -27,6 +27,7 @@ const CustomSelect = ({
         border: "none",
         ...style,
       }}
+      maxTagTextLength={10}
     >
       {options?.map((option) => (
         <Option key={option.value} value={option.value}>

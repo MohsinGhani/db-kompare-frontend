@@ -176,11 +176,13 @@ const EditBlog = () => {
               rules={[{ required: true, message: "Please add tags" }]}
             >
               <CustomSelect
-                options={databases.map((db) => ({
-                  id: db.id,
-                  label: db.name,
-                  value: db.id,
-                }))}
+                options={databases
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((db) => ({
+                    id: db.id,
+                    label: db.name,
+                    value: db.id,
+                  }))}
                 mode="tags"
                 size="large"
                 placeholder="Select tags"

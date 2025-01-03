@@ -167,7 +167,6 @@ const RankingTable = ({ previousDays }) => {
         bordered
         scroll={{ x: 400 }}
         className="my-5"
-        style={{ background: "gray" }}
         rowClassName={(record, index) =>
           index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
         }

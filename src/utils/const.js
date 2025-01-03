@@ -2,6 +2,7 @@ export const Navlinks = [
   { href: "/", label: "Home" },
   { href: "/leader-board", label: "DB Leaderboard" },
   { href: "/db-comparisons/list", label: "DB Comparison" },
+  { href: "/our-blogs", label: "Blogs" },
   { href: "https://dataeli5.substack.com/", label: "DB Internals" },
   { href: "#", label: "API" },
 ];

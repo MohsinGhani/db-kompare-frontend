@@ -12,7 +12,7 @@ const SearchBar = ({ searchTerm, setSearchTerm, onSearch }) => {
         onChange={(e) => setSearchTerm(e.target.value)}
         onPressEnter={() => onSearch(searchTerm)}
       />
-      <div className="absolute inset-y-0 -right-[2px] flex items-center border border-[#D9D9D9] rounded-md p-2 w-10 justify-center">
+      <div className="absolute inset-y-0 right-0 flex items-center border border-[#D9D9D9] rounded-md p-2 w-10 justify-center">
         <SearchOutlined className="text-[#D9D9D9]" />
       </div>
     </div>
