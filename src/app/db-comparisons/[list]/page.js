@@ -175,6 +175,10 @@ export default function Page({ params }) {
               borderRadius: "16px",
             }}
             onClick={handleCompareClick}
+            disabled={
+              selectedDatabases.includes("list") ||
+              selectedDatabases.length === 0
+            }
           >
             Compare
           </CommonButton>
