@@ -47,7 +47,7 @@ export default function UserProfile() {
   ];
 
   return (
-    <div className="container py-32 min-h-[560px]">
+    <div className="container pt-32 min-h-[560px]">
       <div className="flex flex-col mb-5">
         <CommonTypography type="title">
           {activeKey === "1" ? "Profile" : "Blog"}

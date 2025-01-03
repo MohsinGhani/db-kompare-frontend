@@ -22,14 +22,16 @@ const DatabaseSelect = ({
           onChange={(selectedValues) =>
             setSelectedDatabasesOptions(selectedValues)
           }
-          options={dbData.map((db) => ({
-            id: db.id,
-            label: db.name,
-            value: db.name,
-          }))}
+          options={dbData
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((db) => ({
+              id: db.id,
+              label: db.name,
+              value: db.name,
+            }))}
           placeholder="Select Database"
           maxSelection={4}
-          className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto"
+          className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto custom-select"
         />
 
         <CommonButton
@@ -39,7 +41,7 @@ const DatabaseSelect = ({
           }
           style={{
             borderRadius: "0px 4px 4px 0px",
-            height: "45px",
+            height: "47px",
             background:
               selectedDatabases?.length > 4 ||
               selectedDatabasesOptions?.length === 0
