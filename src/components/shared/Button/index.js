@@ -20,6 +20,7 @@ const CommonButton = ({
     gap: "8px",
     fontWeight: 700,
     borderRadius: "9px",
+    pointerEvents: disabled ? "none" : "auto",
   };
 
   const mergedStyle = { ...buttonStyle, ...style };

@@ -58,14 +58,14 @@ const SingleBlogCard = ({ blog }) => {
         />
 
         <div className="flex items-center pt-4">
-          <div className="mr-5 flex items-center border-r border-body-color border-opacity-10  dark:border-white dark:border-opacity-10 xl:mr-3 2xl:mr-5 2xl:pr-0">
+          <div className="mr-5 flex items-center xl:mr-3 2xl:mr-5 2xl:pr-0">
             <div className="mr-4">
               <Avatar className="bg-primary text-white w-12 h-12 ">
                 {getInitials(author)}
               </Avatar>
             </div>
             <div className="w-full">
-              <h4 className=" font-medium ">{author || "Unknown Author"}</h4>
+              <h4 className="font-medium">{author || "Unknown Author"}</h4>
             </div>
           </div>
           <div className="inline-block border-l pl-5">

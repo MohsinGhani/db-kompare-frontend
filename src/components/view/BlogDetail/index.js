@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { _removeFileFromS3 } from "@/utils/s3Services";
 import { LoadingOutlined } from "@ant-design/icons";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
+import { usePathname } from "next/navigation";
 
 const BlogDetail = ({ id }) => {
   const [blog, setBlog] = useState();
@@ -23,6 +24,7 @@ const BlogDetail = ({ id }) => {
   const [loadingBlog, setLoadingBlog] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const imageUrl = blog
     ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/BLOG/${id}.webp?${
         blog.updatedAt || Date.now()
@@ -32,6 +34,7 @@ const BlogDetail = ({ id }) => {
   const userId = userDetails?.data?.data?.id;
   const userRole = userDetails?.data?.data?.role;
   const isAuthor = blog?.createdBy?.id === userId;
+  const encodedPath = encodeURIComponent(pathname);
 
   const handleFetchBlogById = async () => {
     try {
@@ -90,7 +93,7 @@ const BlogDetail = ({ id }) => {
   const handleSaveBlog = async () => {
     if (loadingSaveBlog) return;
     if (userDetails === null) {
-      toast.info("Please login to save the blog.");
+      router.push(`/signin?redirect=${encodedPath}`);
       return;
     }
     setIsSaved(true);

@@ -13,7 +13,6 @@ import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
 import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 import Blog from "@/components/view/Blog";
-// import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 
 const Comparison = ({ params }) => {
   const router = useRouter();
@@ -138,7 +137,7 @@ const Comparison = ({ params }) => {
       <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
         <ComparisonHeader selectedDatabases={selectedDatabases} />
       </div>
-      <div className="w-full h-auto container font-medium  py-10 flex flex-col gap-8 md:gap-5 items-center">
+      <div className="w-full h-auto container font-medium py-10 flex flex-col gap-8 md:gap-5 items-center">
         <DatabaseSelect
           dbData={dbData}
           selectedDatabases={selectedDatabases}

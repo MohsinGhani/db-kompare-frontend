@@ -2,6 +2,7 @@
 
 import CommonButton from "../../shared/Button";
 import { useRouter } from "nextjs-toploader/app";
+import { Empty } from "antd";
 import BlogSkeleton from "@/components/shared/Skeletons/BlogSkeleton";
 import SingleBlogCard from "@/components/blogCard/SingleBlogCard";
 import {
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { BlogStatus, BlogType } from "@/utils/const";
 import CommonTypography from "@/components/shared/Typography";
+import { usePathname } from "next/navigation";
 
 const Blog = ({
   addroute,
@@ -27,7 +29,8 @@ const Blog = ({
   const [blogsData, setBlogsData] = useState([]);
   const { userDetails } = useSelector((state) => state.auth);
   const userId = userDetails?.data?.data?.id;
-  console.log("userId", userId);
+  const path = usePathname();
+  const isDbComparisonPath = path.startsWith("/db-comparison");
 
   const handleFetchBlogs = async () => {
     try {
@@ -72,7 +75,7 @@ const Blog = ({
         <div className="flex-col flex gap-1 w-full ">
           {text && !buttonText && blogsData?.length > 0 && (
             <div className="flex justify-start mt-6 md:pt-0">
-              <CommonTypography className="text-black text-xl font-medium">
+              <CommonTypography className="text-black text-[30px] font-semibold">
                 {text}
               </CommonTypography>
             </div>
@@ -91,15 +94,27 @@ const Blog = ({
           )}
         </div>
       </div>
-      <div className=" mt-4 w-full">
+      <div className={`mt-4 w-full ${isDbComparisonPath ? "mb-0" : "mb-32"}`}>
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-x-6 lg:gap-x-8 xl:grid-cols-3">
-          {loading
-            ? [1, 2, 3].map((item, key) => <BlogSkeleton key={key} />)
-            : blogsData?.map((blog) => (
-                <div key={blog.id} className="w-full">
-                  <SingleBlogCard blog={blog} />
-                </div>
-              ))}
+          {loading ? (
+            [1, 2, 3].map((item) => <BlogSkeleton key={item} />)
+          ) : blogsData?.length > 0 ? (
+            blogsData.map((blog) => (
+              <div key={blog.id} className="w-full">
+                <SingleBlogCard blog={blog} />
+              </div>
+            ))
+          ) : !isDbComparisonPath ? (
+            <div className="col-span-full flex justify-center items-center mt-8">
+              <Empty
+                description={`${
+                  type === BlogType.SAVED_BLOG
+                    ? "No saved blogs found"
+                    : "No blogs found"
+                } `}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

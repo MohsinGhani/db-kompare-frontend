@@ -26,7 +26,6 @@ const OurBlogs = () => {
       } else {
         const response = await fetchBlogsData(BlogStatus.PUBLIC);
         if (response.data) {
-          console.log(response.data);
           setBlogsData(response.data);
         }
       }
@@ -43,19 +42,27 @@ const OurBlogs = () => {
 
   return (
     <div className="container ">
-      <div className=" text-5xl items-center flex flex-col py-10 w-full">
-        <div className="text-center w-full">
-          <CommonTypography classes="md:text-5xl text-2xl font-bold ">
-            Our Blogs
-          </CommonTypography>
-          <br />
-          <h2 className="my-4 md:text-base text-sm font-normal text-secondary ">
-            Revolutionizing How You Discover and Compare Knowledge
-          </h2>
-        </div>
+      <div
+        className={`text-5xl items-center flex flex-col ${
+          blogsData.length !== 0 ? "py-10 " : ""
+        } w-full`}
+      >
+        {blogsData.length !== 0 && (
+          <div className="text-center w-full">
+            <CommonTypography classes="md:text-5xl text-2xl font-bold ">
+              Our Blogs
+            </CommonTypography>
+            <br />
+            <h2 className="my-4 md:text-base text-sm font-normal text-secondary ">
+              Revolutionizing How You Discover and Compare Knowledge
+            </h2>
+          </div>
+        )}
 
         <div
-          className={`grid grid-cols-1 gap-x-8 gap-y-10 mt-16 md:grid-cols-2 md:gap-x-6 lg:gap-x-8  ${
+          className={`grid grid-cols-1 gap-x-8 gap-y-10 ${
+            blogsData.length !== 0 ? " mt-16" : ""
+          } md:grid-cols-2 md:gap-x-6 lg:gap-x-8  ${
             blogsData.length === 2
               ? "max-w-[950px]"
               : blogsData.length === 1
