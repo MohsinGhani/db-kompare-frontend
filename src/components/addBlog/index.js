@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Form, message } from "antd";
+import { Form, Radio, message } from "antd";
 import { useParams } from "next/navigation";
 import CommonEditor from "../shared/CommonEditor";
 import CommonButton from "../shared/Button";
@@ -33,12 +33,13 @@ const AddBlog = () => {
 
   const onFinish = async (values) => {
     const id = ulid();
+
     const payload = {
       id,
       title: values.title,
       description: values.description,
       createdBy: userId,
-      status: BlogStatus.PUBLIC,
+      status: values.status,
       databases: values.tags,
     };
     try {
@@ -105,7 +106,6 @@ const AddBlog = () => {
             onImageUpload={handleImageUpload}
           />
         </Form.Item>
-
         <CommonInput
           label="Title"
           name="title"
@@ -113,7 +113,6 @@ const AddBlog = () => {
           inputType="text"
           rules={[{ required: true, message: "Please enter your title" }]}
         />
-
         <Form.Item
           name="tags"
           label={
@@ -124,17 +123,33 @@ const AddBlog = () => {
           rules={[{ required: true, message: "Please add tags" }]}
         >
           <CustomSelect
-            options={databases.map((db) => ({
-              id: db.id,
-              label: db.name,
-              value: db.id,
-            }))}
+            options={databases
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((db) => ({
+                id: db.id,
+                label: db.name,
+                value: db.id,
+              }))}
             mode="tags"
             size="large"
             placeholder="Select tags"
           />
         </Form.Item>
 
+        <Form.Item
+          name="status"
+          label={
+            <CommonTypography classes="text-base font-semibold">
+              Please select whether the blog is private or public.
+            </CommonTypography>
+          }
+          initialValue="PUBLIC"
+        >
+          <Radio.Group>
+            <Radio value="PUBLIC">Public</Radio>
+            <Radio value="PRIVATE">Private</Radio>
+          </Radio.Group>
+        </Form.Item>
         <Form.Item
           name="description"
           rules={[{ required: true, message: "Please add Details" }]}
@@ -152,7 +167,6 @@ const AddBlog = () => {
             />
           </div>
         </Form.Item>
-
         <Form.Item>
           <CommonButton
             className={`bg-primary text-white ${

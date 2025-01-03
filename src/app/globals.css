@@ -103,6 +103,16 @@ body {
 :where(.css-apn68).ant-card .ant-card-body {
   padding: 0px;
 }
+.custom-select.ant-select-outlined:not(.ant-select-customize-input)
+  .ant-select-selector {
+  border-radius: 8px 0px 0px 8px;
+}
+.disabled-button:hover {
+  background-color: grey !important;
+  border-color: none !important;
+  color: white !important;
+  border: none !important;
+}
 
 .custom-table .ant-empty {
   height: 100%;

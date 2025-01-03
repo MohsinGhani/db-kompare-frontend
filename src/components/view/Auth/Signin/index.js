@@ -19,14 +19,22 @@ import {
 } from "@/utils/helper";
 import { socialRegisteration } from "@/utils/authServices";
 import { toast } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
+
+  const redirectParam = searchParams?.get("redirect");
+
+  const isValidRedirect = (path) => {
+    return path && path.startsWith("/");
+  };
 
   const onFinish = async (values) => {
     try {
@@ -76,7 +84,10 @@ const SignIn = () => {
       if (response.ok) {
         dispatch(setUserDetails({ data }));
         setAccessTokenFromLocalStorage();
-        router.push("/");
+        const redirectPath = isValidRedirect(redirectParam)
+          ? decodeURIComponent(redirectParam)
+          : "/";
+        router.push(redirectPath);
       } else if (response.status === 404) {
         console.warn("User not found.");
       } else {

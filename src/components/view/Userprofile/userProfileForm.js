@@ -72,7 +72,7 @@ const UserProfileForm = () => {
   ];
 
   return (
-    <div className="bg-white h-full lg:max-w-[75%]">
+    <div className="bg-white h-full lg:max-w-[75%] mb-32">
       <div className="min-h-full h-full">
         <Collapse
           items={items}

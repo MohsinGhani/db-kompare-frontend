@@ -27,6 +27,11 @@ const CustomSelect = ({
         border: "none",
         ...style,
       }}
+      maxTagTextLength={10}
+      showSearch
+      filterOption={(input, option) =>
+        option?.children.toLowerCase().includes(input.toLowerCase())
+      }
     >
       {options?.map((option) => (
         <Option key={option.value} value={option.value}>
