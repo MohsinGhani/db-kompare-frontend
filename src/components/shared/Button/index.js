@@ -20,7 +20,7 @@ const CommonButton = ({
     gap: "8px",
     fontWeight: 700,
     borderRadius: "9px",
-    pointerEvents: disabled ? "none" : "auto",
+    cursor: disabled ? "not-allowed" : "pointer",
   };
 
   const mergedStyle = { ...buttonStyle, ...style };
@@ -33,7 +33,9 @@ const CommonButton = ({
       loading={loading}
       disabled={disabled}
       style={mergedStyle}
-      className="bg-blue-500 hover:bg-blue-400 text-white border-none"
+      className={`bg-blue-500 hover:bg-blue-400 text-white border-none ${
+        disabled ? "disabled-button" : ""
+      }  `}
       {...props}
     >
       {children}
