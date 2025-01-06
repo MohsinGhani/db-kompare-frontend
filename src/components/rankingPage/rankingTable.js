@@ -140,6 +140,7 @@ const RankingTable = ({ previousDays }) => {
     const dataRow = {
       DBMS: db.name,
       DatabaseModel: db.database_model,
+      SecondaryDatabaseModel: db.secondary_database_model?.join(" , ") || "-",
     };
 
     const lastTwoRankChanges = db.rankChanges.slice(0, 2);
@@ -172,11 +173,21 @@ const RankingTable = ({ previousDays }) => {
     if (selectedOption === "All") {
       return true;
     }
-    const dbModelText = db.DatabaseModel.replace(/<[^>]+>/g, "")
+    const dbModelText = db?.DatabaseModel?.replace(/<[^>]+>/g, "")
       .trim()
       .toLowerCase();
 
-    return dbModelText === selectedOption.toLowerCase();
+    const secondaryModelsText = db?.SecondaryDatabaseModel?.replace(
+      /<[^>]+>/g,
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+    return (
+      dbModelText === selectedOption.toLowerCase() ||
+      secondaryModelsText?.includes(selectedOption.toLowerCase())
+    );
   });
 
   // Sorting formatted data by the latest score date (first date in previousDays)
@@ -213,7 +224,7 @@ const RankingTable = ({ previousDays }) => {
             onChange={handleRankingChange}
           />
         </div>
-        <div className="w-full overflow-y-auto min-h-[750px] max-h-[750px] ">
+        <div className="w-full overflow-y-auto min-h-[725px] max-h-[725px] ">
           <Table
             className="border border-gray-200 rounded-lg shadow-md custom-table"
             pagination={false}
@@ -222,7 +233,6 @@ const RankingTable = ({ previousDays }) => {
             scroll={{ x: 400 }}
             style={{
               background: "white",
-
               height: "725px",
               minHeight: "725px",
               maxHeight: "725px",
@@ -258,6 +268,32 @@ const RankingTable = ({ previousDays }) => {
               render={(text, record) => (
                 <ProcessDataHtml htmlString={text} record={record} />
               )}
+            />
+            <Column
+              minWidth={200}
+              title={<span style={columnStyle}>Secondary DB Model</span>}
+              dataIndex="SecondaryDatabaseModel"
+              key="SecondaryDatabaseModel"
+              render={(text) => {
+                const sanitizedText = text
+                  ? text.replace(/<span[^>]*title=[^>]*>.*?<\/span>/g, "")
+                  : "-";
+
+                return (
+                  <div style={{ textAlign: "center" }}>
+                    {sanitizedText === "-" ? (
+                      <span style={{ fontWeight: "bold" }}>
+                        {sanitizedText}
+                      </span>
+                    ) : (
+                      <ProcessDataHtml
+                        htmlString={sanitizedText}
+                        showOnLine={true}
+                      />
+                    )}
+                  </div>
+                );
+              }}
             />
 
             <ColumnGroup
