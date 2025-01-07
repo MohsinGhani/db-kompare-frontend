@@ -23,13 +23,17 @@ export default function ContentSection({
           </div>
         </div>
       </div>
-      <div className="w-full p-20  px-8 xl:px-28 md:px-12 flex flex-col gap-20 md:gap-2  items-center h-full">
+      <div
+        className={`w-full p-12 md:p-20 px-8 xl:px-28 md:px-12 flex flex-col ${
+          paragraph2 ? "gap-0 " : "gap-4"
+        }md:gap-2 items-center h-full`}
+      >
         <div className="md:w-3/5 text-center ">
           <h1 className="md:text-5xl text-2xl font-bold mb-4">{heading2}</h1>
 
           <p className="md:text-base text-sm font-normal mb-3 text-secondary text-center"></p>
           {paragraph2}
-          <h1 className="md:text-xl text-lg mt-4 font-bold text-secondary ">
+          <h1 className="md:text-xl text-lg mt-4 font-bold text-secondary lg:mb-0">
             {paragraph3 && paragraph3}
           </h1>
         </div>

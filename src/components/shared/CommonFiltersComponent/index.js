@@ -1,33 +1,31 @@
 "use client";
 
 import { Card, Radio } from "antd";
-import React, { useState } from "react";
+import React from "react";
 import CommonTypography from "../Typography";
 import { filterOptions } from "@/utils/const";
 
-const FiltersComponent = ({ isSmallDevice = false }) => {
-  const [selectedFilters, setSelectedFilters] = useState({
-    freeEdition: "All",
-    erDiagram: "All",
-    runsOn: "Linux",
-    forwardEngineering: "All",
-    synchronization: "All",
-  });
-
+const FiltersComponent = ({
+  isSmallDevice = false,
+  selectedFilters,
+  onChange,
+  disabled,
+}) => {
   const handleFilterChange = (category, value) => {
-    setSelectedFilters((prev) => ({ ...prev, [category]: value }));
-    console.log("Selected Filters:", { ...selectedFilters, [category]: value });
+    if (onChange && typeof onChange === "function") {
+      onChange(category, value);
+    }
   };
 
   return (
     <Card
-      className={`w-full bg-white rounded-xl border shadow-md ${
+      className={`w-full bg-white rounded-xl border shadow-md min-h-[350px] ${
         isSmallDevice
           ? "border-none shadow-none p-0 h-full"
           : "p-5 min-h-[725px]"
       }`}
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {Object.keys(filterOptions).map((category, index) => (
           <div key={index}>
             <CommonTypography className="font-medium text-base capitalize">
@@ -36,7 +34,8 @@ const FiltersComponent = ({ isSmallDevice = false }) => {
             <Radio.Group
               value={selectedFilters[category]}
               onChange={(e) => handleFilterChange(category, e.target.value)}
-              className="flex flex-col gap-[12px] mt-1"
+              className="flex flex-col gap-2 mt-1"
+              disabled={disabled}
             >
               {filterOptions[category].map((option, optionIndex) => (
                 <Radio

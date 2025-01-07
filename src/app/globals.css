@@ -122,3 +122,23 @@ body {
   justify-content: center;
   margin: 0;
 }
+
+.segmented-custom .ant-segmented-group {
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.segmented-custom .ant-segmented-item {
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: ease 0.3s;
+}
+
+.segmented-custom .ant-segmented-item-selected {
+  background-color: #3e53d7;
+  color: white !important;
+  font-weight: medium;
+  transition: ease 0.3s;
+}

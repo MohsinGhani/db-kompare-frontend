@@ -8,11 +8,13 @@ import LeaderboardFilter from "../leaderboardFilter";
 import "./style.scss";
 import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
 import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
+import { CaretLeftOutlined, CaretRightOutlined } from "@ant-design/icons";
 
 const DBChart = ({ previousDays }) => {
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
+  const [dbIndexRange, setDbIndexRange] = useState([0, 10]);
 
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
@@ -121,7 +123,9 @@ const DBChart = ({ previousDays }) => {
     },
     series:
       filteredData.length > 0
-        ? filteredData.map((db) => ({ name: db.databaseName, data: db.data }))
+        ? filteredData
+            .slice(dbIndexRange[0], dbIndexRange[1])
+            .map((db) => ({ name: db.databaseName, data: db.data }))
         : [],
     responsive: {
       rules: [
@@ -153,8 +157,20 @@ const DBChart = ({ previousDays }) => {
     fetchData();
   }, [selectedDate]);
 
+  const next10Databases = () => {
+    if (dbIndexRange[1] < metricsData.length) {
+      setDbIndexRange([dbIndexRange[0] + 10, dbIndexRange[1] + 10]);
+    }
+  };
+
+  const prev10Databases = () => {
+    if (dbIndexRange[0] > 0) {
+      setDbIndexRange([dbIndexRange[0] - 10, dbIndexRange[1] - 10]);
+    }
+  };
+
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center">
+    <div className="w-full h-screen flex flex-col items-center justify-center ">
       <div className="w-full">
         <LeaderboardFilter
           setSelectedDate={setSelectedDate}
@@ -162,11 +178,29 @@ const DBChart = ({ previousDays }) => {
           setSelectedMetricKeys={setSelectedMetricKeys}
           selectedMetricKeys={selectedMetricKeys}
         />
-        <HighchartsReact
-          highcharts={Highcharts}
-          options={chartOptions}
-          style={{ borderRadius: "24px", border: "1px solid #D9D9D9" }}
-        />
+        <div className="relative w-full">
+          <HighchartsReact
+            highcharts={Highcharts}
+            options={chartOptions}
+            style={{ borderRadius: "24px", border: "1px solid #D9D9D9" }}
+          />
+          <div className="left-0 mb-4 absolute bottom-4 ">
+            <CaretLeftOutlined
+              onClick={prev10Databases}
+              disabled={dbIndexRange[0] <= 0}
+              className="ml-6"
+              style={{ fontSize: "20px" }}
+            />
+          </div>
+          <div className=" mb-4 absolute bottom-4 right-0 ">
+            <CaretRightOutlined
+              onClick={next10Databases}
+              disabled={dbIndexRange[1] >= metricsData.length}
+              style={{ fontSize: "20px" }}
+              className="mr-6"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

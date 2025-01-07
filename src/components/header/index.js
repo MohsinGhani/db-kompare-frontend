@@ -185,7 +185,7 @@ export default function Navbar() {
                           className="py-1 hover:text-[#3E53D7] hover:!text-medium hover:cursor-pointer"
                           onClick={() => {
                             setIsCategoriesOpen(false);
-                            router.push(`/db-tool/${item.label}`);
+                            router.push(`/db-tool/${item.value}`);
                           }}
                         >
                           {item.label}
@@ -280,9 +280,9 @@ export default function Navbar() {
                   <li key={item.key} className="py-2">
                     <CommonTypography
                       onClick={() => {
-                        // router.push(item.href); // Assuming each item has an href
-                        setIsOpen(false);
                         setIsCategoriesOpen(false);
+                        setIsOpen(false);
+                        router.push(`/db-tool/${item.value}`);
                       }}
                     >
                       {item.label}
