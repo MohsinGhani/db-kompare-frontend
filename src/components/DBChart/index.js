@@ -32,7 +32,6 @@ const DBChart = ({ previousDays }) => {
           (metric) => metric.date === date
         );
 
-        // If no data for this date, return null to create a gap
         return matchingMetric
           ? calculateChartWeightedValue(matchingMetric, metricKeys)
           : null;
@@ -40,11 +39,9 @@ const DBChart = ({ previousDays }) => {
     }));
   };
 
-  // Add getXAxisCategories function to filter metrics by date range
   const getXAxisCategories = (dateRange) => {
     const allMetrics = metricsData[0]?.metrics || [];
 
-    // Extract unique dates that are within the selected range
     const uniqueDates = new Set(
       allMetrics
         .filter((metric) =>
@@ -56,7 +53,6 @@ const DBChart = ({ previousDays }) => {
     return Array.from(uniqueDates);
   };
 
-  // Add chartOptions configuration with error handling and chart customization
   const filteredData = getMetricData(selectedMetricKeys, selectedDate);
   const chartOptions = {
     chart: {
@@ -68,16 +64,14 @@ const DBChart = ({ previousDays }) => {
       borderColor: "#D9D9D9",
       height: 600,
       events: {
-        render: function () {
-          const chart = this;
-          const chartWidth = chart.chartWidth;
-          const chartHeight = chart.chartHeight;
-
+        load() {
+          this.showLoading();
+        },
+        render() {
           if (filteredData.every((db) => db.data.length === 0)) {
             const errorMessage = "No data available";
-
-            if (!this.errorMessage) {
-              this.errorMessage = chart.renderer
+            if (this.errorMessage) {
+              this.errorMessage = this.renderer
                 .text(errorMessage, 0, 0)
                 .css({
                   fontSize: "20px",
@@ -85,13 +79,10 @@ const DBChart = ({ previousDays }) => {
                   color: "red",
                 })
                 .add();
-
               const textWidth = this.errorMessage.getBBox().width;
               const textHeight = this.errorMessage.getBBox().height;
-
-              const xPosition = (chartWidth - textWidth) / 2;
-              const yPosition = (chartHeight + textHeight) / 2;
-
+              const xPosition = (this.chartWidth - textWidth) / 2;
+              const yPosition = (this.chartHeight + textHeight) / 2;
               this.errorMessage.attr({
                 x: xPosition,
                 y: yPosition,
@@ -102,6 +93,7 @@ const DBChart = ({ previousDays }) => {
               this.errorMessage.destroy();
               this.errorMessage = null;
             }
+            this.hideLoading();
           }
         },
       },
@@ -144,7 +136,6 @@ const DBChart = ({ previousDays }) => {
     credits: false,
   };
 
-  // Add useEffect to fetch metrics data based on selected date range'
   useEffect(() => {
     const fetchData = async () => {
       const startDate = formatDate(selectedDate[0]) || "2024-11-18";
