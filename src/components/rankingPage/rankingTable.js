@@ -36,6 +36,17 @@ const RankingTable = ({ previousDays }) => {
   };
 
   useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [open]);
+
+  useEffect(() => {
     const fetchData = async () => {
       const startDate = previousDays[previousDays.length - 1];
       const endDate = previousDays[0];
@@ -140,7 +151,7 @@ const RankingTable = ({ previousDays }) => {
     const dataRow = {
       DBMS: db.name,
       DatabaseModel: db.database_model,
-      SecondaryDatabaseModel: db.secondary_database_model?.join(" , ") || "-",
+      SecondaryDatabaseModel: db.secondary_database_model?.join(", ") || "-",
     };
 
     const lastTwoRankChanges = db.rankChanges.slice(0, 2);
@@ -224,19 +235,13 @@ const RankingTable = ({ previousDays }) => {
             onChange={handleRankingChange}
           />
         </div>
-        <div className="w-full overflow-y-auto min-h-[725px] max-h-[725px] ">
+        <div className="w-full overflow-auto">
           <Table
-            className="border border-gray-200 rounded-lg shadow-md custom-table"
+            className="border border-gray-200 rounded-lg custom-table overflow-y-auto bg-white h-[725px] max-h-[725px] min-h-[725px]"
             pagination={false}
             dataSource={sortedData}
             rowKey="DBMS"
             scroll={{ x: 400 }}
-            style={{
-              background: "white",
-              height: "725px",
-              minHeight: "725px",
-              maxHeight: "725px",
-            }}
             rowClassName={(record, index) =>
               index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
             }
@@ -313,6 +318,7 @@ const RankingTable = ({ previousDays }) => {
         }
         onClose={onClose}
         open={open}
+        className="z-50"
       >
         <RankingOptions
           rankingOptions={rankingOptions}
