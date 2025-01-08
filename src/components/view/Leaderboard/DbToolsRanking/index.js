@@ -15,7 +15,7 @@ export default function DbToolsRanking({ previousDays }) {
           </div> */}
         <DBChart previousDays={previousDays} />
       </div>
-      {/* <RankingTable previousDays={previousDays} /> */}
+      <RankingTable previousDays={previousDays} />
     </div>
   );
 }

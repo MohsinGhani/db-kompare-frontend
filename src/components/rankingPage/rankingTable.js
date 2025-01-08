@@ -255,6 +255,7 @@ const RankingTable = ({ previousDays }) => {
               title={<span style={columnStyle}>DBMS</span>}
               dataIndex="DBMS"
               key="DBMS"
+              sorter={(a, b) => a.DBMS.localeCompare(b.DBMS)}
               render={(text) => (
                 <span
                   className="text-[#0000FF] cursor-pointer"

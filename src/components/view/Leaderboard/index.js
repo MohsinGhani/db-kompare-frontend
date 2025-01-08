@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
-import DBChart from "@/components/DBChart";
-import RankingTable from "@/components/rankingPage/rankingTable";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
 import DatabasesRanking from "./DatabasesRanking";
 import { Segmented } from "antd";

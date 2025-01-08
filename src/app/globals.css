@@ -142,3 +142,16 @@ body {
   font-weight: medium;
   transition: ease 0.3s;
 }
+.custom-table .ant-table-column-sort {
+  background-color: transparent !important;
+}
+.custom-table .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: none !important;
+}
+.custom-table th.ant-table-column-has-sorters.ant-table-column-sort {
+  background-color: #fafafa !important;
+}
+
+.custom-table .ant-table-column-sorters:hover {
+  background-color: transparent !important;
+}
