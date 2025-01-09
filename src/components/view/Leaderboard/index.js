@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
-import DBChart from "@/components/DBChart";
-import RankingTable from "@/components/rankingPage/rankingTable";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
+import DatabasesRanking from "./DatabasesRanking";
+import { Segmented } from "antd";
+import DbToolsRanking from "./DbToolsRanking";
 
 export default function LeaderBoardPage() {
   const [previousDays, setPreviousDays] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSegment, setSelectedSegment] = useState("Databases Ranking");
 
   // Fetch previousDays asynchronously
   useEffect(() => {
@@ -41,14 +43,20 @@ export default function LeaderBoardPage() {
         imageAlt="blue line"
       >
         <div className="w-full">
-          {/* <div className="text-center w-full">
-            <CommonTypography classes="font-bold text-xl text-secondary">
-              We update our results daily at 12 PM UTC.
-            </CommonTypography>
-          </div> */}
-          <DBChart previousDays={previousDays} />
+          <div className="flex items-center justify-center">
+            <Segmented
+              options={["Databases Ranking", "DB Tools Ranking"]}
+              value={selectedSegment}
+              onChange={(value) => setSelectedSegment(value)}
+              className="bg-white mt-16 mb-20 lg:mb-0 segmented-custom"
+            />
+          </div>
+          {selectedSegment === "Databases Ranking" ? (
+            <DatabasesRanking previousDays={previousDays} />
+          ) : (
+            <DbToolsRanking previousDays={previousDays} />
+          )}
         </div>
-        <RankingTable previousDays={previousDays} />
       </ContentSection>
     </div>
   );

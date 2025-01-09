@@ -51,7 +51,7 @@ export default function LeaderboardFilter({
   const handleDateChange = (dates) => setSelectedDate(dates || [null, null]);
 
   return (
-    <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 border rounded-2xl flex-col border-[#D9D9D9]">
+    <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 lg:mt-24 border rounded-2xl flex-col border-[#D9D9D9]">
       <div className="flex justify-between">
         <CommonTypography type="text" classes="text-2xl font-bold">
           Filters

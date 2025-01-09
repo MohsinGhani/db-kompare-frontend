@@ -211,7 +211,7 @@ const RankingTable = ({ previousDays }) => {
 
   return (
     <div className="w-full mt-0 md:mt-12 lg:mt-0">
-      <div className="flex flex-row items-center justify-between lg:mt-6 mb-5">
+      <div className="flex flex-row items-center justify-between mt-20 lg:mt-8 mb-5">
         <CommonTypography classes="font-semibold text-xl sm:text-3xl ">
           DB-Kompare Ranking
         </CommonTypography>
@@ -255,6 +255,7 @@ const RankingTable = ({ previousDays }) => {
               title={<span style={columnStyle}>DBMS</span>}
               dataIndex="DBMS"
               key="DBMS"
+              sorter={(a, b) => a.DBMS.localeCompare(b.DBMS)}
               render={(text) => (
                 <span
                   className="text-[#0000FF] cursor-pointer"
