@@ -185,7 +185,7 @@ export default function Navbar() {
                           className="py-1 hover:text-[#3E53D7] hover:!text-medium hover:cursor-pointer"
                           onClick={() => {
                             setIsCategoriesOpen(false);
-                            router.push(`/db-tool/${item.value}`);
+                            // router.push(`/db-tool/${item.value}`);
                           }}
                         >
                           {item.label}
@@ -282,7 +282,7 @@ export default function Navbar() {
                       onClick={() => {
                         setIsCategoriesOpen(false);
                         setIsOpen(false);
-                        router.push(`/db-tool/${item.value}`);
+                        // router.push(`/db-tool/${item.value}`);
                       }}
                     >
                       {item.label}
