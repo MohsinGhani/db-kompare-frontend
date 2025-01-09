@@ -113,3 +113,12 @@ body {
   color: white !important;
   border: none !important;
 }
+
+.custom-table .ant-empty {
+  height: 100%;
+  min-height: 575px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
