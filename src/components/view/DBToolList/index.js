@@ -6,9 +6,9 @@ import ContentSection from "@/components/shared/ContentSection/page";
 import CommonButton from "@/components/shared/Button";
 import { toast } from "react-toastify";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
-import { Button, Drawer, Tooltip } from "antd";
+import { Button, Drawer, Spin, Tooltip } from "antd";
 import CommonTypography from "@/components/shared/Typography";
-import { FilterOutlined } from "@ant-design/icons";
+import { FilterOutlined, LoadingOutlined } from "@ant-design/icons";
 import { categoriesItems } from "@/utils/const";
 import { useParams, useSearchParams } from "next/navigation";
 
