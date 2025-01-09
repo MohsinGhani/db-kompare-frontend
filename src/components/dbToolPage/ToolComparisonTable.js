@@ -163,6 +163,7 @@ const dbToolTableData = [
 ];
 
 const ToolComparisonTable = ({
+  selectedFilters,
   selectedTools,
   setSelectedTools,
   setSelectedToolsOptions,
@@ -181,7 +182,8 @@ const ToolComparisonTable = ({
     setSelectedToolsOptions(updatedTools);
 
     const newDbQuery = encodeURIComponent(updatedTools.join("-"));
-    router.push(`/db-toolcomparison/${toolName}/${newDbQuery}`);
+    const filterQuery = new URLSearchParams(selectedFilters).toString();
+    router.push(`/db-toolcomparison/${toolName}/${newDbQuery}?${filterQuery}`);
   };
 
   const columns = [

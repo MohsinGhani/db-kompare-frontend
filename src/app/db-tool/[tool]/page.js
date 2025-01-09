@@ -36,6 +36,21 @@ export default function Page({ params }) {
     if (searchParams.has("options")) {
       setSelectedChildTools(searchParams.get("options").split("-"));
     }
+
+    const newFilters = { ...selectedFilters };
+    [
+      "freeEdition",
+      "erDiagram",
+      "runsOn",
+      "forwardEngineering",
+      "synchronization",
+    ].forEach((key) => {
+      const paramVal = searchParams.get(key);
+      if (paramVal) {
+        newFilters[key] = paramVal;
+      }
+    });
+    setSelectedFilters(newFilters);
   }, []);
 
   const handleChildClick = (option) => {
@@ -55,12 +70,9 @@ export default function Page({ params }) {
     ) {
       toast.error("Please select at least one tool option to compare");
     } else {
-      const encodedTool = currentCategory?.value;
-      const encodedOptions = encodeURIComponent(selectedChildTools.join("-"));
       const filtersQuery = Object.entries(selectedFilters)
         .map(([key, value]) => `${key}=${value}`)
         .join("&");
-      console.log("Filters Query:", filtersQuery);
 
       const url = `/db-toolcomparison/${encodeURIComponent(
         decodedTool

@@ -32,7 +32,7 @@ const dbToolComparison = ({ params }) => {
   const decodedTool = decodeURIComponent(tool.replace("tool-", ""));
   const decodedOptions = decodeURIComponent(options.replace("options-", ""));
 
-  const currentTool = categoriesItems.find((cat) => cat.label === decodedTool);
+  const currentTool = categoriesItems.find((cat) => cat.value === decodedTool);
   const currentCategory = categoriesItems.find(
     (cat) => cat.value === decodedTool
   );
@@ -83,7 +83,10 @@ const dbToolComparison = ({ params }) => {
 
   // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
-    router.push(`/db-toolcomparison/${decodedTool}/${newDbQuery}`);
+    const filterQuery = new URLSearchParams(selectedFilters).toString();
+    router.push(
+      `/db-toolcomparison/${decodedTool}/${newDbQuery}?${filterQuery}`
+    );
   };
 
   // Redirect to comparison or list page based on selected databases
@@ -91,11 +94,10 @@ const dbToolComparison = ({ params }) => {
     if (selectedToolsOptions.length === 0) {
       router.push(`/db-tool/${decodedTool}`);
     } else {
-      router.push(
-        `/db-tool/${decodedTool}?options=${encodeURIComponent(
-          selectedToolsOptions.join("-")
-        )}`
-      );
+      const filterQuery = new URLSearchParams(selectedFilters).toString();
+      const optionsSegment = encodeURIComponent(selectedToolsOptions.join("-"));
+      const url = `/db-tool/${decodedTool}?options=${optionsSegment}&${filterQuery}`;
+      router.push(url);
     }
   };
 
@@ -153,6 +155,7 @@ const dbToolComparison = ({ params }) => {
           </div>
           <div className="overflow-auto w-full">
             <ToolComparisonTable
+              selectedFilters={selectedFilters}
               toolName={decodedTool}
               setSelectedTools={setSelectedTools}
               selectedTools={selectedTools}
