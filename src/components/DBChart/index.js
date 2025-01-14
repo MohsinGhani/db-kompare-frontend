@@ -239,7 +239,19 @@ const DBChart = ({ previousDays }) => {
             <img
               src="/assets/icons/whiteLeftArrow.svg"
               alt="arrow"
-              className="w-8 h-8 bg-[#3E53D7] p-[7px] rounded-full ml-6 mb-3 cursor-pointer hover:opacity-70"
+              className="
+      w-8 h-8 
+      bg-[#3E53D7] 
+      p-[7px] 
+      rounded-full 
+      ml-6 mb-3 
+      cursor-pointer 
+      hover:opacity-70 
+      active:translate-y-[1px] 
+      active:shadow-[0_0_15px_5px_rgba(62,83,215,0.4)] 
+      transition-all 
+      duration-100
+    "
               onClick={prev10Databases}
               onDoubleClick={prev50Databases}
             />
@@ -252,7 +264,18 @@ const DBChart = ({ previousDays }) => {
             <img
               src="/assets/icons/whiteRightArrow.svg"
               alt="arrow"
-              className="w-8 h-8 bg-[#3E53D7] p-[7px] rounded-full cursor-pointer hover:opacity-70"
+              className="
+              w-8 h-8 
+              bg-[#3E53D7] 
+              p-[7px] 
+              rounded-full 
+              cursor-pointer 
+              hover:opacity-70 
+              active:translate-y-[1px] 
+              active:shadow-[0_0_15px_5px_rgba(62,83,215,0.4)] 
+              transition-all 
+              duration-100
+            "
               onClick={next10Databases}
               onDoubleClick={next50Databases}
             />

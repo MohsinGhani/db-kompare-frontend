@@ -16,6 +16,7 @@ import { _removeFileFromS3 } from "@/utils/s3Services";
 import { LoadingOutlined } from "@ant-design/icons";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import { usePathname } from "next/navigation";
+import { selectAuthLoading } from "@/redux/slices/authSlice";
 
 const BlogDetail = ({ id }) => {
   const [blog, setBlog] = useState();
@@ -31,6 +32,7 @@ const BlogDetail = ({ id }) => {
       }`
     : null;
   const { userDetails } = useSelector((state) => state.auth);
+  const isLoading = useSelector(selectAuthLoading);
   const userId = userDetails?.data?.data?.id;
   const userRole = userDetails?.data?.data?.role;
   const isAuthor = blog?.createdBy?.id === userId;
@@ -155,8 +157,10 @@ const BlogDetail = ({ id }) => {
   }, [id]);
 
   useEffect(() => {
-    if (!userDetails && blog?.status === BlogStatus.PRIVATE) {
-      router.push(`/signin?redirect=${encodedPath}`);
+    if (!isLoading) {
+      if (blog?.status === BlogStatus.PRIVATE && userDetails === null) {
+        router.push(`/signin?redirect=${encodedPath}`);
+      }
     }
   }, [blog, userDetails]);
 

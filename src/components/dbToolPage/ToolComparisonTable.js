@@ -183,7 +183,7 @@ const ToolComparisonTable = ({
 
     const newDbQuery = encodeURIComponent(updatedTools.join("-"));
     const filterQuery = new URLSearchParams(selectedFilters).toString();
-    router.push(`/db-toolcomparison/${toolName}/${newDbQuery}?${filterQuery}`);
+    router.push(`/db-toolcomparison/${newDbQuery}?${filterQuery}`);
   };
 
   const columns = [

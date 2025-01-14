@@ -11,11 +11,8 @@ import CommonButton from "../shared/Button";
 import CommonUserDropdown from "../shared/UserDropdown";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectEmail,
-  selectUserDetails,
-  setUserDetails,
-} from "@/redux/slices/authSlice";
+import { selectUserDetails, setUserDetails } from "@/redux/slices/authSlice";
+import { Dropdown, Menu } from "antd";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -141,70 +138,27 @@ export default function Navbar() {
         </div>
         <div className="hidden lg:flex items-center relative">
           {Navlinks.map((link, index) => {
-            if (link.isDropdown) {
-              return (
-                <button
-                  key={index}
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="flex items-center relative py-2 px-5 text-black hover:font-semibold"
-                >
-                  <div className="flex items-center">
-                    <span>{link.label}</span>
-                    <DownOutlined className="ml-2 mt-[1px] w-[14px]" />
-                  </div>
-                </button>
-              );
-            } else {
-              return (
-                <button
-                  key={index}
-                  onClick={() => {
-                    if (link.href.startsWith("http")) {
-                      window.open(link.href, "_blank");
-                    } else {
-                      router.push(link.href);
-                    }
-                  }}
-                  className={`py-2 px-5 ${
-                    path === link.href ||
-                    (isDbComparisonPage && link.href === "/db-comparison")
-                      ? "font-semibold text-black"
-                      : "text-black"
-                  } hover:font-semibold`}
-                >
-                  {link.label}
-                </button>
-              );
-            }
+            return (
+              <button
+                key={index}
+                onClick={() => {
+                  if (link.href.startsWith("http")) {
+                    window.open(link.href, "_blank");
+                  } else {
+                    router.push(link.href);
+                  }
+                }}
+                className={`py-2 px-5 ${
+                  path === link.href ||
+                  (isDbComparisonPage && link.href === "/db-comparison")
+                    ? "font-semibold text-black"
+                    : "text-black"
+                } hover:font-semibold`}
+              >
+                {link.label}
+              </button>
+            );
           })}
-
-          {isCategoriesOpen && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 bg-white shadow-xl px-8 p-4 max-w-4xl w-full sm:w-11/12 md:w-3/4 lg:w-[850px] rounded-xl transition-all duration-300 z-20">
-              <div className="flex flex-wrap justify-start gap-9">
-                {Array.from({ length: 3 }).map((_, colIndex) => (
-                  <ul
-                    key={colIndex}
-                    className="text-gray-600 text-[13px] font-normal flex flex-col gap-1 w-full sm:w-1/2 md:w-1/3 lg:w-[30%]"
-                  >
-                    {items
-                      .filter((_, index) => index % 3 === colIndex)
-                      .map((item) => (
-                        <li
-                          key={item.key}
-                          className="py-1 hover:text-[#3E53D7] hover:!text-medium hover:cursor-pointer"
-                          onClick={() => {
-                            setIsCategoriesOpen(false);
-                            // router.push(`/db-tool/${item.value}`);
-                          }}
-                        >
-                          {item.label}
-                        </li>
-                      ))}
-                  </ul>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex flex-row items-center justify-center">
@@ -269,38 +223,6 @@ export default function Navbar() {
               </button>
             </li>
           ))}
-
-          <li className="w-full">
-            <button
-              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-              className="flex items-center w-full pb-2 px-3 text-left text-black hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:px-0"
-            >
-              <span>Categories</span>
-              <DownOutlined
-                className={`ml-2 mt-[1px] w-[14px] transition-transform duration-200 ${
-                  isCategoriesOpen ? "transform rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isCategoriesOpen && (
-              <ul className="w-full pl-8 text-black text-sm font-normal gap-1 max-h-[200px] overflow-y-auto">
-                {items.map((item) => (
-                  <li key={item.key} className="py-2">
-                    <CommonTypography
-                      onClick={() => {
-                        setIsCategoriesOpen(false);
-                        setIsOpen(false);
-                        // router.push(`/db-tool/${item.value}`);
-                      }}
-                    >
-                      {item.label}
-                    </CommonTypography>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
 
           {Navlinks.slice(4).map((link, index) => (
             <li key={index + 3}>

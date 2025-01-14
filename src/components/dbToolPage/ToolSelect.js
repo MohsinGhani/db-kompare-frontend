@@ -4,7 +4,6 @@ import CommonTypography from "@/components/shared/Typography";
 import CustomSelect from "@/components/shared/CustomSelect";
 
 const ToolSelect = ({
-  dbTool,
   dbToolChilds,
   selectedTools,
   selectedToolsOptions,
@@ -14,7 +13,7 @@ const ToolSelect = ({
   return (
     <div className="flex 2xl:flex-row gap-4 flex-col justify-between w-full">
       <CommonTypography type="text" classes="md:text-4xl text-2xl font-medium">
-        {dbTool} Tools
+        Database Tools
       </CommonTypography>
 
       <div className="flex flex-col md:flex-row md:gap-0 gap-3">

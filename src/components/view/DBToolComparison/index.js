@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CommonButton from "@/components/shared/Button";
 import ToolSelect from "@/components/dbToolPage/ToolSelect";
 import ToolComparisonHeader from "@/components/dbToolPage/ToolComparisonHeader";
-import { categoriesItems } from "@/utils/const";
+import { dbTools } from "@/utils/const";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
 import ToolComparisonTable from "@/components/dbToolPage/ToolComparisonTable";
 
@@ -15,27 +15,27 @@ import { FilterOutlined } from "@ant-design/icons";
 
 const DbToolComparison = () => {
   const router = useRouter();
-  const { tool, options } = useParams();
+  const { options } = useParams();
   const searchParams = useSearchParams();
   const [dbToolChilds, setDbToolChilds] = useState();
   const [selectedTools, setSelectedTools] = useState([]);
   const [selectedToolsOptions, setSelectedToolsOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
-    freeEdition: "All",
-    erDiagram: "All",
-    runsOn: "Linux",
-    forwardEngineering: "All",
-    synchronization: "All",
+    AccessControl: "Yes",
+    VersionControl: "Yes",
+    SupportForWorkflow: "Yes",
+    WebAccess: "Yes",
+    DeploymentOption: "OnPrem",
+    FreeEdition: "OpenSource",
+    AuthenticationSupport: "User",
+    IntegrationWithUpstream: "LimitedFunctionality",
+    UserCreatedTags: "Yes",
+    CustomizationPossible: "Yes",
+    ModernWaysOfDeployment: "Kubernetes",
   });
 
-  const decodedTool = decodeURIComponent(tool.replace("tool-", ""));
-  const decodedOptions = decodeURIComponent(options.replace("options-", ""));
-
-  const currentTool = categoriesItems.find((cat) => cat.value === decodedTool);
-  const currentCategory = categoriesItems.find(
-    (cat) => cat.value === decodedTool
-  );
+  const decodedOptions = decodeURIComponent(options?.replace("list-", ""));
 
   const showDrawer = () => {
     setOpen(true);
@@ -47,11 +47,20 @@ const DbToolComparison = () => {
 
   useEffect(() => {
     const filters = {
-      freeEdition: searchParams.get("freeEdition") || "All",
-      erDiagram: searchParams.get("erDiagram") || "All",
-      runsOn: searchParams.get("runsOn") || "Linux",
-      forwardEngineering: searchParams.get("forwardEngineering") || "All",
-      synchronization: searchParams.get("synchronization") || "All",
+      AccessControl: searchParams.get("AccessControl") || "Yes",
+      VersionControl: searchParams.get("VersionControl") || "Yes",
+      SupportForWorkflow: searchParams.get("SupportForWorkflow") || "Yes",
+      WebAccess: searchParams.get("WebAccess") || "Yes",
+      DeploymentOption: searchParams.get("DeploymentOption") || "OnPrem",
+      ModernWaysOfDeployment:
+        searchParams.get("ModernWaysOfDeployment") || "Kubernetes",
+      CustomizationPossible: searchParams.get("CustomizationPossible") || "Yes",
+      UserCreatedTags: searchParams.get("UserCreatedTags") || "Yes",
+      FreeCommunityEdition: searchParams.get("FreeCommunityEdition") || "",
+      AuthenticationProtocolSupported:
+        searchParams.get("AuthenticationProtocolSupported") || "",
+      IntegrationWithUpstream:
+        searchParams.get("IntegrationWithUpstream") || "",
     };
     setSelectedFilters(filters);
   }, [searchParams]);
@@ -73,7 +82,7 @@ const DbToolComparison = () => {
     const fetchData = async () => {
       try {
         // const result = await fetchDatabases();
-        setDbToolChilds(currentTool.tools);
+        setDbToolChilds(dbTools);
       } catch (error) {
         console.error(error.message);
       }
@@ -84,20 +93,20 @@ const DbToolComparison = () => {
   // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
     const filterQuery = new URLSearchParams(selectedFilters).toString();
-    router.push(
-      `/db-toolcomparison/${decodedTool}/${newDbQuery}?${filterQuery}`
-    );
+    router.push(`/db-toolcomparison/${newDbQuery}?${filterQuery}`);
   };
 
   // Redirect to comparison or list page based on selected databases
   const handleAddSystemClick = () => {
     if (selectedToolsOptions.length === 0) {
-      router.push(`/db-tool/${decodedTool}`);
+      router.push(`/db-comparisons/list`);
     } else {
       const filterQuery = new URLSearchParams(selectedFilters).toString();
       const optionsSegment = encodeURIComponent(selectedToolsOptions.join("-"));
-      const url = `/db-tool/${decodedTool}?options=${optionsSegment}&${filterQuery}`;
-      router.push(url);
+      const newDbQuery = encodeURIComponent(selectedToolsOptions.join("-"));
+      router.push(
+        `/db-comparisons/${newDbQuery}/${filterQuery}?tab=DBToolsComparison`
+      );
     }
   };
 
@@ -109,7 +118,6 @@ const DbToolComparison = () => {
       <div className="w-full h-auto container font-medium  py-10 flex flex-col gap-8 md:gap-5 items-center">
         <ToolSelect
           dbToolChilds={dbToolChilds}
-          dbTool={currentCategory.label}
           selectedTools={selectedTools}
           selectedToolsOptions={selectedToolsOptions}
           setSelectedToolsOptions={setSelectedToolsOptions}
@@ -156,7 +164,6 @@ const DbToolComparison = () => {
           <div className="overflow-auto w-full">
             <ToolComparisonTable
               selectedFilters={selectedFilters}
-              toolName={decodedTool}
               setSelectedTools={setSelectedTools}
               selectedTools={selectedTools}
               setSelectedToolsOptions={setSelectedToolsOptions}
