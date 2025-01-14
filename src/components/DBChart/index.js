@@ -7,15 +7,14 @@ import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
 import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
-import { CaretLeftOutlined, CaretRightOutlined } from "@ant-design/icons";
 
 const DBChart = ({ previousDays }) => {
+  const CHUNK_SIZE = 10;
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
-  const [dbIndexRange, setDbIndexRange] = useState([0, 5]);
+  const [dbIndexRange, setDbIndexRange] = useState([0, CHUNK_SIZE]);
   const [enabledDatabases, setEnabledDatabases] = useState([]);
-  const CHUNK_SIZE = 5;
 
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
@@ -27,11 +26,9 @@ const DBChart = ({ previousDays }) => {
     const fetchData = async () => {
       const startDate = formatDate(selectedDate[0]) || "2024-11-18";
       const endDate = formatDate(selectedDate[1]) || previousDays[0];
-
       const data = await fetchMetricsData(startDate, endDate);
       setMetricsData(data.data || []);
     };
-
     fetchData();
   }, [selectedDate, previousDays]);
 
@@ -56,7 +53,6 @@ const DBChart = ({ previousDays }) => {
 
   const getMetricData = (metricKeys, dateRange) => {
     const allDatesInRange = getXAxisCategories(dateRange);
-
     return metricsData.map((db) => ({
       databaseName: db.databaseName,
       data: allDatesInRange.map((date) => {
@@ -74,7 +70,6 @@ const DBChart = ({ previousDays }) => {
   const handleLegendItemClick = function (event) {
     event.preventDefault();
     const seriesIndex = this.index;
-
     setEnabledDatabases((prev) => {
       const newState = [...prev];
       newState[seriesIndex] = !newState[seriesIndex];
@@ -101,11 +96,7 @@ const DBChart = ({ previousDays }) => {
             if (this.errorMessage) {
               this.errorMessage = this.renderer
                 .text(errorMessage, 0, 0)
-                .css({
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  color: "red",
-                })
+                .css({ fontSize: "20px", fontWeight: "bold", color: "red" })
                 .add();
               const textWidth = this.errorMessage.getBBox().width;
               const textHeight = this.errorMessage.getBBox().height;
@@ -138,6 +129,18 @@ const DBChart = ({ previousDays }) => {
         return `<b>${this.series.name}</b><br/>${this.x}: ${roundedValue}`;
       },
     },
+    legend: {
+      layout: "horizontal",
+      align: "center",
+      verticalAlign: "bottom",
+      labelFormatter: function () {
+        const maxLength = 13;
+        const name = this.name || "";
+        return name.length > maxLength
+          ? name.substring(0, maxLength) + "..."
+          : name;
+      },
+    },
     series: chartData.map((db, i) => ({
       name: db.databaseName,
       data: db.data,
@@ -154,24 +157,65 @@ const DBChart = ({ previousDays }) => {
     credits: false,
   };
 
-  const next5Databases = () => {
-    if (dbIndexRange[1] >= metricsData.length) return;
-    setDbIndexRange([
-      dbIndexRange[0] + CHUNK_SIZE,
-      dbIndexRange[1] + CHUNK_SIZE,
-    ]);
-  };
-
-  const prev5Databases = () => {
-    if (dbIndexRange[0] <= 0) return;
-    setDbIndexRange([
-      dbIndexRange[0] - CHUNK_SIZE,
-      dbIndexRange[1] - CHUNK_SIZE,
-    ]);
-  };
-
   const totalDBs = metricsData.length;
   const totalLaps = Math.ceil(totalDBs / CHUNK_SIZE);
+
+  const next10Databases = () => {
+    if (dbIndexRange[1] >= totalDBs) {
+      // Wrap-around: go to first lap
+      setDbIndexRange([0, CHUNK_SIZE]);
+    } else {
+      setDbIndexRange([
+        dbIndexRange[0] + CHUNK_SIZE,
+        dbIndexRange[1] + CHUNK_SIZE,
+      ]);
+    }
+  };
+
+  const prev10Databases = () => {
+    if (dbIndexRange[0] <= 0) {
+      const lastStart = (totalLaps - 1) * CHUNK_SIZE;
+      setDbIndexRange([lastStart, lastStart + CHUNK_SIZE]);
+    } else {
+      setDbIndexRange([
+        dbIndexRange[0] - CHUNK_SIZE,
+        dbIndexRange[1] - CHUNK_SIZE,
+      ]);
+    }
+  };
+
+  const next50Databases = () => {
+    const jump = CHUNK_SIZE * 3;
+    const totalDBs = metricsData.length;
+    const totalLaps = Math.ceil(totalDBs / CHUNK_SIZE);
+
+    let newStart = dbIndexRange[0] + jump;
+    let newEnd = dbIndexRange[1] + jump;
+    if (newEnd >= totalDBs) {
+      newStart = 0;
+      newEnd = CHUNK_SIZE;
+    }
+
+    setDbIndexRange([newStart, newEnd]);
+  };
+
+  const prev50Databases = () => {
+    const jump = CHUNK_SIZE * 3;
+    const totalDBs = metricsData.length;
+    const totalLaps = Math.ceil(totalDBs / CHUNK_SIZE);
+
+    let newStart = dbIndexRange[0] - jump;
+    let newEnd = dbIndexRange[1] - jump;
+
+    if (newStart < 0) {
+      const lastStart = (totalLaps - 1) * CHUNK_SIZE;
+      newStart = lastStart;
+      newEnd = lastStart + CHUNK_SIZE;
+    }
+
+    setDbIndexRange([newStart, newEnd]);
+  };
+
   const currentLap = Math.floor(dbIndexRange[0] / CHUNK_SIZE) + 1;
 
   return (
@@ -191,12 +235,13 @@ const DBChart = ({ previousDays }) => {
             style={{ borderRadius: "24px", border: "1px solid #D9D9D9" }}
           />
 
-          <div className="left-0 mb-4 absolute bottom-4">
-            <CaretLeftOutlined
-              onClick={prev5Databases}
-              disabled={dbIndexRange[0] <= 0}
-              className="ml-6"
-              style={{ fontSize: "20px", cursor: "pointer" }}
+          <div className="left-0 absolute bottom-4">
+            <img
+              src="/assets/icons/whiteLeftArrow.svg"
+              alt="arrow"
+              className="w-8 h-8 bg-[#3E53D7] p-[7px] rounded-full ml-6 mb-3 cursor-pointer hover:opacity-70"
+              onClick={prev10Databases}
+              onDoubleClick={prev50Databases}
             />
           </div>
 
@@ -204,10 +249,12 @@ const DBChart = ({ previousDays }) => {
             <span className="mr-2 font-semibold text-lg">
               {currentLap}/{totalLaps}
             </span>
-            <CaretRightOutlined
-              onClick={next5Databases}
-              disabled={dbIndexRange[1] >= totalDBs}
-              style={{ fontSize: "20px", cursor: "pointer" }}
+            <img
+              src="/assets/icons/whiteRightArrow.svg"
+              alt="arrow"
+              className="w-8 h-8 bg-[#3E53D7] p-[7px] rounded-full cursor-pointer hover:opacity-70"
+              onClick={next10Databases}
+              onDoubleClick={next50Databases}
             />
           </div>
         </div>

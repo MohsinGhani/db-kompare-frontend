@@ -84,7 +84,7 @@ export const stripHtml = (html) => {
 export function generateCommonMetadata({
   title,
   description,
-  imageUrl = "/assets/images/dbLogo.png",
+  imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/db-kompare-banner.jpg",
   siteName = "DB Kompare",
   type = "website",
 }) {
@@ -114,3 +114,18 @@ export function generateCommonMetadata({
 export const convertHtmlToText = (html) => {
   return html?.replace(/<[^>]+>/g, "");
 };
+
+export function replaceKeywords(text) {
+  if (typeof text !== "string") return text;
+  const replacements = {
+    DBMS: "DB",
+    "Navigational DB": "Hierarchial DB",
+    "Wide column store": "Columnar DB",
+  };
+  let output = text;
+  Object.entries(replacements).forEach(([searchValue, replaceValue]) => {
+    const regex = new RegExp(searchValue, "gi");
+    output = output.replace(regex, replaceValue);
+  });
+  return output;
+}

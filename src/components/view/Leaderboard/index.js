@@ -48,7 +48,7 @@ export default function LeaderBoardPage() {
               options={["Databases Ranking", "DB Tools Ranking"]}
               value={selectedSegment}
               onChange={(value) => setSelectedSegment(value)}
-              className="bg-white mt-16 mb-20 lg:mb-0 segmented-custom"
+              className="mt-16 mb-20 lg:mb-0 segmented-custom"
             />
           </div>
           {selectedSegment === "Databases Ranking" ? (

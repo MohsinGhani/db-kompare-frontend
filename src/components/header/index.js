@@ -140,35 +140,44 @@ export default function Navbar() {
           </CommonTypography>
         </div>
         <div className="hidden lg:flex items-center relative">
-          {Navlinks.map((link, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                if (link.href.startsWith("http")) {
-                  window.open(link.href, "_blank");
-                } else {
-                  router.push(link.href);
-                }
-              }}
-              className={`py-2 px-5 ${
-                path === link.href ||
-                (isDbComparisonPage && link.href === "/db-comparison")
-                  ? "font-semibold text-black"
-                  : "text-black"
-              } hover:font-semibold`}
-            >
-              {link.label}
-            </button>
-          ))}
-          <button
-            onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-            className="flex items-center relative ml-3"
-          >
-            <div className="flex items-center">
-              <span>Categories</span>
-              <DownOutlined className="ml-2 mt-[1px] w-[14px]" />
-            </div>
-          </button>
+          {Navlinks.map((link, index) => {
+            if (link.isDropdown) {
+              return (
+                <button
+                  key={index}
+                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                  className="flex items-center relative py-2 px-5 text-black hover:font-semibold"
+                >
+                  <div className="flex items-center">
+                    <span>{link.label}</span>
+                    <DownOutlined className="ml-2 mt-[1px] w-[14px]" />
+                  </div>
+                </button>
+              );
+            } else {
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if (link.href.startsWith("http")) {
+                      window.open(link.href, "_blank");
+                    } else {
+                      router.push(link.href);
+                    }
+                  }}
+                  className={`py-2 px-5 ${
+                    path === link.href ||
+                    (isDbComparisonPage && link.href === "/db-comparison")
+                      ? "font-semibold text-black"
+                      : "text-black"
+                  } hover:font-semibold`}
+                >
+                  {link.label}
+                </button>
+              );
+            }
+          })}
+
           {isCategoriesOpen && (
             <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 bg-white shadow-xl px-8 p-4 max-w-4xl w-full sm:w-11/12 md:w-3/4 lg:w-[850px] rounded-xl transition-all duration-300 z-20">
               <div className="flex flex-wrap justify-start gap-9">
@@ -237,8 +246,8 @@ export default function Navbar() {
           isOpen ? "block" : "hidden"
         } lg:hidden fixed top-20 left-0 p-7 w-full bg-white z-30 transition-all duration-300 ease-in-out `}
       >
-        <ul className="text-black text-lg font-normal gap-3 flex flex-col p-4 md:p-0 h-auto justify-start items-start">
-          {Navlinks.map((link, index) => (
+        <ul className="text-black text-lg font-normal gap-3 flex flex-col p-4 md:p-0 h-full justify-start items-start">
+          {Navlinks.slice(0, 3).map((link, index) => (
             <li key={index}>
               <button
                 onClick={() => {
@@ -261,7 +270,7 @@ export default function Navbar() {
             </li>
           ))}
 
-          <li className="w-full ">
+          <li className="w-full">
             <button
               onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
               className="flex items-center w-full pb-2 px-3 text-left text-black hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:px-0"
@@ -275,7 +284,7 @@ export default function Navbar() {
             </button>
 
             {isCategoriesOpen && (
-              <ul className="w-full pl-8 text-black text-sm font-normal gap-1 max-h-[280px]  overflow-y-auto">
+              <ul className="w-full pl-8 text-black text-sm font-normal gap-1 max-h-[200px] overflow-y-auto">
                 {items.map((item) => (
                   <li key={item.key} className="py-2">
                     <CommonTypography
@@ -292,6 +301,31 @@ export default function Navbar() {
               </ul>
             )}
           </li>
+
+          {Navlinks.slice(4).map((link, index) => (
+            <li key={index + 3}>
+              {" "}
+              <button
+                onClick={() => {
+                  if (link.href.startsWith("http")) {
+                    window.open(link.href, "_blank");
+                  } else {
+                    router.push(link.href);
+                    setIsOpen(false);
+                  }
+                }}
+                className={`block py-2 px-3 ${
+                  path === link.href ||
+                  (isDbComparisonPage && link.href === "/db-comparisons")
+                    ? "font-semibold text-black"
+                    : "text-black"
+                } hover:font-semibold bg-white rounded md:bg-transparent md:text-black md:p-0`}
+              >
+                {link.label}
+              </button>
+            </li>
+          ))}
+
           <li className="w-full">
             {!authRoutes.includes(path) && (
               <div className="">
