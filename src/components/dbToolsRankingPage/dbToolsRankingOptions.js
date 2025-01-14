@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Card, Radio } from "antd";
 import CommonTypography from "../shared/Typography";
+import { categoriesItems } from "@/utils/const";
 
-const RankingOptions = ({
-  rankingOptions,
-  onChange,
-  isSmallDevice = false,
-}) => {
-  const [selectedOption, setSelectedOption] = useState(rankingOptions[0].value);
+const DBToolsRankingOptions = ({ onChange, isSmallDevice = false }) => {
+  const dbToolCategories = categoriesItems;
+  const [selectedOption, setSelectedOption] = useState(
+    dbToolCategories[0].value
+  );
 
   const handleOptionChange = (e) => {
     const value = e.target.value;
@@ -23,8 +23,8 @@ const RankingOptions = ({
           : "p-5 min-h-[725px]"
       }`}
     >
-      <CommonTypography className="font-medium text-base ">
-        Select a ranking
+      <CommonTypography className="font-medium text-base">
+        Select category
       </CommonTypography>
       <div className="flex flex-col gap-3 mt-4 xl:mt-4">
         <Radio.Group
@@ -32,7 +32,7 @@ const RankingOptions = ({
           value={selectedOption}
           className="flex flex-col gap-[18px]"
         >
-          {rankingOptions.map((option, index) => (
+          {dbToolCategories.map((option, index) => (
             <Radio
               key={index}
               value={option.value}
@@ -47,4 +47,4 @@ const RankingOptions = ({
   );
 };
 
-export default RankingOptions;
+export default DBToolsRankingOptions;

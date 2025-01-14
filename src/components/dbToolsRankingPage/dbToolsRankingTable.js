@@ -10,13 +10,12 @@ import {
 } from "@ant-design/icons";
 import { formatDateForHeader } from "@/utils/formatDateAndTime";
 import { useRouter } from "nextjs-toploader/app";
-import RankingOptions from "./rankingOptions";
-import { rankingOptions } from "@/utils/const";
 import { replaceKeywords } from "@/utils/helper";
+import DBToolsRankingOptions from "./dbToolsRankingOptions";
 
 const { Column, ColumnGroup } = Table;
 
-const RankingTable = ({ previousDays }) => {
+const DBToolsRankingTable = ({ previousDays }) => {
   const router = useRouter();
 
   const [rankingTableData, setRankingTableData] = useState([]);
@@ -266,10 +265,7 @@ const RankingTable = ({ previousDays }) => {
       </div>
       <div className="md:flex md:flex-row items-start justify-between w-full">
         <div className=" hidden md:block min-w-[150px] sm:min-w-[200px] md:min-w-[250px] mr-4 ">
-          <RankingOptions
-            rankingOptions={rankingOptions}
-            onChange={handleRankingChange}
-          />
+          <DBToolsRankingOptions onChange={handleRankingChange} />
         </div>
         <div className="w-full overflow-auto">
           <Table
@@ -371,8 +367,7 @@ const RankingTable = ({ previousDays }) => {
         open={open}
       >
         <div>
-          <RankingOptions
-            rankingOptions={rankingOptions}
+          <DBToolsRankingOptions
             onChange={(selectedOption) => {
               handleRankingChange(selectedOption);
               onClose();
@@ -385,4 +380,4 @@ const RankingTable = ({ previousDays }) => {
   );
 };
 
-export default RankingTable;
+export default DBToolsRankingTable;

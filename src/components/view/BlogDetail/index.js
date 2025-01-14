@@ -10,7 +10,7 @@ import { deleteBlog, fetchBlogById, saveBlog } from "@/utils/blogUtil";
 import { fetchDatabaseByIds } from "@/utils/databaseUtils";
 import { formatReadableDate } from "@/utils/formatDateAndTime";
 import { useSelector } from "react-redux";
-import { BlogType, UserRole } from "@/utils/const";
+import { BlogStatus, BlogType, UserRole } from "@/utils/const";
 import { toast } from "react-toastify";
 import { _removeFileFromS3 } from "@/utils/s3Services";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -154,7 +154,13 @@ const BlogDetail = ({ id }) => {
     handleFetchBlogById();
   }, [id]);
 
-  if (loadingBlog) {
+  useEffect(() => {
+    if (!userDetails && blog?.status === BlogStatus.PRIVATE) {
+      router.push(`/signin?redirect=${encodedPath}`);
+    }
+  }, [blog, userDetails]);
+
+  if (loadingBlog || (blog?.status === BlogStatus.PRIVATE && !userDetails)) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Image

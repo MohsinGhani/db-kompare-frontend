@@ -13,6 +13,11 @@ export function Providers({ children }) {
           token: {
             colorPrimary: "#3E53D7",
           },
+          components: {
+            Table: {
+              padding: 10,
+            },
+          },
         }}
       >
         <ApolloWrapper>{children}</ApolloWrapper>
