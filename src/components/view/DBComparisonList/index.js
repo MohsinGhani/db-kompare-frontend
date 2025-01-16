@@ -6,22 +6,33 @@ import { Segmented } from "antd";
 import DataBasesComparisons from "./DatabasesComparison";
 import { useSearchParams } from "next/navigation";
 import DBToolComparison from "./DbToolsComparison";
+import { useRouter } from "next/navigation";
 
 const ComparisonDbListPage = () => {
   const [selectedSegment, setSelectedSegment] = useState(
     "Databases Comparison"
   );
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    console.log("tab", tab);
     if (tab === "DBToolsComparison") {
       setSelectedSegment("DB Tools Comparison");
     } else {
       setSelectedSegment("Databases Comparison");
     }
   }, [searchParams]);
+
+  const handleSegmentChange = (value) => {
+    setSelectedSegment(value);
+
+    if (value === "Databases Comparison") {
+      router.push("/db-comparisons/list/options?tab=DatabasesComparison");
+    } else {
+      router.push("/db-comparisons/list/options?tab=DBToolsComparison");
+    }
+  };
 
   return (
     <ContentSection
@@ -34,12 +45,12 @@ const ComparisonDbListPage = () => {
           <Segmented
             options={["Databases Comparison", "DB Tools Comparison"]}
             value={selectedSegment}
-            onChange={(value) => setSelectedSegment(value)}
-            className="-mt-8 mb-20 lg:mb-0 segmented-custom"
+            onChange={handleSegmentChange}
+            className="-mt-8 mb-10 lg:mb-0 segmented-custom"
           />
         </div>
       </div>
-      <div className="md:w-3/5 text-center mt-12">
+      <div className="md:w-3/5 text-center md:mt-12">
         <h1 className="md:text-5xl text-2xl font-bold mb-4">
           Offer Technology
         </h1>

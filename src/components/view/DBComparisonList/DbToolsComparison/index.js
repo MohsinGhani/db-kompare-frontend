@@ -4,93 +4,127 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
-import { fetchDatabases } from "@/utils/databaseUtils";
-import { Button, Tooltip } from "antd";
+import { Button, Drawer, Spin, Tooltip } from "antd";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
-import { dbTools } from "@/utils/const";
-import { useSearchParams } from "next/navigation";
+import { FilterOutlined, LoadingOutlined } from "@ant-design/icons";
+import CommonTypography from "@/components/shared/Typography";
+import CustomSelect from "@/components/shared/CustomSelect";
+import { fetchDbTools, fetchDbToolsCategories } from "@/utils/dbToolsUtil";
+import { toolMatchesFilters } from "@/utils/helper";
 
 const DbToolsComparisons = () => {
   const router = useRouter();
   const { list, options } = useParams();
   const [hoverIndex, setHoverIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dbData, setDbData] = useState([]);
+  const [dbToolCategories, setDbToolCategories] = useState([]);
+  const [toolsData, setToolsData] = useState([]);
   const [selectedChildTools, setSelectedChildTools] = useState([]);
+  const [selectedToolCategoriesOptions, setSelectedToolCategoriesOptions] =
+    useState([]);
   const [selectedFilters, setSelectedFilters] = useState({
     AccessControl: "Yes",
     VersionControl: "Yes",
-    SupportForWorkflow: "Yes",
+    SupportForWorkflow: "No",
     WebAccess: "Yes",
-    DeploymentOption: "OnPrem",
-    FreeEdition: "OpenSource",
-    AuthenticationSupport: "User",
-    IntegrationWithUpstream: "LimitedFunctionality",
+    DeploymentOption: "3",
+    FreeCommunityEdition: "4",
+    AuthenticationProtocolSupported: "4",
+    IntegrationWithUpstream: "Limited",
     UserCreatedTags: "Yes",
-    CustomizationPossible: "Yes",
-    ModernWaysOfDeployment: "Kubernetes",
+    CustomizationPossible: "Limited functionality",
+    ModernWaysOfDeployment: "2",
   });
-  const searchParams = useSearchParams();
 
-  // Fetch and load database data with loading state handling
+  const decodedTool = list ? decodeURIComponent(list) : "";
+  const decodedOptions = decodeURIComponent(options?.replace("options-", ""));
+  const decodedDbArray = decodedTool ? decodedTool.split("-") : [];
+  const decodedOptionsArray = decodedOptions ? decodedOptions.split("-") : [];
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategoriesOptions = async () => {
+      try {
+        const data = await fetchDbToolsCategories();
+        const categories = data.data || [];
+        console.log("categories", categories);
+        setDbToolCategories(categories);
+      } catch (error) {
+        console.error("Error fetching db tools categories:", error);
+      }
+    };
+
+    fetchCategoriesOptions();
+  }, []);
+
+  useEffect(() => {
+    const fetchDbToolsData = async () => {
       try {
         setIsLoading(true);
-        const result = await fetchDatabases();
-        setDbData(result.data);
+        const result = await fetchDbTools();
+        setToolsData(result?.data);
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchDbToolsData();
   }, []);
-
-  // Decode 'list' query parameter to set selectedDatabases state
-  const decodedTool = decodeURIComponent(list?.replace("list-", ""));
-  const decodedDbArray = decodedTool ? decodedTool.split("-") : [];
 
   useEffect(() => {
     if (decodedDbArray.length > 0) {
-      setSelectedChildTools(decodedDbArray);
+      const filteredDbArray = decodedDbArray.filter((item) => item !== "list");
+      setSelectedChildTools(filteredDbArray);
     }
 
-    const newFilters = { ...selectedFilters };
-    [
-      "AccessControl",
-      "VersionControl",
-      "SupportForWorkflow",
-      "WebAccess",
-      "DeploymentOption",
-      "FreeEdition",
-      "AuthenticationSupport",
-      "IntegrationWithUpstream",
-      "UserCreatedTags",
-      "CustomizationPossible",
-      "ModernWaysOfDeployment",
-    ].forEach((key) => {
-      const paramVal = searchParams.get(key);
-      if (paramVal) {
-        newFilters[key] = paramVal;
-      }
-    });
-    setSelectedFilters(newFilters);
+    if (decodedOptionsArray.length > 0) {
+      const queryString = decodedOptionsArray[0];
+
+      const urlParams = new URLSearchParams(queryString);
+      let newFilters = { ...selectedFilters };
+      Object.keys(newFilters).forEach((key) => {
+        const paramVal = urlParams.get(key);
+        if (paramVal !== null) {
+          newFilters[key] = paramVal;
+        }
+      });
+
+      setSelectedFilters(newFilters);
+    }
   }, []);
 
-  // Filter database options based on search term
-  const filteredOptions = dbData.filter((option) =>
-    option.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOptions = toolsData.filter((option) => {
+    const matchesSearch = option?.tool_name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
 
-  // Trigger navigation for database comparison with validation
+    const matchesCategory =
+      selectedToolCategoriesOptions.length === 0 ||
+      selectedToolCategoriesOptions.includes(option.category_id);
+
+    const matchesFilters = toolMatchesFilters(option, selectedFilters);
+
+    return matchesSearch && matchesCategory && matchesFilters;
+  });
+
   const handleCompareClick = () => {
-    if (selectedChildTools.length === 0) {
-      toast.error("Please select at least one tool option to compare");
+    if (
+      selectedChildTools.includes("list") ||
+      selectedChildTools.length === 0
+    ) {
+      toast.error("Please select at least one tool to compare");
     } else {
       const filtersQuery = Object.entries(selectedFilters)
         .map(([key, value]) => `${key}=${value}`)
@@ -112,88 +146,130 @@ const DbToolsComparisons = () => {
 
   const handleChildClick = (option) => {
     setSelectedChildTools((prevSelected) => {
-      if (prevSelected.includes(option.name)) {
-        return prevSelected.filter((db) => db !== option.name);
+      if (prevSelected.includes(option.tool_name)) {
+        return prevSelected.filter((db) => db !== option.tool_name);
       } else {
-        return [...prevSelected, option.name];
+        return [...prevSelected, option.tool_name];
       }
     });
   };
 
   return (
-    <div className="w-full container flex md:mt-8 flex-col gap-10">
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    <div className="w-full container flex md:mt-8 flex-col gap-10 ">
+      <div className="flex flex-col md:flex-row items-center justify-between">
+        <div className="md:w-[70%] w-full md:mr-4">
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </div>
+
+        <CustomSelect
+          value={selectedToolCategoriesOptions}
+          onChange={(selectedValues) =>
+            setSelectedToolCategoriesOptions(selectedValues)
+          }
+          options={dbToolCategories
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((tool) => ({
+              id: tool.id,
+              label: tool.name,
+              value: tool.id,
+            }))}
+          placeholder="Select Tool Category"
+          maxSelection={2}
+          className="md:max-w-[30%] w-full h-10 mt-3 md:mt-0"
+        />
+      </div>
 
       <div className="md:flex md:flex-row items-start justify-between w-full ">
+        <div className="md:hidden flex justify-end  mb-1  w-full">
+          <Button
+            icon={<FilterOutlined />}
+            type="text"
+            size="large"
+            onClick={showDrawer}
+          >
+            <CommonTypography className="text-[18px] font-semibold">
+              Filters
+            </CommonTypography>
+          </Button>
+        </div>
         <div className="hidden md:block md:min-w-[250px] mr-4">
           <FiltersComponent
             selectedFilters={selectedFilters}
             onChange={handleFiltersOptionsChange}
           />
         </div>
-        <div className="w-full  flex flex-col gap-10 container">
-          <div className="grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 md:grid-cols-3 gap-6 ">
-            <>
-              {dbTools
-                ?.sort((a, b) => a?.name?.localeCompare(b.name))
-                ?.map((option, index) => (
-                  <Tooltip
-                    key={option.name}
-                    title={option.name}
-                    placement="top"
-                  >
-                    <Button
+        <div className="w-full  flex flex-col gap-10 ">
+          {isLoading ? (
+            <div className="w-full flex justify-center items-center h-32">
+              {" "}
+              <Spin
+                indicator={<LoadingOutlined style={{ fontSize: 90 }} spin />}
+              />
+            </div>
+          ) : (
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 md:grid-cols-3 gap-6 ">
+              <>
+                {filteredOptions
+                  ?.sort((a, b) => a?.tool_name?.localeCompare(b?.tool_name))
+                  ?.map((option, index) => (
+                    <Tooltip
                       key={option.id}
-                      style={{
-                        width: "100%",
-                        fontWeight: "600",
-                        fontSize: "16px",
-                        border:
-                          selectedChildTools.includes(option.name) ||
-                          hoverIndex === index
-                            ? "2px solid #3E53D7"
-                            : "2px solid #D9D9D9",
-                        height: "60px",
-                        background: "transparent",
-                        color: "black",
-                        color:
-                          selectedChildTools.includes(option.name) ||
-                          hoverIndex === index
-                            ? "#3E53D7"
-                            : "black",
-                        borderRadius: "16px",
-
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                      onMouseEnter={() => setHoverIndex(index)}
-                      onMouseLeave={() => setHoverIndex(null)}
-                      onClick={() => handleChildClick(option)}
+                      title={option.tool_name}
+                      placement="top"
                     >
-                      <span
-                        className="truncate"
+                      <Button
+                        key={option.id}
                         style={{
-                          display: "block",
-                          maxWidth: "100%",
-                          whiteSpace: "nowrap",
+                          width: "100%",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          border:
+                            selectedChildTools.includes(option.tool_name) ||
+                            hoverIndex === index
+                              ? "2px solid #3E53D7"
+                              : "2px solid #D9D9D9",
+                          height: "60px",
+                          background: "transparent",
+                          color: "black",
+                          color:
+                            selectedChildTools.includes(option.tool_name) ||
+                            hoverIndex === index
+                              ? "#3E53D7"
+                              : "black",
+                          borderRadius: "16px",
+
                           overflow: "hidden",
-                          textOverflow: "ellipsis",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
+                        onMouseEnter={() => setHoverIndex(index)}
+                        onMouseLeave={() => setHoverIndex(null)}
+                        onClick={() => handleChildClick(option)}
                       >
-                        {option.value}
-                      </span>
-                    </Button>
-                  </Tooltip>
-                ))}
-            </>
-          </div>
+                        <span
+                          className="truncate"
+                          style={{
+                            display: "block",
+                            maxWidth: "100%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {option.tool_name}
+                        </span>
+                      </Button>
+                    </Tooltip>
+                  ))}
+              </>
+            </div>
+          )}
           <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center">
             <CommonButton
               disabled={
                 selectedChildTools.length === 0 ||
-                selectedChildTools.includes("tool")
+                selectedChildTools.includes("list")
               }
               style={{
                 width: "280px",
@@ -201,7 +277,7 @@ const DbToolsComparisons = () => {
                 border: "1px solid #D9D9D9",
                 height: "60px",
                 background:
-                  selectedChildTools.includes("tool") ||
+                  selectedChildTools.includes("list") ||
                   selectedChildTools.length === 0
                     ? "grey"
                     : "#3E53D7",
@@ -215,6 +291,22 @@ const DbToolsComparisons = () => {
           </div>
         </div>
       </div>
+
+      <Drawer
+        title={
+          <CommonTypography className="text-[20px] font-bold">
+            Filters
+          </CommonTypography>
+        }
+        onClose={onClose}
+        open={open}
+      >
+        <FiltersComponent
+          isSmallDevice={true}
+          selectedFilters={selectedFilters}
+          onChange={handleFiltersOptionsChange}
+        />
+      </Drawer>
     </div>
   );
 };

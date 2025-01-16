@@ -25,3 +25,28 @@ export const fetchDbToolsCategories = async () => {
     },
   });
 };
+
+// Function to fetch all db tools
+
+export const fetchDbTools = async () => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools`, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+
+// Function to fetch db tools by ids
+
+export const fetchDbToolsByIDs = async (selectedToolsIds) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools-by-ids`, {
+    method: "POST",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify({
+      ids: selectedToolsIds,
+    }),
+  });
+};

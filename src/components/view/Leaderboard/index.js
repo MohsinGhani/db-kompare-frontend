@@ -6,6 +6,7 @@ import { getPreviousDates } from "@/utils/formatDateAndTime";
 import DatabasesRanking from "./DatabasesRanking";
 import { Segmented } from "antd";
 import DbToolsRanking from "./DbToolsRanking";
+import { timeSinceLastUpdate } from "@/utils/helper";
 
 export default function LeaderBoardPage() {
   const [previousDays, setPreviousDays] = useState([]);
@@ -39,7 +40,7 @@ export default function LeaderBoardPage() {
         heading2="TECH behind COMPARISION"
         paragraph1="Database rankings are influenced by several key factors: performance, scalability, industry adoption, feature set, whether they are open-source or proprietary, and price."
         paragraph2="DB Ranking is curated DAILY based on pros and cons of a particular database. We scrape github,stackoverflow, google search, and bing search to present the BEST unbiased view."
-        paragraph3="We update our results daily at 12 PM UTC."
+        paragraph3={`We update our results daily at 12 PM UTC. (Last updated ${timeSinceLastUpdate()})`}
         imageAlt="blue line"
       >
         <div className="w-full">

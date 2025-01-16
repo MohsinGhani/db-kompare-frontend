@@ -2238,53 +2238,53 @@ export const categoriesItems = [
 
 export const filterOptions = {
   AccessControl: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
     { value: "Limited", label: "Limited extent" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   VersionControl: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   SupportForWorkflow: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   WebAccess: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   DeploymentOption: [
+    { value: "1", label: "On-Prem" },
+    { value: "2", label: "SaaS on Cloud" },
+    { value: "3", label: "On-prem and SaaS options available" },
     { value: "DoesNotMatter", label: "Does not matter (Default)" },
-    { value: "OnPrem", label: "On-Prem" },
-    { value: "Cloud", label: "SaaS on Cloud" },
-    { value: "Both", label: "On-prem and SaaS options available" },
   ],
   FreeCommunityEdition: [
+    { value: "1", label: "Open source" },
+    { value: "2", label: "Apache" },
+    { value: "3", label: "Community edition" },
+    { value: "4", label: "Commercial / trial 14 days" },
     { value: "DoesNotMatter", label: "Does not matter (Default)" },
-    { value: "OpenSource", label: "Open source" },
-    { value: "Apache", label: "Apache" },
-    { value: "Community", label: "Community edition" },
-    { value: "CommercialTrial", label: "Commercial / trial 14 days" },
   ],
   AuthenticationProtocolSupported: [
-    { value: "All", label: "All" },
-    { value: "User", label: "Userid / pwd" },
-    { value: "Kerberos", label: "Kerberos" },
-    { value: "Apitoken", label: "Api token" },
+    { value: "1", label: "Userid / pwd" },
+    { value: "2", label: "Api token" },
+    { value: "3", label: "Kerberos" },
+    { value: "4", label: "All" },
   ],
   IntegrationWithUpstream: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
-    { value: "Yes", label: "Yes" },
+    { value: "Yes but limited", label: "Yes" },
     { value: "No", label: "No" },
     {
-      value: "LimitedFunctionality",
+      value: "Limited",
       label: "Only limited functionality available",
     },
+    // { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   UserCreatedTags: [
     { value: "DoesNotMatter", label: "Does not matter (Default)" },
@@ -2296,15 +2296,19 @@ export const filterOptions = {
     },
   ],
   CustomizationPossible: [
-    { value: "DoesNotMatter", label: "Does not matter (Default)" },
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    {
+      value: "Limited functionality",
+      label: "Only limited functionality available",
+    },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
   ModernWaysOfDeployment: [
+    { value: "1", label: "Kubernetes" },
+    { value: "2", label: "Docker Containers" },
+    { value: "3 Windows", label: "Only Windows" },
     { value: "DoesNotMatter", label: "Does not matter (Default)" },
-    { value: "Kubernetes", label: "Kubernetes" },
-    { value: "DockerContainers", label: "Docker Containers" },
-    { value: "Only Windows", label: "Only Windows" },
   ],
 };
 

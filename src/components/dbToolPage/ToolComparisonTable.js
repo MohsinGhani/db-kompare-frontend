@@ -2,179 +2,34 @@ import { Skeleton, Table } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useRouter } from "nextjs-toploader/app";
 import { useState, useEffect } from "react";
-
-const dbToolTableData = [
-  {
-    name: "Erwin Data Modeler",
-    description:
-      "erwin Data Modeler (erwin DM) is a data modeling tool used to find, visualize, design, deploy, and standardize high-quality enterprise data assets. Discover and document any data from anywhere for consistency, clarity, and artifact reuse across large-scale data integration, master data management, metadata management, Big Data, business intelligence, and analytics initiatives.",
-    desktopOrCloud: "Desktop",
-    commercial: "Commercial",
-    freeEdition: false,
-    erDiagram: true,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: true,
-  },
-  {
-    name: "ModelSphere",
-    description:
-      "ModelSphere is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling and UML modeling, and provides a flexible model management environment. It provides complete data modeling features covering conceptual, logical and physical modeling",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "DB Main (Discontinued)",
-    description:
-      "DB Main (Discontinued) is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "Enterprise Architect",
-    description:
-      "Enterprise Architect is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "ER/Studio",
-    description:
-      "ER/Studio is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "GenMyModel",
-    description:
-      "GenMyModel is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "IBM InfoSphere Data Architect",
-    description:
-      "IBM InfoSphere Data Architect is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "MagicDraw",
-    description:
-      "MagicDraw is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "Moon Modeler",
-    description:
-      "Moon Modeler is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "PowerDesigner",
-    description:
-      "PowerDesigner is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "RISE",
-    description:
-      "RISE is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-  {
-    name: "Software Ideas Modeler",
-    description:
-      "Software Ideas Modeler is an exciting and unique modeling tool that combines many features, such as business process modeling, data modeling, and UML modeling.",
-    desktopOrCloud: "Desktop",
-    commercial: "Free",
-    freeEdition: true,
-    erDiagram: false,
-    runsOn: ["Linux", "Mac OS", "Windows"],
-    forwardEngineering: true,
-    reverseEngineering: true,
-    synchronization: false,
-  },
-];
-
+import { formatLabel } from "@/utils/helper";
+import { filterOptions } from "@/utils/const";
 const ToolComparisonTable = ({
   selectedFilters,
   selectedTools,
   setSelectedTools,
   setSelectedToolsOptions,
-  toolName,
+  selectedToolsData,
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-
-  const attributes = Object.keys(dbToolTableData[0])
-    .filter((key) => key !== "name")
-    .map((key) => ({ label: key, key }));
+  console.log("SelectedToolsData", selectedToolsData);
+  const attributes =
+    selectedToolsData && selectedToolsData.length > 0
+      ? Object.keys(selectedToolsData[0])
+          .filter(
+            (key) =>
+              key !== "name" &&
+              key !== "id" &&
+              key !== "category_id" &&
+              key !== "status" &&
+              key !== "tool_name" &&
+              key !== "tool_description" &&
+              key !== "category_name" &&
+              key !== "category_description"
+          )
+          .map((key) => ({ label: formatLabel(key), key }))
+      : [];
 
   const handleRemoveTools = (db) => {
     const updatedTools = selectedTools.filter((item) => item !== db);
@@ -184,6 +39,28 @@ const ToolComparisonTable = ({
     const newDbQuery = encodeURIComponent(updatedTools.join("-"));
     const filterQuery = new URLSearchParams(selectedFilters).toString();
     router.push(`/db-toolcomparison/${newDbQuery}?${filterQuery}`);
+  };
+
+  const TruncatedCell = ({ text }) => {
+    const [expanded, setExpanded] = useState(false);
+    const maxChars = 400;
+    const shouldTruncate = text.length > maxChars;
+
+    if (!shouldTruncate) return <span>{text}</span>;
+
+    const displayText = expanded ? text : text.slice(0, maxChars) + "...";
+
+    return (
+      <div>
+        <span>{displayText}</span>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="ml-2 text-[#3e53e7] underline text-sm"
+        >
+          {expanded ? "See less" : "See more"}
+        </button>
+      </div>
+    );
   };
 
   const columns = [
@@ -224,41 +101,106 @@ const ToolComparisonTable = ({
         </div>
       ),
       dataIndex: db,
-      render: (text, record) => (
-        <div
-          style={{
-            padding: "5px",
-            minWidth: "200px",
-            fontSize: "14px",
-            fontWeight: "400",
-          }}
-        >
-          {typeof text === "boolean" ? (
-            text ? (
-              <CheckOutlined
-                style={{
-                  color: "green",
-                  fontSize: "18px",
-                }}
-              />
-            ) : (
+      render: (text, record) => {
+        let displayValue = text;
+        const key = record._attributeKey;
+
+        const filterKeyMap = {
+          deployment_options_on_prem_or_saas: "DeploymentOption",
+          free_community_edition: "FreeCommunityEdition",
+          authentication_protocol_supported: "AuthenticationProtocolSupported",
+          modern_ways_of_deployment: "ModernWaysOfDeployment",
+        };
+
+        if (
+          filterKeyMap[key] &&
+          typeof text === "number" &&
+          filterOptions[filterKeyMap[key]]
+        ) {
+          const options = filterOptions[filterKeyMap[key]];
+          const option = options.find((opt) => `${opt.value}` === `${text}`);
+          if (option) {
+            displayValue = option.label;
+          }
+        }
+
+        return (
+          <div className="text-sm font-normal min-w-[200px]">
+            {record.name === "Home Page Url" &&
+            typeof displayValue === "string" ? (
+              (() => {
+                let url = displayValue;
+                if (!/^https?:\/\//i.test(url)) {
+                  url = "https://" + url;
+                }
+                return (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#3e53e7] underline"
+                  >
+                    {displayValue}
+                  </a>
+                );
+              })()
+            ) : (record.name === "Tool description" ||
+                record.name === "Tool type description") &&
+              typeof displayValue === "string" ? (
+              <TruncatedCell text={displayValue} />
+            ) : typeof displayValue === "boolean" ? (
+              displayValue ? (
+                <CheckOutlined style={{ color: "green", fontSize: "18px" }} />
+              ) : (
+                <CloseOutlined style={{ color: "red", fontSize: "18px" }} />
+              )
+            ) : displayValue === "yes" ? (
+              <CheckOutlined style={{ color: "green", fontSize: "18px" }} />
+            ) : displayValue === "No" ? (
               <CloseOutlined style={{ color: "red", fontSize: "18px" }} />
-            )
-          ) : Array.isArray(text) ? (
-            text.join(", ")
-          ) : (
-            text || "No data available"
-          )}
-        </div>
-      ),
+            ) : Array.isArray(displayValue) ? (
+              displayValue.join(", ")
+            ) : (
+              displayValue || "Will be add soon"
+            )}
+          </div>
+        );
+      },
     })),
   ];
 
-  const data = attributes.map((attribute) => {
-    const row = { name: attribute.label };
+  const descriptionRow = { name: "Tool description" };
+  selectedTools.forEach((db) => {
+    const tool = selectedToolsData.find(
+      (tool) => tool?.tool_name === db || tool?.name === db
+    );
+    descriptionRow[db] = tool?.tool_description || "Will be add soon";
+  });
+
+  const categoryNameRow = { name: "Tool type" };
+  selectedTools.forEach((db) => {
+    const tool = selectedToolsData.find(
+      (tool) => tool?.tool_name === db || tool?.name === db
+    );
+    categoryNameRow[db] = tool?.category_name || "Will be add soon";
+  });
+
+  const categoryDescriptionRow = { name: "Tool type description" };
+  selectedTools.forEach((db) => {
+    const tool = selectedToolsData.find(
+      (tool) => tool?.tool_name === db || tool?.name === db
+    );
+    categoryDescriptionRow[db] =
+      tool?.category_description || "Will be add soon";
+  });
+
+  const dataRows = attributes.map((attribute) => {
+    const row = { name: attribute.label, _attributeKey: attribute.key };
 
     selectedTools.forEach((db) => {
-      const tool = dbToolTableData.find((tool) => tool?.name === db);
+      const tool = selectedToolsData.find(
+        (tool) => tool?.tool_name === db || tool?.name === db
+      );
 
       if (tool) {
         const toolData = tool[attribute.key];
@@ -275,11 +217,18 @@ const ToolComparisonTable = ({
     return row;
   });
 
+  const data = [
+    descriptionRow,
+    categoryNameRow,
+    categoryDescriptionRow,
+    ...dataRows,
+  ];
+
   useEffect(() => {
-    if (dbToolTableData && dbToolTableData.length > 0) {
+    if (selectedToolsData && selectedToolsData.length > 0) {
       setIsLoading(false);
     }
-  }, [dbToolTableData]);
+  }, [selectedToolsData]);
 
   return (
     <>
@@ -290,6 +239,7 @@ const ToolComparisonTable = ({
           dataSource={[...Array(5)].map((_, index) => ({
             key: `key${index}`,
           }))}
+          className="mt-4"
           columns={columns.map((column) => ({
             ...column,
             render: function renderPlaceholder() {

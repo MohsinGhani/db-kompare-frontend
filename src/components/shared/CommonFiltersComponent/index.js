@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Radio, Checkbox, Tooltip } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import CommonTypography from "../Typography";
 import { filterOptions } from "@/utils/const";
@@ -12,6 +12,7 @@ const FiltersComponent = ({
   onChange,
   disabled,
 }) => {
+  const [expanded, setExpanded] = useState(false);
   const handleFilterChange = (category, value) => {
     if (onChange && typeof onChange === "function") {
       onChange(category, value);
@@ -37,12 +38,21 @@ const FiltersComponent = ({
     ModernWaysOfDeployment: "Modern methods like Kubernetes or Docker support",
   };
 
-  // List of filter categories that require checkboxes
   const checkboxFilters = [
     "FreeCommunityEdition",
     "AuthenticationProtocolSupported",
     "IntegrationWithUpstream",
   ];
+
+  const allCategories = Object.keys(filterOptions);
+  let categoriesToDisplay;
+
+  if (!expanded) {
+    const index = allCategories.indexOf("DeploymentOption");
+    categoriesToDisplay = allCategories.slice(0, index + 1);
+  } else {
+    categoriesToDisplay = allCategories;
+  }
 
   return (
     <Card
@@ -53,7 +63,7 @@ const FiltersComponent = ({
       }`}
     >
       <div className="flex flex-col gap-4">
-        {Object.keys(filterOptions).map((category, index) => (
+        {categoriesToDisplay.map((category, index) => (
           <div key={index}>
             <div className="flex items-center gap-2">
               <CommonTypography className="font-medium text-base capitalize">
@@ -64,7 +74,6 @@ const FiltersComponent = ({
               </Tooltip>
             </div>
 
-            {/* Render Checkbox.Group or Radio.Group based on category */}
             {checkboxFilters.includes(category) ? (
               <Checkbox.Group
                 value={selectedFilters[category]}
@@ -104,6 +113,16 @@ const FiltersComponent = ({
             )}
           </div>
         ))}
+      </div>
+
+      <div className="flex justify-center mt-4 mb-4 lg:mb-0">
+        <CommonTypography
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          className="text-[#3e53e7] hover:underline cursor-pointer"
+        >
+          {expanded ? "Show less filters" : "Show more filters"}
+        </CommonTypography>
       </div>
     </Card>
   );

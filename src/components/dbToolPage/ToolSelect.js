@@ -4,7 +4,7 @@ import CommonTypography from "@/components/shared/Typography";
 import CustomSelect from "@/components/shared/CustomSelect";
 
 const ToolSelect = ({
-  dbToolChilds,
+  toolsData,
   selectedTools,
   selectedToolsOptions,
   setSelectedToolsOptions,
@@ -13,18 +13,20 @@ const ToolSelect = ({
   return (
     <div className="flex 2xl:flex-row gap-4 flex-col justify-between w-full">
       <CommonTypography type="text" classes="md:text-4xl text-2xl font-medium">
-        Database Tools
+        Editorial information provided by DB-Kompare
       </CommonTypography>
 
       <div className="flex flex-col md:flex-row md:gap-0 gap-3">
         <CustomSelect
           value={selectedToolsOptions}
           onChange={(selectedValues) => setSelectedToolsOptions(selectedValues)}
-          options={dbToolChilds?.map((db) => ({
-            id: db.id,
-            label: db.name,
-            value: db.value,
-          }))}
+          options={toolsData
+            ?.sort((a, b) => a.tool_name.localeCompare(b.tool_name))
+            .map((tool) => ({
+              id: tool.id,
+              label: tool.tool_name,
+              value: tool.tool_name,
+            }))}
           placeholder="Select tools"
           maxSelection={4}
           className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto custom-select"

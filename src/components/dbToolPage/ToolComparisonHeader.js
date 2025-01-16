@@ -8,7 +8,7 @@ const ToolComparisonHeader = ({ selectedTools }) => {
           {selectedTools?.length === 1
             ? `${selectedTools[0]} Properties`
             : selectedTools?.map((db, index) => (
-                <span key={index} className="flex items-center">
+                <span key={index} className="flex items-center capitalize">
                   {db}
                   {index < selectedTools?.length - 1 && (
                     <span className="text-primary px-2 mx-1">VS</span>

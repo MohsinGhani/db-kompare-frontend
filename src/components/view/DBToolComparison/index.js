@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import CommonButton from "@/components/shared/Button";
 import ToolSelect from "@/components/dbToolPage/ToolSelect";
 import ToolComparisonHeader from "@/components/dbToolPage/ToolComparisonHeader";
-import { dbTools } from "@/utils/const";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
 import ToolComparisonTable from "@/components/dbToolPage/ToolComparisonTable";
 
@@ -12,28 +11,32 @@ import { Button, Drawer } from "antd";
 import CommonTypography from "@/components/shared/Typography";
 import { useParams, useSearchParams } from "next/navigation";
 import { FilterOutlined } from "@ant-design/icons";
+import { fetchDbTools, fetchDbToolsByIDs } from "@/utils/dbToolsUtil";
+import { toolMatchesFilters } from "@/utils/helper";
 
 const DbToolComparison = () => {
   const router = useRouter();
   const { options } = useParams();
   const searchParams = useSearchParams();
-  const [dbToolChilds, setDbToolChilds] = useState();
+  const [toolsData, setToolsData] = useState([]);
   const [selectedTools, setSelectedTools] = useState([]);
   const [selectedToolsOptions, setSelectedToolsOptions] = useState([]);
+  const [selectedToolsIds, setSelectedToolsIds] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     AccessControl: "Yes",
     VersionControl: "Yes",
-    SupportForWorkflow: "Yes",
+    SupportForWorkflow: "No",
     WebAccess: "Yes",
-    DeploymentOption: "OnPrem",
-    FreeEdition: "OpenSource",
-    AuthenticationSupport: "User",
-    IntegrationWithUpstream: "LimitedFunctionality",
+    DeploymentOption: "3",
+    FreeCommunityEdition: "4",
+    AuthenticationProtocolSupported: "4",
+    IntegrationWithUpstream: "Limited",
     UserCreatedTags: "Yes",
-    CustomizationPossible: "Yes",
-    ModernWaysOfDeployment: "Kubernetes",
+    CustomizationPossible: "Limited functionality",
+    ModernWaysOfDeployment: "2",
   });
+  const [selectedToolsData, setSelectedToolsData] = useState([]);
 
   const decodedOptions = decodeURIComponent(options?.replace("list-", ""));
 
@@ -81,14 +84,45 @@ const DbToolComparison = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const result = await fetchDatabases();
-        setDbToolChilds(dbTools);
+        const result = await fetchDbTools();
+        setToolsData(result.data);
       } catch (error) {
         console.error(error.message);
       }
     };
     fetchData();
   }, []);
+
+  // Update selected tools IDs based on selected tools names
+  useEffect(() => {
+    if (toolsData.length === 0) return;
+
+    const newSelectedToolIds = selectedTools
+      .map((toolName) => {
+        const toolOption = toolsData.find(
+          (toolOption) =>
+            toolOption.tool_name.toLowerCase() === toolName.toLowerCase()
+        );
+        return toolOption ? toolOption.id : null;
+      })
+      .filter((id) => id !== null);
+
+    setSelectedToolsIds(newSelectedToolIds);
+  }, [toolsData, selectedTools]);
+
+  useEffect(() => {
+    if (selectedToolsIds.length > 0) {
+      const fetchSelectedTools = async () => {
+        try {
+          const response = await fetchDbToolsByIDs(selectedToolsIds);
+          setSelectedToolsData(response.data);
+        } catch (error) {
+          console.error("Error fetching tools details:", error);
+        }
+      };
+      fetchSelectedTools();
+    }
+  }, [selectedToolsIds]);
 
   // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
@@ -110,6 +144,12 @@ const DbToolComparison = () => {
     }
   };
 
+  const filteredToolsData = toolsData.filter((option) => {
+    const matchesFilters = toolMatchesFilters(option, selectedFilters);
+
+    return matchesFilters;
+  });
+
   return (
     <>
       <div className="lg:px-28 bg-custom-gradient bg-cover bg-center h-full">
@@ -117,7 +157,7 @@ const DbToolComparison = () => {
       </div>
       <div className="w-full h-auto container font-medium  py-10 flex flex-col gap-8 md:gap-5 items-center">
         <ToolSelect
-          dbToolChilds={dbToolChilds}
+          toolsData={filteredToolsData}
           selectedTools={selectedTools}
           selectedToolsOptions={selectedToolsOptions}
           setSelectedToolsOptions={setSelectedToolsOptions}
@@ -167,6 +207,7 @@ const DbToolComparison = () => {
               setSelectedTools={setSelectedTools}
               selectedTools={selectedTools}
               setSelectedToolsOptions={setSelectedToolsOptions}
+              selectedToolsData={selectedToolsData}
             />
           </div>
         </div>

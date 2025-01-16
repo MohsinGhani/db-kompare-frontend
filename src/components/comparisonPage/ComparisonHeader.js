@@ -8,7 +8,7 @@ const ComparisonHeader = ({ selectedDatabases }) => {
           {selectedDatabases?.length === 1
             ? `${selectedDatabases[0]} Properties`
             : selectedDatabases?.map((db, index) => (
-                <span key={index} className="flex items-center">
+                <span key={index} className="flex items-center capitalize">
                   {db}
                   {index < selectedDatabases?.length - 1 && (
                     <span className="text-primary px-2 mx-1">VS</span>
