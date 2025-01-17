@@ -50,20 +50,23 @@ const DbToolComparison = () => {
 
   useEffect(() => {
     const filters = {
-      AccessControl: searchParams.get("AccessControl") || "Yes",
-      VersionControl: searchParams.get("VersionControl") || "Yes",
-      SupportForWorkflow: searchParams.get("SupportForWorkflow") || "Yes",
-      WebAccess: searchParams.get("WebAccess") || "Yes",
-      DeploymentOption: searchParams.get("DeploymentOption") || "OnPrem",
+      AccessControl: searchParams.get("AccessControl") || "DoesNotMatter",
+      VersionControl: searchParams.get("VersionControl") || "DoesNotMatter",
+      SupportForWorkflow:
+        searchParams.get("SupportForWorkflow") || "DoesNotMatter",
+      WebAccess: searchParams.get("WebAccess") || "DoesNotMatter",
+      DeploymentOption: searchParams.get("DeploymentOption") || "DoesNotMatter",
       ModernWaysOfDeployment:
-        searchParams.get("ModernWaysOfDeployment") || "Kubernetes",
-      CustomizationPossible: searchParams.get("CustomizationPossible") || "Yes",
-      UserCreatedTags: searchParams.get("UserCreatedTags") || "Yes",
-      FreeCommunityEdition: searchParams.get("FreeCommunityEdition") || "",
+        searchParams.get("ModernWaysOfDeployment") || "DoesNotMatter",
+      CustomizationPossible:
+        searchParams.get("CustomizationPossible") || "DoesNotMatter",
+      UserCreatedTags: searchParams.get("UserCreatedTags") || "DoesNotMatter",
+      FreeCommunityEdition:
+        searchParams.get("FreeCommunityEdition") || "DoesNotMatter",
       AuthenticationProtocolSupported:
-        searchParams.get("AuthenticationProtocolSupported") || "",
+        searchParams.get("AuthenticationProtocolSupported") || "4",
       IntegrationWithUpstream:
-        searchParams.get("IntegrationWithUpstream") || "",
+        searchParams.get("IntegrationWithUpstream") || "Limited",
     };
     setSelectedFilters(filters);
   }, [searchParams]);
@@ -71,14 +74,15 @@ const DbToolComparison = () => {
   useEffect(() => {
     if (decodedOptions) {
       const dbTools = decodedOptions
-        .split("-")
-        .map((option) => decodeURIComponent(option));
+        .split(",")
+        .map((option) => decodeURIComponent(option).trim());
+
       setSelectedTools(dbTools);
       setSelectedToolsOptions(dbTools);
     }
   }, [decodedOptions]);
 
-  const newDbQuery = encodeURIComponent(selectedToolsOptions.join("-"));
+  const newDbQuery = encodeURIComponent(selectedToolsOptions.join(","));
 
   // Fetch tools list on component mount
   useEffect(() => {
@@ -135,9 +139,10 @@ const DbToolComparison = () => {
     if (selectedToolsOptions.length === 0) {
       router.push(`/db-comparisons/list`);
     } else {
+      const joinedTools = selectedToolsOptions.join(",");
+      const newDbQuery = encodeURIComponent(joinedTools);
       const filterQuery = new URLSearchParams(selectedFilters).toString();
       const optionsSegment = encodeURIComponent(selectedToolsOptions.join("-"));
-      const newDbQuery = encodeURIComponent(selectedToolsOptions.join("-"));
       router.push(
         `/db-comparisons/${newDbQuery}/${filterQuery}?tab=DBToolsComparison`
       );

@@ -70,7 +70,7 @@ const FiltersComponent = ({
                 {category.replace(/([A-Z])/g, " $1")}:{" "}
               </CommonTypography>
               <Tooltip title={filterTooltips[category]}>
-                <InfoCircleOutlined className="text-gray-500 cursor-pointer" />
+                <InfoCircleOutlined className="text-[#3e53d7] text-[15px] cursor-pointer" />
               </Tooltip>
             </div>
 

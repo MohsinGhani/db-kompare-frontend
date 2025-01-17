@@ -69,7 +69,7 @@ export default function LeaderboardFilter({
       <div className="md:flex justify-between gap-5">
         <div className="w-full">
           <CommonTypography type="text" classes="text-lg font-medium my-2">
-            Database Resources
+            Resources
           </CommonTypography>
           <div className="flex flex-wrap md:gap-6 md:mt-3">
             {DropdownOptions.map((option, index) => (

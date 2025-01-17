@@ -42,7 +42,7 @@ const DbToolsComparisons = () => {
 
   const decodedTool = list ? decodeURIComponent(list) : "";
   const decodedOptions = decodeURIComponent(options?.replace("options-", ""));
-  const decodedDbArray = decodedTool ? decodedTool.split("-") : [];
+  const decodedDbArray = decodedTool ? decodedTool.split(",") : [];
   const decodedOptionsArray = decodedOptions ? decodedOptions.split("-") : [];
 
   const showDrawer = () => {
@@ -105,10 +105,16 @@ const DbToolsComparisons = () => {
     }
   }, []);
 
+  console.log("Tools Data", toolsData);
+
   const filteredOptions = toolsData.filter((option) => {
     const matchesSearch = option?.tool_name
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
+
+    const matchesCoreFeatures = option?.core_features?.some((feature) =>
+      feature.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const matchesCategory =
       selectedToolCategoriesOptions.length === 0 ||
@@ -116,7 +122,11 @@ const DbToolsComparisons = () => {
 
     const matchesFilters = toolMatchesFilters(option, selectedFilters);
 
-    return matchesSearch && matchesCategory && matchesFilters;
+    return (
+      (matchesSearch || matchesCoreFeatures) &&
+      matchesCategory &&
+      matchesFilters
+    );
   });
 
   const handleCompareClick = () => {
@@ -125,16 +135,19 @@ const DbToolsComparisons = () => {
       selectedChildTools.length === 0
     ) {
       toast.error("Please select at least one tool to compare");
-    } else {
-      const filtersQuery = Object.entries(selectedFilters)
-        .map(([key, value]) => `${key}=${value}`)
-        .join("&");
-
-      const url = `/db-toolcomparison/${encodeURIComponent(
-        selectedChildTools.join("-")
-      )}?${filtersQuery}`;
-      router.push(url);
+      return;
     }
+
+    const filtersQuery = Object.entries(selectedFilters)
+      .map(([key, value]) => `${key}=${value}`)
+      .join("&");
+
+    const encodedToolNames = selectedChildTools
+      .map((tool) => encodeURIComponent(tool.trim()))
+      .join(",");
+
+    const url = `/db-toolcomparison/${encodedToolNames}?${filtersQuery}`;
+    router.push(url);
   };
 
   const handleFiltersOptionsChange = (category, value) => {
@@ -145,20 +158,35 @@ const DbToolsComparisons = () => {
   };
 
   const handleChildClick = (option) => {
-    setSelectedChildTools((prevSelected) => {
-      if (prevSelected.includes(option.tool_name)) {
-        return prevSelected.filter((db) => db !== option.tool_name);
-      } else {
-        return [...prevSelected, option.tool_name];
-      }
-    });
+    const cleanedSelectedTools = selectedChildTools.filter(
+      (db) => db !== "list"
+    );
+
+    if (
+      cleanedSelectedTools.length >= 5 &&
+      !cleanedSelectedTools.includes(option.tool_name)
+    ) {
+      toast.error("You can select only up to 5 tools.");
+    } else {
+      setSelectedChildTools((prevSelected) => {
+        if (prevSelected.includes(option.tool_name)) {
+          return prevSelected.filter((db) => db !== option.tool_name);
+        } else {
+          return [...prevSelected, option.tool_name];
+        }
+      });
+    }
   };
 
   return (
     <div className="w-full container flex md:mt-8 flex-col gap-10 ">
       <div className="flex flex-col md:flex-row items-center justify-between">
         <div className="md:w-[70%] w-full md:mr-4">
-          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            isTabSelected={"Db Tools"}
+          />
         </div>
 
         <CustomSelect

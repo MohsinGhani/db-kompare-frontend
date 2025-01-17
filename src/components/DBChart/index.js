@@ -7,14 +7,16 @@ import { fetchMetricsData } from "@/utils/databaseUtils";
 import LeaderboardFilter from "../leaderboardFilter";
 import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
 import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
+import { fetchDbToolsMetricsData } from "@/utils/dbToolsUtil";
 
-const DBChart = ({ previousDays }) => {
+const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metricsData, setMetricsData] = useState([]);
   const [dbIndexRange, setDbIndexRange] = useState([0, CHUNK_SIZE]);
   const [enabledDatabases, setEnabledDatabases] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (selectedMetricKeys.length === 0 || selectedMetricKeys.length === 4) {
@@ -26,8 +28,27 @@ const DBChart = ({ previousDays }) => {
     const fetchData = async () => {
       const startDate = formatDate(selectedDate[0]) || "2024-11-18";
       const endDate = formatDate(selectedDate[1]) || previousDays[0];
-      const data = await fetchMetricsData(startDate, endDate);
-      setMetricsData(data.data || []);
+      if (isRankingType === "Db Tools") {
+        try {
+          setLoading(true);
+          const data = await fetchDbToolsMetricsData(startDate, endDate);
+          setMetricsData(data.data || []);
+        } catch (error) {
+          console.error("Error fetching db tools metrics data:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        try {
+          setLoading(true);
+          const data = await fetchMetricsData(startDate, endDate);
+          setMetricsData(data.data || []);
+        } catch (error) {
+          console.error("Error fetching databases metrics data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
     };
     fetchData();
   }, [selectedDate, previousDays]);
@@ -54,7 +75,10 @@ const DBChart = ({ previousDays }) => {
   const getMetricData = (metricKeys, dateRange) => {
     const allDatesInRange = getXAxisCategories(dateRange);
     return metricsData.map((db) => ({
-      databaseName: db.databaseName,
+      databaseName:
+        isRankingType === "Db Tools"
+          ? db.dbToolName || "tool"
+          : db.databaseName,
       data: allDatesInRange.map((date) => {
         const matchingMetric = db.metrics.find(
           (metric) => metric.date === date
@@ -87,35 +111,45 @@ const DBChart = ({ previousDays }) => {
       borderColor: "#D9D9D9",
       height: 600,
       events: {
-        load() {
-          this.showLoading();
-        },
         render() {
-          if (chartData.every((db) => db.data.length === 0)) {
-            const errorMessage = "No data available";
-            if (this.errorMessage) {
-              this.errorMessage = this.renderer
-                .text(errorMessage, 0, 0)
-                .css({ fontSize: "20px", fontWeight: "bold", color: "red" })
+          const chart = this;
+          const message = loading
+            ? "Loading..."
+            : metricsData.length === 0
+            ? "No data available"
+            : null;
+
+          if (message) {
+            if (!chart.customMessage) {
+              chart.customMessage = chart.renderer
+                .text(message, chart.chartWidth / 2, chart.chartHeight / 2)
+                .css({
+                  fontSize: "18px",
+                  fontWeight: "semibold",
+                  color: message === "Loading..." ? "grey" : "red",
+                  textAlign: "center",
+                })
                 .add();
-              const textWidth = this.errorMessage.getBBox().width;
-              const textHeight = this.errorMessage.getBBox().height;
-              const xPosition = (this.chartWidth - textWidth) / 2;
-              const yPosition = (this.chartHeight + textHeight) / 2;
-              this.errorMessage.attr({ x: xPosition, y: yPosition });
+              chart.customMessage.attr({
+                align: "center",
+                verticalAlign: "middle",
+              });
+            } else {
+              chart.customMessage.attr({ text: message });
             }
-          } else {
-            if (this.errorMessage) {
-              this.errorMessage.destroy();
-              this.errorMessage = null;
-            }
-            this.hideLoading();
+          } else if (chart.customMessage) {
+            chart.customMessage.destroy();
+            chart.customMessage = null;
           }
         },
       },
     },
     title: {
-      text: "Database Metrics Over Time",
+      text: `${
+        isRankingType === "Db Tools"
+          ? "Db Tools Metrics Over Time"
+          : "Database Metrics Over Time"
+      }`,
       style: { fontSize: "26px", fontWeight: "600" },
     },
     yAxis: { title: null },
@@ -162,7 +196,6 @@ const DBChart = ({ previousDays }) => {
 
   const next10Databases = () => {
     if (dbIndexRange[1] >= totalDBs) {
-      // Wrap-around: go to first lap
       setDbIndexRange([0, CHUNK_SIZE]);
     } else {
       setDbIndexRange([
@@ -235,7 +268,7 @@ const DBChart = ({ previousDays }) => {
             style={{ borderRadius: "24px", border: "1px solid #D9D9D9" }}
           />
 
-          <div className="left-0 absolute bottom-4">
+          <div className="left-0 absolute bottom-4 mb-1">
             <img
               src="/assets/icons/whiteLeftArrow.svg"
               alt="arrow"

@@ -2,11 +2,15 @@ import React from "react";
 import { Input } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-const SearchBar = ({ searchTerm, setSearchTerm, onSearch }) => {
+const SearchBar = ({ searchTerm, setSearchTerm, onSearch, isTabSelected }) => {
   return (
     <div className="relative">
       <Input
-        placeholder="Search database"
+        placeholder={`${
+          isTabSelected === "Db Tools"
+            ? "Search db tool by name"
+            : "Search database"
+        }`}
         className="pr-10 py-2 rounded-md border border-[#D9D9D9] w-full"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}

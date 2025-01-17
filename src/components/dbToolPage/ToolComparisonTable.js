@@ -4,6 +4,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useState, useEffect } from "react";
 import { formatLabel } from "@/utils/helper";
 import { filterOptions } from "@/utils/const";
+
 const ToolComparisonTable = ({
   selectedFilters,
   selectedTools,
@@ -13,7 +14,7 @@ const ToolComparisonTable = ({
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  console.log("SelectedToolsData", selectedToolsData);
+
   const attributes =
     selectedToolsData && selectedToolsData.length > 0
       ? Object.keys(selectedToolsData[0])
@@ -36,7 +37,7 @@ const ToolComparisonTable = ({
     setSelectedTools(updatedTools);
     setSelectedToolsOptions(updatedTools);
 
-    const newDbQuery = encodeURIComponent(updatedTools.join("-"));
+    const newDbQuery = encodeURIComponent(updatedTools.join(","));
     const filterQuery = new URLSearchParams(selectedFilters).toString();
     router.push(`/db-toolcomparison/${newDbQuery}?${filterQuery}`);
   };
@@ -93,7 +94,17 @@ const ToolComparisonTable = ({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                    c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673
+                    a2.25 2.25 0 0 1-2.244 2.077H8.084
+                    a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79
+                    m14.456 0a48.108 48.108 0 0 0-3.478-.397
+                    m-12 .562c.34-.059.68-.114 1.022-.165m0 0
+                    a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916
+                    c0-1.18-.91-2.164-2.09-2.201
+                    a51.964 51.964 0 0 0-3.32 0
+                    c-1.18.037-2.09 1.022-2.09 2.201v.916
+                    m7.5 0a48.667 48.667 0 0 0-7.5 0"
                 />
               </svg>
             )}
@@ -159,7 +170,18 @@ const ToolComparisonTable = ({
             ) : displayValue === "No" ? (
               <CloseOutlined style={{ color: "red", fontSize: "18px" }} />
             ) : Array.isArray(displayValue) ? (
-              displayValue.join(", ")
+              <div>
+                {displayValue.map((feature, i) => {
+                  const featureText = feature.replace(/^\d+\.\s*/, "");
+
+                  return (
+                    <div key={i}>
+                      {i + 1}. {featureText}
+                      {i !== displayValue.length - 1 && ","}
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
               displayValue || "Will be add soon"
             )}
@@ -205,7 +227,7 @@ const ToolComparisonTable = ({
       if (tool) {
         const toolData = tool[attribute.key];
         row[db] = Array.isArray(toolData)
-          ? toolData.join(", ")
+          ? toolData
           : toolData !== undefined
           ? toolData
           : "No data available";

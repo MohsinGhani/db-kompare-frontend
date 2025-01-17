@@ -50,3 +50,29 @@ export const fetchDbToolsByIDs = async (selectedToolsIds) => {
     }),
   });
 };
+
+// Function to fetch db tools metrics data
+
+export const fetchDbToolsMetricsData = async (startDate, endDate) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools-metrices`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify({ startDate, endDate }),
+  });
+};
+
+// Function to fetch the ranking of db tools
+
+export const fetchDbToolsRanking = async (startDate, endDate) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtool-rankings`, {
+    method: "POST",
+    headers: {
+      "x-api-key": X_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ startDate, endDate }),
+  });
+};

@@ -12,13 +12,12 @@ import CommonUserDropdown from "../shared/UserDropdown";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetails, setUserDetails } from "@/redux/slices/authSlice";
-import { Dropdown, Menu } from "antd";
+import { Button, Dropdown, Menu } from "antd";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const path = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -162,6 +161,24 @@ export default function Navbar() {
         </div>
 
         <div className="flex flex-row items-center justify-center">
+          <div className="sm:block hidden">
+            <a href="https://ko-fi.com/P5P3193P0O" target="blank">
+              <button
+                className="mr-4 flex items-center justify-center bg-[#f1993c] w-48 rounded-lg text-white group !border-transparent hover:border-[#f1993c] hover:text-black "
+                style={{ height: "40px" }}
+              >
+                <img
+                  src="/assets/icons/buyMeCoffee.png"
+                  width={25}
+                  height={25}
+                  alt="icon"
+                />
+                <span className="ml-1 text-[15px] font-medium group-hover:text-black">
+                  Buy me a coffee
+                </span>
+              </button>
+            </a>
+          </div>
           {!authRoutes.includes(path) && (
             <div className="">
               {loading ? null : userDetails ? (
@@ -169,7 +186,7 @@ export default function Navbar() {
               ) : (
                 <div className="sm:block hidden">
                   <CommonButton
-                    className="bg-primary text-white mr-2"
+                    className="bg-primary text-white"
                     style={{ height: "40px" }}
                     onClick={() => {
                       router.push("/signin");
@@ -247,6 +264,27 @@ export default function Navbar() {
               </button>
             </li>
           ))}
+
+          <li className="w-full">
+            <div className="sm:hidden block w-full">
+              <a href="https://ko-fi.com/P5P3193P0O" target="blank">
+                <Button
+                  className="flex items-center justify-center bg-[#f1993c] w-full rounded-lg text-white border-2 border-transparent group hover:border-[#f1993c] hover:text-black coffee-button"
+                  style={{ height: "40px" }}
+                >
+                  <img
+                    src="/assets/icons/buyMeCoffee.png"
+                    width={25}
+                    height={25}
+                    alt="icon"
+                  />
+                  <span className="ml-1 text-[15px] font-medium group-hover:text-black">
+                    Buy me a coffee
+                  </span>
+                </Button>
+              </a>
+            </div>
+          </li>
 
           <li className="w-full">
             {!authRoutes.includes(path) && (
