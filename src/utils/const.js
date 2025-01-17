@@ -1,8 +1,7 @@
 export const Navlinks = [
   { href: "/", label: "Home" },
   { href: "/leader-board", label: "DB Leaderboard" },
-  { href: "/db-comparisons/list", label: "DB Comparison" },
-  { href: "#", label: "Categories", isDropdown: true },
+  { href: "/db-comparisons/list/options", label: "DB Comparison" },
   { href: "/our-blogs", label: "Blogs" },
   { href: "https://dataeli5.substack.com/", label: "DB Internals" },
   { href: "#", label: "API" },
@@ -2238,29 +2237,145 @@ export const categoriesItems = [
 ];
 
 export const filterOptions = {
-  freeEdition: [
-    { value: "All", label: "All" },
+  AccessControl: [
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "Limited", label: "Limited extent" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
-  erDiagram: [
-    { value: "All", label: "All" },
+  VersionControl: [
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
-  runsOn: [
-    { value: "Linux", label: "Linux" },
-    { value: "MacOS", label: "MacOS" },
-    { value: "Windows", label: "Windows" },
-  ],
-  forwardEngineering: [
-    { value: "All", label: "All" },
+  SupportForWorkflow: [
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
-  synchronization: [
-    { value: "All", label: "All" },
+  WebAccess: [
     { value: "Yes", label: "Yes" },
     { value: "No", label: "No" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
+  ],
+  DeploymentOption: [
+    { value: "1", label: "On-Prem" },
+    { value: "2", label: "SaaS on Cloud" },
+    { value: "3", label: "On-prem and SaaS options available" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
+  ],
+  FreeCommunityEdition: [
+    { value: "1", label: "Open source" },
+    { value: "2", label: "Apache" },
+    { value: "3", label: "Community edition" },
+    { value: "4", label: "Commercial / trial 14 days" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
+  ],
+  AuthenticationProtocolSupported: [
+    { value: "1", label: "Userid / pwd" },
+    { value: "2", label: "Api token" },
+    { value: "3", label: "Kerberos" },
+    { value: "4", label: "All" },
+  ],
+  IntegrationWithUpstream: [
+    { value: "Yes but limited", label: "Yes" },
+    { value: "No", label: "No" },
+    {
+      value: "Limited",
+      label: "Only limited functionality available",
+    },
+    // { value: "DoesNotMatter", label: "Does not matter (Default)" },
+  ],
+  UserCreatedTags: [
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+    {
+      value: "LimitedFunctionality",
+      label: "Only limited functionality available",
+    },
+  ],
+  CustomizationPossible: [
+    { value: "Yes", label: "Yes" },
+    { value: "No", label: "No" },
+    {
+      value: "Limited functionality",
+      label: "Only limited functionality available",
+    },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
+  ],
+  ModernWaysOfDeployment: [
+    { value: "1", label: "Kubernetes" },
+    { value: "2", label: "Docker Containers" },
+    { value: "3 Windows", label: "Only Windows" },
+    { value: "DoesNotMatter", label: "Does not matter (Default)" },
   ],
 };
+
+export const dbTools = [
+  {
+    id: 1,
+    name: "Erwin Data Modeler",
+    value: "Erwin Data Modeler",
+  },
+  {
+    id: 2,
+    name: "ER/Studio",
+    value: "ER/Studio",
+  },
+  {
+    id: 3,
+    name: "GenMyModel",
+    value: "GenMyModel",
+  },
+  {
+    id: 4,
+    name: "MagicDraw",
+    value: "MagicDraw",
+  },
+  {
+    id: 5,
+    name: "RISE",
+    value: "RISE",
+  },
+  {
+    id: 6,
+    name: "ModelSphere",
+    value: "ModelSphere",
+  },
+  {
+    id: 7,
+    name: "Software Ideas Modeler",
+    value: "Software Ideas Modeler",
+  },
+  {
+    id: 8,
+    name: "Visible Analyst",
+    value: "Visible Analyst",
+  },
+  {
+    id: 9,
+    name: "Moon Modeler",
+    value: "Moon Modeler",
+  },
+  {
+    id: 10,
+    name: "DB Main (Discontinued)",
+    value: "DB Main (Discontinued)",
+  },
+  {
+    id: 11,
+    name: "Enterprise Architect",
+    value: "Enterprise Architect",
+  },
+  {
+    id: 12,
+    name: "IBM InfoSphere Data Architect",
+    value: "IBM InfoSphere Data Architect",
+  },
+  {
+    id: 13,
+    name: "PowerDesigner",
+    value: "PowerDesigner",
+  },
+];

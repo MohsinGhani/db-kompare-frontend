@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import CommonButton from "@/components/shared/Button";
 import ToolSelect from "@/components/dbToolPage/ToolSelect";
 import ToolComparisonHeader from "@/components/dbToolPage/ToolComparisonHeader";
-import { categoriesItems } from "@/utils/const";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
 import ToolComparisonTable from "@/components/dbToolPage/ToolComparisonTable";
 
@@ -12,30 +11,34 @@ import { Button, Drawer } from "antd";
 import CommonTypography from "@/components/shared/Typography";
 import { useParams, useSearchParams } from "next/navigation";
 import { FilterOutlined } from "@ant-design/icons";
+import { fetchDbTools, fetchDbToolsByIDs } from "@/utils/dbToolsUtil";
+import { toolMatchesFilters } from "@/utils/helper";
 
 const DbToolComparison = () => {
   const router = useRouter();
-  const { tool, options } = useParams();
+  const { options } = useParams();
   const searchParams = useSearchParams();
-  const [dbToolChilds, setDbToolChilds] = useState();
+  const [toolsData, setToolsData] = useState([]);
   const [selectedTools, setSelectedTools] = useState([]);
   const [selectedToolsOptions, setSelectedToolsOptions] = useState([]);
+  const [selectedToolsIds, setSelectedToolsIds] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
-    freeEdition: "All",
-    erDiagram: "All",
-    runsOn: "Linux",
-    forwardEngineering: "All",
-    synchronization: "All",
+    AccessControl: "Yes",
+    VersionControl: "Yes",
+    SupportForWorkflow: "No",
+    WebAccess: "Yes",
+    DeploymentOption: "3",
+    FreeCommunityEdition: "4",
+    AuthenticationProtocolSupported: "4",
+    IntegrationWithUpstream: "Limited",
+    UserCreatedTags: "Yes",
+    CustomizationPossible: "Limited functionality",
+    ModernWaysOfDeployment: "2",
   });
+  const [selectedToolsData, setSelectedToolsData] = useState([]);
 
-  const decodedTool = decodeURIComponent(tool.replace("tool-", ""));
-  const decodedOptions = decodeURIComponent(options.replace("options-", ""));
-
-  const currentTool = categoriesItems.find((cat) => cat.value === decodedTool);
-  const currentCategory = categoriesItems.find(
-    (cat) => cat.value === decodedTool
-  );
+  const decodedOptions = decodeURIComponent(options?.replace("list-", ""));
 
   const showDrawer = () => {
     setOpen(true);
@@ -47,11 +50,23 @@ const DbToolComparison = () => {
 
   useEffect(() => {
     const filters = {
-      freeEdition: searchParams.get("freeEdition") || "All",
-      erDiagram: searchParams.get("erDiagram") || "All",
-      runsOn: searchParams.get("runsOn") || "Linux",
-      forwardEngineering: searchParams.get("forwardEngineering") || "All",
-      synchronization: searchParams.get("synchronization") || "All",
+      AccessControl: searchParams.get("AccessControl") || "DoesNotMatter",
+      VersionControl: searchParams.get("VersionControl") || "DoesNotMatter",
+      SupportForWorkflow:
+        searchParams.get("SupportForWorkflow") || "DoesNotMatter",
+      WebAccess: searchParams.get("WebAccess") || "DoesNotMatter",
+      DeploymentOption: searchParams.get("DeploymentOption") || "DoesNotMatter",
+      ModernWaysOfDeployment:
+        searchParams.get("ModernWaysOfDeployment") || "DoesNotMatter",
+      CustomizationPossible:
+        searchParams.get("CustomizationPossible") || "DoesNotMatter",
+      UserCreatedTags: searchParams.get("UserCreatedTags") || "DoesNotMatter",
+      FreeCommunityEdition:
+        searchParams.get("FreeCommunityEdition") || "DoesNotMatter",
+      AuthenticationProtocolSupported:
+        searchParams.get("AuthenticationProtocolSupported") || "4",
+      IntegrationWithUpstream:
+        searchParams.get("IntegrationWithUpstream") || "Limited",
     };
     setSelectedFilters(filters);
   }, [searchParams]);
@@ -59,21 +74,22 @@ const DbToolComparison = () => {
   useEffect(() => {
     if (decodedOptions) {
       const dbTools = decodedOptions
-        .split("-")
-        .map((option) => decodeURIComponent(option));
+        .split(",")
+        .map((option) => decodeURIComponent(option).trim());
+
       setSelectedTools(dbTools);
       setSelectedToolsOptions(dbTools);
     }
   }, [decodedOptions]);
 
-  const newDbQuery = encodeURIComponent(selectedToolsOptions.join("-"));
+  const newDbQuery = encodeURIComponent(selectedToolsOptions.join(","));
 
   // Fetch tools list on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const result = await fetchDatabases();
-        setDbToolChilds(currentTool.tools);
+        const result = await fetchDbTools();
+        setToolsData(result.data);
       } catch (error) {
         console.error(error.message);
       }
@@ -81,25 +97,63 @@ const DbToolComparison = () => {
     fetchData();
   }, []);
 
+  // Update selected tools IDs based on selected tools names
+  useEffect(() => {
+    if (toolsData.length === 0) return;
+
+    const newSelectedToolIds = selectedTools
+      .map((toolName) => {
+        const toolOption = toolsData.find(
+          (toolOption) =>
+            toolOption.tool_name.toLowerCase() === toolName.toLowerCase()
+        );
+        return toolOption ? toolOption.id : null;
+      })
+      .filter((id) => id !== null);
+
+    setSelectedToolsIds(newSelectedToolIds);
+  }, [toolsData, selectedTools]);
+
+  useEffect(() => {
+    if (selectedToolsIds.length > 0) {
+      const fetchSelectedTools = async () => {
+        try {
+          const response = await fetchDbToolsByIDs(selectedToolsIds);
+          setSelectedToolsData(response.data);
+        } catch (error) {
+          console.error("Error fetching tools details:", error);
+        }
+      };
+      fetchSelectedTools();
+    }
+  }, [selectedToolsIds]);
+
   // Navigate to the database comparison page on compare click
   const handleCompareClick = () => {
     const filterQuery = new URLSearchParams(selectedFilters).toString();
-    router.push(
-      `/db-toolcomparison/${decodedTool}/${newDbQuery}?${filterQuery}`
-    );
+    router.push(`/db-toolcomparison/${newDbQuery}?${filterQuery}`);
   };
 
   // Redirect to comparison or list page based on selected databases
   const handleAddSystemClick = () => {
     if (selectedToolsOptions.length === 0) {
-      router.push(`/db-tool/${decodedTool}`);
+      router.push(`/db-comparisons/list`);
     } else {
+      const joinedTools = selectedToolsOptions.join(",");
+      const newDbQuery = encodeURIComponent(joinedTools);
       const filterQuery = new URLSearchParams(selectedFilters).toString();
       const optionsSegment = encodeURIComponent(selectedToolsOptions.join("-"));
-      const url = `/db-tool/${decodedTool}?options=${optionsSegment}&${filterQuery}`;
-      router.push(url);
+      router.push(
+        `/db-comparisons/${newDbQuery}/${filterQuery}?tab=DBToolsComparison`
+      );
     }
   };
+
+  const filteredToolsData = toolsData.filter((option) => {
+    const matchesFilters = toolMatchesFilters(option, selectedFilters);
+
+    return matchesFilters;
+  });
 
   return (
     <>
@@ -108,8 +162,7 @@ const DbToolComparison = () => {
       </div>
       <div className="w-full h-auto container font-medium  py-10 flex flex-col gap-8 md:gap-5 items-center">
         <ToolSelect
-          dbToolChilds={dbToolChilds}
-          dbTool={currentCategory.label}
+          toolsData={filteredToolsData}
           selectedTools={selectedTools}
           selectedToolsOptions={selectedToolsOptions}
           setSelectedToolsOptions={setSelectedToolsOptions}
@@ -156,10 +209,10 @@ const DbToolComparison = () => {
           <div className="overflow-auto w-full">
             <ToolComparisonTable
               selectedFilters={selectedFilters}
-              toolName={decodedTool}
               setSelectedTools={setSelectedTools}
               selectedTools={selectedTools}
               setSelectedToolsOptions={setSelectedToolsOptions}
+              selectedToolsData={selectedToolsData}
             />
           </div>
         </div>

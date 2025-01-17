@@ -129,3 +129,143 @@ export function replaceKeywords(text) {
   });
   return output;
 }
+
+export const toolMatchesFilters = (tool, filters) => {
+  for (const key in filters) {
+    const filterVal = filters[key];
+    if (filterVal === "DoesNotMatter" || filterVal == null) continue;
+    switch (key) {
+      case "AccessControl":
+        if (tool.access_control?.toLowerCase() !== filterVal.toLowerCase())
+          return false;
+        break;
+      case "VersionControl":
+        if (tool.version_control?.toLowerCase() !== filterVal.toLowerCase())
+          return false;
+        break;
+      case "SupportForWorkflow":
+        if (
+          tool.support_for_workflow?.toLowerCase() !== filterVal.toLowerCase()
+        )
+          return false;
+        break;
+      case "WebAccess":
+        if (tool.web_access?.toLowerCase() !== filterVal.toLowerCase())
+          return false;
+        break;
+
+      case "DeploymentOption":
+        if (`${tool.deployment_options_on_prem_or_saas}` !== `${filterVal}`)
+          return false;
+        break;
+
+      case "CustomizationPossible":
+        if (
+          tool.customization_possible?.toLowerCase() !== filterVal.toLowerCase()
+        )
+          return false;
+        break;
+
+      case "UserCreatedTags":
+        if (
+          tool.user_created_tags_comments?.toLowerCase() !==
+          filterVal.toLowerCase()
+        )
+          return false;
+        break;
+
+      case "ModernWaysOfDeployment":
+        if (`${tool?.modern_ways_of_deployment}` !== `${filterVal}`)
+          return false;
+        break;
+      case "IntegrationWithUpstream": {
+        const filterArray = Array.isArray(filterVal) ? filterVal : [filterVal];
+
+        if (filterArray.length === 0) break;
+
+        const toolVal =
+          tool.api_integration_with_upstream_downstream_systems?.toLowerCase();
+
+        if (!filterArray.some((val) => toolVal === val.toLowerCase())) {
+          return false;
+        }
+        break;
+      }
+
+      case "AuthenticationProtocolSupported": {
+        const filterArray = Array.isArray(filterVal) ? filterVal : [filterVal];
+
+        if (filterArray.length === 0) break;
+
+        const toolVal = tool.authentication_protocol_supported;
+
+        if (!filterArray.some((val) => `${toolVal}` === `${val}`)) {
+          return false;
+        }
+        break;
+      }
+
+      case "FreeCommunityEdition": {
+        const filterArray = Array.isArray(filterVal) ? filterVal : [filterVal];
+
+        if (filterArray.includes("DoesNotMatter")) break;
+
+        if (filterArray.length === 0) break;
+
+        const toolVal = tool.free_community_edition;
+        if (!filterArray.some((val) => `${toolVal}` === `${val}`)) {
+          return false;
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+  return true;
+};
+
+export function formatLabel(label) {
+  return label
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+export function timeSinceLastUpdate() {
+  const now = new Date();
+
+  const utcNow = new Date(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    now.getUTCSeconds()
+  );
+
+  const lastUpdate = new Date(
+    utcNow.getFullYear(),
+    utcNow.getMonth(),
+    utcNow.getDate(),
+    12,
+    0,
+    0
+  );
+
+  if (utcNow < lastUpdate) {
+    lastUpdate.setDate(lastUpdate.getDate() - 1);
+  }
+
+  const diffMillis = utcNow - lastUpdate;
+  const diffMinutes = Math.floor(diffMillis / 60000);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  if (diffMinutes > 0)
+    return `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+  return "Just now";
+}

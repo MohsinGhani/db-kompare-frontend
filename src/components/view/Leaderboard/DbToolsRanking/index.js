@@ -2,7 +2,7 @@
 
 import React from "react";
 import DBChart from "@/components/DBChart";
-import RankingTable from "@/components/rankingPage/rankingTable";
+import DBToolsRankingTable from "@/components/dbToolsRankingPage/dbToolsRankingTable";
 
 export default function DbToolsRanking({ previousDays }) {
   return (
@@ -13,9 +13,9 @@ export default function DbToolsRanking({ previousDays }) {
               We update our results daily at 12 PM UTC.
             </CommonTypography>
           </div> */}
-        <DBChart previousDays={previousDays} />
+        <DBChart previousDays={previousDays} isRankingType="Db Tools" />
       </div>
-      <RankingTable previousDays={previousDays} />
+      <DBToolsRankingTable previousDays={previousDays} />
     </div>
   );
 }

@@ -25,3 +25,54 @@ export const fetchDbToolsCategories = async () => {
     },
   });
 };
+
+// Function to fetch all db tools
+
+export const fetchDbTools = async () => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools`, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+
+// Function to fetch db tools by ids
+
+export const fetchDbToolsByIDs = async (selectedToolsIds) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools-by-ids`, {
+    method: "POST",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify({
+      ids: selectedToolsIds,
+    }),
+  });
+};
+
+// Function to fetch db tools metrics data
+
+export const fetchDbToolsMetricsData = async (startDate, endDate) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools-metrices`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify({ startDate, endDate }),
+  });
+};
+
+// Function to fetch the ranking of db tools
+
+export const fetchDbToolsRanking = async (startDate, endDate) => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtool-rankings`, {
+    method: "POST",
+    headers: {
+      "x-api-key": X_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ startDate, endDate }),
+  });
+};

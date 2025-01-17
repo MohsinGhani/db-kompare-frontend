@@ -129,7 +129,7 @@ const ComparisonDbPage = () => {
     if (selectedDatabasesOptions.length === 0) {
       router.push(`/db-comparisons/list`);
     } else {
-      router.push(`/db-comparisons/${newDbQuery}`);
+      router.push(`/db-comparisons/${newDbQuery}/options`);
     }
   };
 

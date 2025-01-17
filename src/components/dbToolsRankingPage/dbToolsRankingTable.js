@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button, Drawer, Table } from "antd";
-import { fetchDatabaseRanking } from "@/utils/databaseUtils";
 import CommonTypography from "../shared/Typography";
 import ProcessDataHtml from "@/utils/processHtml";
 import {
@@ -12,6 +11,7 @@ import { formatDateForHeader } from "@/utils/formatDateAndTime";
 import { useRouter } from "nextjs-toploader/app";
 import { replaceKeywords } from "@/utils/helper";
 import DBToolsRankingOptions from "./dbToolsRankingOptions";
+import { fetchDbToolsRanking } from "@/utils/dbToolsUtil";
 
 const { Column, ColumnGroup } = Table;
 
@@ -33,7 +33,6 @@ const DBToolsRankingTable = ({ previousDays }) => {
   const onClose = () => {
     setOpen(false);
   };
-
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -51,7 +50,8 @@ const DBToolsRankingTable = ({ previousDays }) => {
       const endDate = previousDays[0];
 
       try {
-        const data = await fetchDatabaseRanking(startDate, endDate);
+        const data = await fetchDbToolsRanking(startDate, endDate);
+        console.log("tools data", data);
         setRankingTableData(data.data);
       } catch (error) {
         console.error("Error fetching rankings:", error);
@@ -168,8 +168,8 @@ const DBToolsRankingTable = ({ previousDays }) => {
   const formattedData = rankingTableData.map((db) => {
     const dataRow = {
       DBMS: db.name,
-      DatabaseModel: db.database_model,
-      SecondaryDatabaseModel: db.secondary_database_model?.join(", ") || "-",
+      DatabaseModel: db.category,
+      DatabaseModelId: db.category_id,
     };
 
     const lastTwoRankChanges = db.rankChanges.slice(0, 2);
@@ -199,42 +199,11 @@ const DBToolsRankingTable = ({ previousDays }) => {
   });
 
   const filteredData = formattedData.filter((db) => {
-    if (selectedOption === "All") {
+    if (selectedOption === "All" || selectedOption === "all") {
       return true;
     }
-    const dbModelHtml = Array.isArray(db?.DatabaseModel)
-      ? db.DatabaseModel.join(", ")
-      : typeof db?.DatabaseModel === "string"
-      ? db.DatabaseModel
-      : "";
 
-    const secondaryModelsHtml = Array.isArray(db?.SecondaryDatabaseModel)
-      ? db.SecondaryDatabaseModel.join(", ")
-      : typeof db?.SecondaryDatabaseModel === "string"
-      ? db.SecondaryDatabaseModel
-      : "";
-    const dbModelText = dbModelHtml
-      .replace(/<[^>]+>/g, "")
-      .trim()
-      .toLowerCase();
-    const secondaryModelsText = secondaryModelsHtml
-      .replace(/<[^>]+>/g, "")
-      .trim()
-      .toLowerCase();
-
-    if (Array.isArray(selectedOption)) {
-      return selectedOption.some((val) => {
-        const optionVal = val.toLowerCase();
-        return (
-          dbModelText === optionVal || secondaryModelsText.includes(optionVal)
-        );
-      });
-    } else {
-      const optionVal = selectedOption.toLowerCase();
-      return (
-        dbModelText === optionVal || secondaryModelsText.includes(optionVal)
-      );
-    }
+    return db.DatabaseModelId === selectedOption;
   });
 
   const sortedData = filteredData.sort((a, b) => {
@@ -284,14 +253,14 @@ const DBToolsRankingTable = ({ previousDays }) => {
 
             <Column
               minWidth={160}
-              title={<span style={columnStyle}>Database</span>}
+              title={<span style={columnStyle}>Tool Name</span>}
               dataIndex="DBMS"
               key="DBMS"
               sorter={(a, b) => a.DBMS.localeCompare(b.DBMS)}
               render={(text) => (
                 <span
                   className="text-[#0000FF] cursor-pointer"
-                  onClick={() => router.push(`/db-comparison/${text}`)}
+                  onClick={() => router.push(`/db-toolcomparison/${text}`)}
                 >
                   {text}
                 </span>
@@ -300,7 +269,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
 
             <Column
               minWidth={160}
-              title={<span style={columnStyle}>Database Model</span>}
+              title={<span style={columnStyle}>Tool Type</span>}
               dataIndex="DatabaseModel"
               key="DatabaseModel"
               sorter={(a, b) => {
@@ -313,37 +282,6 @@ const DBToolsRankingTable = ({ previousDays }) => {
                 const replacedText = replaceKeywords(safeString);
                 return (
                   <ProcessDataHtml htmlString={replacedText} record={record} />
-                );
-              }}
-            />
-            <Column
-              minWidth={200}
-              title={<span style={columnStyle}>Secondary DB Model</span>}
-              dataIndex="SecondaryDatabaseModel"
-              key="SecondaryDatabaseModel"
-              render={(text) => {
-                const safeText = Array.isArray(text)
-                  ? text.join(", ")
-                  : text || "-";
-                const replacedText = replaceKeywords(safeText);
-                const sanitizedText = replacedText.replace(
-                  /<span[^>]*title=[^>]*>.*?<\/span>/g,
-                  ""
-                );
-
-                return (
-                  <div style={{ textAlign: "left" }}>
-                    {sanitizedText === "-" ? (
-                      <span style={{ fontWeight: "bold" }}>
-                        {sanitizedText}
-                      </span>
-                    ) : (
-                      <ProcessDataHtml
-                        htmlString={sanitizedText}
-                        showOnLine={true}
-                      />
-                    )}
-                  </div>
                 );
               }}
             />
