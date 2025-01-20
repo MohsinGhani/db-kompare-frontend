@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Radio, Checkbox, Tooltip } from "antd";
-import React, { useState } from "react";
+import React from "react";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import CommonTypography from "../Typography";
 import { filterOptions } from "@/utils/const";
@@ -12,7 +12,6 @@ const FiltersComponent = ({
   onChange,
   disabled,
 }) => {
-  const [expanded, setExpanded] = useState(false);
   const handleFilterChange = (category, value) => {
     if (onChange && typeof onChange === "function") {
       onChange(category, value);
@@ -45,14 +44,6 @@ const FiltersComponent = ({
   ];
 
   const allCategories = Object.keys(filterOptions);
-  let categoriesToDisplay;
-
-  if (!expanded) {
-    const index = allCategories.indexOf("DeploymentOption");
-    categoriesToDisplay = allCategories.slice(0, index + 1);
-  } else {
-    categoriesToDisplay = allCategories;
-  }
 
   return (
     <Card
@@ -62,8 +53,10 @@ const FiltersComponent = ({
           : "p-5 min-h-[725px]"
       }`}
     >
-      <div className="flex flex-col gap-4">
-        {categoriesToDisplay.map((category, index) => (
+      <div
+        className={`flex flex-col gap-4 ${isSmallDevice ? "mb-6" : "mb-0"} `}
+      >
+        {allCategories.map((category, index) => (
           <div key={index}>
             <div className="flex items-center gap-2">
               <CommonTypography className="font-medium text-base capitalize">
@@ -113,16 +106,6 @@ const FiltersComponent = ({
             )}
           </div>
         ))}
-      </div>
-
-      <div className="flex justify-center mt-4 mb-4 lg:mb-0">
-        <CommonTypography
-          type="button"
-          onClick={() => setExpanded((prev) => !prev)}
-          className="text-[#3e53e7] hover:underline cursor-pointer"
-        >
-          {expanded ? "Show less filters" : "Show more filters"}
-        </CommonTypography>
       </div>
     </Card>
   );

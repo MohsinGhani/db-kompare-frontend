@@ -8,7 +8,11 @@ import { Button, Drawer, Spin, Tooltip } from "antd";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
-import { FilterOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  FilterOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import CommonTypography from "@/components/shared/Typography";
 import CustomSelect from "@/components/shared/CustomSelect";
 import { fetchDbTools, fetchDbToolsCategories } from "@/utils/dbToolsUtil";
@@ -105,8 +109,6 @@ const DbToolsComparisons = () => {
     }
   }, []);
 
-  console.log("Tools Data", toolsData);
-
   const filteredOptions = toolsData.filter((option) => {
     const matchesSearch = option?.tool_name
       ?.toLowerCase()
@@ -163,10 +165,10 @@ const DbToolsComparisons = () => {
     );
 
     if (
-      cleanedSelectedTools.length >= 5 &&
+      cleanedSelectedTools.length >= 10 &&
       !cleanedSelectedTools.includes(option.tool_name)
     ) {
-      toast.error("You can select only up to 5 tools.");
+      toast.error("You can select only up to 10 tools.");
     } else {
       setSelectedChildTools((prevSelected) => {
         if (prevSelected.includes(option.tool_name)) {
@@ -180,6 +182,7 @@ const DbToolsComparisons = () => {
 
   return (
     <div className="w-full container flex md:mt-8 flex-col gap-10 ">
+      <div className="mb-4  rounded-lg flex items-center justify-center gap-2"></div>
       <div className="flex flex-col md:flex-row items-center justify-between">
         <div className="md:w-[70%] w-full md:mr-4">
           <SearchBar
@@ -207,6 +210,30 @@ const DbToolsComparisons = () => {
         />
       </div>
 
+      <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center">
+        <CommonButton
+          disabled={
+            selectedChildTools.length === 0 ||
+            selectedChildTools.includes("list")
+          }
+          style={{
+            width: "280px",
+            fontSize: "16px",
+            border: "1px solid #D9D9D9",
+            height: "60px",
+            background:
+              selectedChildTools.includes("list") ||
+              selectedChildTools.length === 0
+                ? "grey"
+                : "#3E53D7",
+            color: "white",
+            borderRadius: "16px",
+          }}
+          onClick={handleCompareClick}
+        >
+          Compare
+        </CommonButton>
+      </div>
       <div className="md:flex md:flex-row items-start justify-between w-full ">
         <div className="md:hidden flex justify-end  mb-1  w-full">
           <Button
@@ -276,7 +303,7 @@ const DbToolsComparisons = () => {
                         onClick={() => handleChildClick(option)}
                       >
                         <span
-                          className="truncate"
+                          className="truncate capitalize"
                           style={{
                             display: "block",
                             maxWidth: "100%",
@@ -293,30 +320,6 @@ const DbToolsComparisons = () => {
               </>
             </div>
           )}
-          <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center">
-            <CommonButton
-              disabled={
-                selectedChildTools.length === 0 ||
-                selectedChildTools.includes("list")
-              }
-              style={{
-                width: "280px",
-                fontSize: "16px",
-                border: "1px solid #D9D9D9",
-                height: "60px",
-                background:
-                  selectedChildTools.includes("list") ||
-                  selectedChildTools.length === 0
-                    ? "grey"
-                    : "#3E53D7",
-                color: "white",
-                borderRadius: "16px",
-              }}
-              onClick={handleCompareClick}
-            >
-              Compare
-            </CommonButton>
-          </div>
         </div>
       </div>
 

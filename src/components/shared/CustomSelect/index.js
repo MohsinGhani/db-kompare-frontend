@@ -22,6 +22,7 @@ const CustomSelect = ({
       value={value}
       placeholder={placeholder}
       onChange={onChange}
+      suffixIcon={null}
       style={{
         borderRadius: "4px 0 0 4px",
         border: "none",

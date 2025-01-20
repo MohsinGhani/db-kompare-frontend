@@ -170,12 +170,12 @@ const DbToolComparison = () => {
         />
         <div className="w-full text-end flex justify-end">
           <CommonButton
-            disabled={selectedTools.length > 4}
+            disabled={selectedTools.length > 9}
             style={{
               borderRadius: "12px",
               padding: "0 40px",
               height: "50px",
-              background: selectedTools.length > 4 ? "grey" : "#3E53D7",
+              background: selectedTools.length > 9 ? "grey" : "#3E53D7",
               border: "none",
               color: "white",
               fontSize: "14px",

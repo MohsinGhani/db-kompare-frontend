@@ -16,7 +16,7 @@ const DatabaseSelect = ({
         Editorial information provided by DB-Kompare
       </CommonTypography>
 
-      <div className="flex flex-col md:flex-row md:gap-0 gap-3">
+      <div className="flex flex-col md:flex-row md:gap-0 gap-3 items-stretch ">
         <CustomSelect
           value={selectedDatabasesOptions}
           onChange={(selectedValues) =>
@@ -30,20 +30,19 @@ const DatabaseSelect = ({
               value: db.name,
             }))}
           placeholder="Select Database"
-          maxSelection={4}
-          className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto custom-select"
+          maxSelection={9}
+          className="2xl:w-[620px] w-full lg:w-full custom-select"
         />
 
         <CommonButton
           disabled={
-            selectedDatabases?.length > 4 ||
+            selectedDatabases?.length > 9 ||
             selectedDatabasesOptions?.length === 0
           }
           style={{
             borderRadius: "0px 4px 4px 0px",
-            height: "47px",
             background:
-              selectedDatabases?.length > 4 ||
+              selectedDatabases?.length > 9 ||
               selectedDatabasesOptions?.length === 0
                 ? "grey"
                 : "#3E53D7",
@@ -51,6 +50,8 @@ const DatabaseSelect = ({
             color: "white",
           }}
           onClick={handleCompareClick}
+          className="min-h-[48px]"
+          noCustomHeight={true}
         >
           Compare
         </CommonButton>

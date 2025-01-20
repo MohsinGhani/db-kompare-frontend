@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import ContentSection from "@/components/shared/ContentSection/page";
-import { Segmented } from "antd";
+import { Segmented, Tooltip } from "antd";
 import DataBasesComparisons from "./DatabasesComparison";
 import { useSearchParams } from "next/navigation";
 import DBToolComparison from "./DbToolsComparison";
 import { useRouter } from "next/navigation";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ComparisonDbListPage = () => {
   const [selectedSegment, setSelectedSegment] = useState(
@@ -51,9 +52,42 @@ const ComparisonDbListPage = () => {
         </div>
       </div>
       <div className="md:w-3/5 text-center md:mt-12">
-        <h1 className="md:text-5xl text-2xl font-bold mb-4">
-          Offer Technology
-        </h1>
+        <div className="flex items-center justify-center">
+          <h1 className="md:text-5xl text-2xl font-bold mb-4 mr-3">
+            Offer Technology
+          </h1>
+          <Tooltip
+            title={
+              <div>
+                <ul className="">
+                  <li className="mb-1">
+                    Category: Filter tools by category using the dropdown
+                  </li>
+                  <li className="mb-1">
+                    Core Features: Filter tools based on features using the
+                    dropdown
+                  </li>
+                  <li className="mb-1">
+                    Name: Use the search bar to search for tools by name
+                  </li>
+                  <li>
+                    Filters: Apply various filters such as version control,
+                    access control, etc.
+                  </li>
+                </ul>
+              </div>
+            }
+          >
+            <InfoCircleOutlined
+              style={{
+                fontSize: "30px",
+                color: "#3E53D7",
+                marginBottom: "5px",
+                cursor: "pointer",
+              }}
+            />
+          </Tooltip>
+        </div>
         <p className="md:text-base text-sm font-normal mb-3 text-secondary text-center">
           The DB-Kompare Ranking is a monthly updated list that evaluates and
           ranks database management systems based on their popularity.

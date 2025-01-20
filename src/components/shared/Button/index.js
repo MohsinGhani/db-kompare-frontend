@@ -12,10 +12,11 @@ const CommonButton = ({
   disabled = false,
   style = {},
   classes,
+  noCustomHeight = false,
   ...props
 }) => {
   const buttonStyle = {
-    height: "54px",
+    height: `${noCustomHeight ? "" : "54px"}`,
     padding: "13px 40.92px 13px 41px",
     gap: "8px",
     fontWeight: 700,

@@ -57,10 +57,10 @@ const DataBasesComparisons = () => {
     );
 
     if (
-      cleanedSelectedDatabases.length >= 5 &&
+      cleanedSelectedDatabases.length >= 10 &&
       !cleanedSelectedDatabases.includes(option.name)
     ) {
-      toast.error("You can select only up to 5 databases.");
+      toast.error("You can select only up to 10 databases.");
     } else {
       setSelectedDatabases((prevSelected) => {
         const newSelected = prevSelected.includes(option.name)
@@ -86,7 +86,29 @@ const DataBasesComparisons = () => {
   return (
     <div className="w-full container flex md:mt-8 flex-col gap-10">
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
+      <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center ">
+        <CommonButton
+          style={{
+            width: "280px",
+            fontSize: "16px",
+            border: "1px solid #D9D9D9",
+            height: "60px",
+            background:
+              selectedDatabases.includes("list") ||
+              selectedDatabases.length === 0
+                ? "grey"
+                : "#3E53D7",
+            color: "white",
+            borderRadius: "16px",
+          }}
+          onClick={handleCompareClick}
+          disabled={
+            selectedDatabases.includes("list") || selectedDatabases.length === 0
+          }
+        >
+          Compare
+        </CommonButton>
+      </div>
       {isLoading ? (
         <div className="w-full flex justify-center items-center h-32">
           {" "}
@@ -127,7 +149,7 @@ const DataBasesComparisons = () => {
                     onClick={() => handleDatabaseClick(option)}
                   >
                     <span
-                      className="truncate"
+                      className="truncate capitalize"
                       style={{
                         display: "block",
                         maxWidth: "100%",
@@ -144,30 +166,6 @@ const DataBasesComparisons = () => {
           </>
         </div>
       )}
-
-      <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center ">
-        <CommonButton
-          style={{
-            width: "280px",
-            fontSize: "16px",
-            border: "1px solid #D9D9D9",
-            height: "60px",
-            background:
-              selectedDatabases.includes("list") ||
-              selectedDatabases.length === 0
-                ? "grey"
-                : "#3E53D7",
-            color: "white",
-            borderRadius: "16px",
-          }}
-          onClick={handleCompareClick}
-          disabled={
-            selectedDatabases.includes("list") || selectedDatabases.length === 0
-          }
-        >
-          Compare
-        </CommonButton>
-      </div>
     </div>
   );
 };

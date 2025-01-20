@@ -150,12 +150,12 @@ const ComparisonDbPage = () => {
         />
         <div className="w-full text-end flex justify-end">
           <CommonButton
-            disabled={selectedDatabases.length > 4}
+            disabled={selectedDatabases.length > 9}
             style={{
               borderRadius: "12px",
               padding: "0 40px",
               height: "50px",
-              background: selectedDatabases.length > 4 ? "grey" : "#3E53D7",
+              background: selectedDatabases.length > 9 ? "grey" : "#3E53D7",
               border: "none",
               color: "white",
               fontSize: "14px",
