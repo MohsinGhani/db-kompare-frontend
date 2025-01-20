@@ -14,6 +14,13 @@ export const DropdownOptions = [
   { value: "bingScore", label: "Bing Search" },
 ];
 
+export const METRICES_TYPE = {
+  DAY: "DAY",
+  WEEK: "WEEK",
+  MONTH: "MONTH",
+  YEAR: "YEAR",
+};
+
 export const CommentStatus = {
   ACTIVE: "ACTIVE",
   INACTIVE: "DISABLED",

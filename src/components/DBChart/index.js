@@ -8,11 +8,13 @@ import LeaderboardFilter from "../leaderboardFilter";
 import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
 import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
 import { fetchDbToolsMetricsData } from "@/utils/dbToolsUtil";
+import { METRICES_TYPE } from "@/utils/const";
 
 const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
   const [selectedDate, setSelectedDate] = useState([null, null]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
+  const [metriceType, setMetricType] = useState(METRICES_TYPE.DAY);
   const [metricsData, setMetricsData] = useState([]);
   const [dbIndexRange, setDbIndexRange] = useState([0, CHUNK_SIZE]);
   const [enabledDatabases, setEnabledDatabases] = useState([]);
@@ -28,6 +30,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
     const fetchData = async () => {
       const startDate = formatDate(selectedDate[0]) || "2024-11-18";
       const endDate = formatDate(selectedDate[1]) || previousDays[0];
+
       if (isRankingType === "Db Tools") {
         try {
           setLoading(true);
@@ -59,8 +62,11 @@ const DBChart = ({ previousDays, isRankingType }) => {
       setEnabledDatabases(defaultEnabled);
     }
   }, [metricsData]);
+  const getXAxisCategories = (dateRange, type) => {
+    if (type === METRICES_TYPE.WEEK) {
+      return getWeeklyCategories(metricsData); // Get weekly formatted labels
+    }
 
-  const getXAxisCategories = (dateRange) => {
     const allMetrics = metricsData[0]?.metrics || [];
     const uniqueDates = new Set(
       allMetrics
@@ -72,24 +78,119 @@ const DBChart = ({ previousDays, isRankingType }) => {
     return Array.from(uniqueDates);
   };
 
-  const getMetricData = (metricKeys, dateRange) => {
+  const getMetricData = (metricKeys, dateRange, type = "") => {
     const allDatesInRange = getXAxisCategories(dateRange);
-    return metricsData.map((db) => ({
-      databaseName:
-        isRankingType === "Db Tools"
-          ? db.dbToolName || "tool"
-          : db.databaseName,
-      data: allDatesInRange.map((date) => {
-        const matchingMetric = db.metrics.find(
-          (metric) => metric.date === date
-        );
-        if (!matchingMetric) return null;
-        return calculateChartWeightedValue(matchingMetric, metricKeys);
-      }),
-    }));
+
+    if (type === METRICES_TYPE.DAY) {
+      return metricsData.map((db) => ({
+        databaseName:
+          isRankingType === "Db Tools"
+            ? db.dbToolName || "tool"
+            : db.databaseName,
+        data: allDatesInRange.map((date) => {
+          const matchingMetric = db.metrics.find(
+            (metric) => metric.date === date
+          );
+          if (!matchingMetric) return null;
+          return calculateChartWeightedValue(matchingMetric, metricKeys);
+        }),
+      }));
+    } else if (type === METRICES_TYPE.WEEK) {
+      const allWeeksInRange = getWeeklyCategories(metricsData);
+
+      return metricsData.map((db) => ({
+        databaseName: db.databaseName || "Unknown Database",
+        data: allWeeksInRange.map(({ startOfWeek, endOfWeek }) => {
+          const weeklyMetrics = db.metrics.filter((metric) =>
+            isDateInRange(metric.date, startOfWeek, endOfWeek)
+          );
+
+          if (weeklyMetrics.length === 0) return null;
+
+          // Calculate sum and divide by 7 for weekly average
+          const weeklySum = weeklyMetrics.reduce((sum, metric) => {
+            return sum + calculateChartWeightedValue(metric, metricKeys);
+          }, 0);
+
+          return weeklySum / 7; // Average per day for the week
+        }),
+      }));
+    } else {
+      return metricsData.map((db) => ({
+        databaseName:
+          isRankingType === "Db Tools"
+            ? db.dbToolName || "tool"
+            : db.databaseName,
+        data: allDatesInRange.map((date) => {
+          const matchingMetric = db.metrics.find(
+            (metric) => metric.date === date
+          );
+          if (!matchingMetric) return null;
+          return calculateChartWeightedValue(matchingMetric, metricKeys);
+        }),
+      }));
+    }
   };
 
-  const chartData = getMetricData(selectedMetricKeys, selectedDate);
+  const getWeeklyCategories = (metricsData) => {
+    if (!metricsData || metricsData.length === 0) {
+      throw new Error("No metric data available to calculate weekly ranges.");
+    }
+
+    // Extract all available dates from the metricsData and sort them
+    const allDates = metricsData
+      .flatMap((db) => db.metrics.map((metric) => metric.date))
+      .sort();
+
+    if (allDates.length === 0) {
+      throw new Error("No dates found in the provided metrics data.");
+    }
+
+    // Find the earliest and latest dates
+    const startDate = new Date(allDates[0]); // Earliest date
+    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
+
+    const weeks = [];
+    let currentStart = new Date(startDate);
+
+    // Ensure weeks start on Monday
+    currentStart.setDate(currentStart.getDate() - currentStart.getDay() + 1);
+
+    let weekNumber = 1;
+    while (currentStart <= endDate) {
+      let weekEnd = new Date(currentStart);
+      weekEnd.setDate(currentStart.getDate() + 6); // End of the week (Sunday)
+
+      if (weekEnd > endDate) {
+        weekEnd = endDate; // Ensure last week doesn't exceed the available range
+      }
+
+      const monthYear = currentStart.toLocaleString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+      const weekLabel = `${monthYear}-W${weekNumber}`;
+
+      weeks.push({
+        startOfWeek: currentStart.toISOString().split("T")[0],
+        endOfWeek: weekEnd.toISOString().split("T")[0],
+        label: weekLabel, // Add formatted label (e.g., Nov-2024-W1)
+      });
+
+      currentStart.setDate(currentStart.getDate() + 7); // Move to next Monday
+      weekNumber++;
+    }
+
+    return weeks.map((week) => week.label); // Return only the week labels for xAxis
+  };
+
+  const chartData = getMetricData(
+    selectedMetricKeys,
+    selectedDate,
+    metriceType
+  );
+
+  console.log("chartData", chartData);
 
   const handleLegendItemClick = function (event) {
     event.preventDefault();
@@ -154,7 +255,10 @@ const DBChart = ({ previousDays, isRankingType }) => {
     },
     yAxis: { title: null },
     xAxis: {
-      categories: chartData.length > 0 ? getXAxisCategories(selectedDate) : [],
+      categories:
+        chartData.length > 0
+          ? getXAxisCategories(selectedDate, metriceType)
+          : [],
     },
     tooltip: {
       formatter: function () {
@@ -259,6 +363,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
           selectedDate={selectedDate}
           setSelectedMetricKeys={setSelectedMetricKeys}
           selectedMetricKeys={selectedMetricKeys}
+          metriceType={metriceType}
+          setMetricType={setMetricType}
         />
 
         <div className="relative w-full">
