@@ -1,6 +1,6 @@
 import "./globals.css";
 import ClientLayout from "./client-layout";
-
+import "@/style/global.scss"
 export const metadata = {
   title: {
     default: "DB Kompare",

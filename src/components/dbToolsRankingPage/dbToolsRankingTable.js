@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button, Drawer, Table } from "antd";
 import CommonTypography from "../shared/Typography";
 import ProcessDataHtml from "@/utils/processHtml";
@@ -17,7 +17,11 @@ const { Column, ColumnGroup } = Table;
 
 const DBToolsRankingTable = ({ previousDays }) => {
   const router = useRouter();
-
+  const rankCol = useMemo(
+    () => ["Local Ranking", ...previousDays],
+    [previousDays]
+  );
+  const [loading, setLoading] = useState(false);
   const [rankingTableData, setRankingTableData] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("All");
@@ -50,11 +54,14 @@ const DBToolsRankingTable = ({ previousDays }) => {
       const endDate = previousDays[0];
 
       try {
+        setLoading(true);
         const data = await fetchDbToolsRanking(startDate, endDate);
         console.log("tools data", data);
         setRankingTableData(data.data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching rankings:", error);
+        setLoading(false);
       }
     };
 
@@ -80,26 +87,52 @@ const DBToolsRankingTable = ({ previousDays }) => {
     textAlign: "center",
   };
 
-  const rankColumns = previousDays.slice(0, 2).map((date) => {
-    const formattedDate = formatDateForHeader(date);
-
+  const rankColumns = rankCol.slice(0, 3).map((date, ind) => {
+    const formattedDate = ind !== 0 ? formatDateForHeader(date) : date;
+  
     const iconStyle = { marginRight: 10 };
     const noIconStyle = { marginRight: 25 };
-
+  
     return (
       <Column
         key={`rank-${date}`}
-        minWidth={130}
+        minWidth={140}
         title={<span style={columnStyle}>{formattedDate}</span>}
-        dataIndex={`rank_${date}`}
+        dataIndex={ind === 0 ? "index" : `rank_${date}`} // Use 'index' for Local Ranking
         sorter={(a, b) => {
-          const rankA = Number(a[`rank_${date}`] || 0);
-          const rankB = Number(b[`rank_${date}`] || 0);
-          return rankA - rankB;
+          if (ind === 0) {
+            // Sorting logic for Local Ranking (index)
+            return a.index - b.index;
+          } else {
+            // Sorting logic for Rank columns
+            const rankA = Number(a[`rank_${date}`] || 0);
+            const rankB = Number(b[`rank_${date}`] || 0);
+            return rankA - rankB;
+          }
         }}
-        render={(rank, row) => {
+        render={(value, row, rowIndex) => {
+          if (ind === 0) {
+            // Fetch status from the second column
+            const statusKey = `rank_status_${rankCol[2]}`; // Assuming second column has trend data
+            const status = row[statusKey];
+  
+            return (
+              <span className="flex items-center justify-center">
+                {status === "INCREASED" ? (
+                  <CaretUpOutlined style={{ color: "#00CC67", ...iconStyle }} />
+                ) : status === "DECREASED" ? (
+                  <CaretDownOutlined style={{ color: "#E33C33", ...iconStyle }} />
+                ) : (
+                  <span style={noIconStyle}></span>
+                )}
+                <span>{rowIndex + 1}</span>
+              </span>
+            );
+          }
+  
+          const rank = value;
           const status = row[`rank_status_${date}`];
-
+  
           // Check if rank is not available, if not show '-'
           if (!rank) {
             return (
@@ -108,7 +141,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
               </span>
             );
           }
-
+  
           return (
             <span style={{ display: "flex", alignItems: "center" }}>
               {status === "INCREASED" ? (
@@ -125,7 +158,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
       />
     );
   });
-
+  
   const scoreColumns = previousDays.slice(0, 3).map((date) => {
     const formattedDate = formatDateForHeader(date);
 
@@ -165,8 +198,9 @@ const DBToolsRankingTable = ({ previousDays }) => {
   });
 
   // Formatting and sorting data
-  const formattedData = rankingTableData.map((db) => {
+  const formattedData = rankingTableData.map((db,ind) => {
     const dataRow = {
+      index:ind+1,
       DBMS: db.name,
       DatabaseModel: db.category,
       DatabaseModelId: db.category_id,
@@ -246,6 +280,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
             rowClassName={(record, index) =>
               index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
             }
+            loading={loading}
           >
             <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
               {rankColumns}

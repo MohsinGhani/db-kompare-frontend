@@ -14,7 +14,6 @@ const DataBasesComparisons = () => {
   const router = useRouter();
   const { list } = useParams();
   const [selectedDatabases, setSelectedDatabases] = useState([]);
-  const [hoverIndex, setHoverIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dbData, setDbData] = useState([]);
@@ -84,7 +83,7 @@ const DataBasesComparisons = () => {
   };
 
   return (
-    <div className="w-full container flex md:mt-8 flex-col gap-10">
+    <div className="database-comparison w-full container flex md:mt-8 flex-col gap-10">
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <div className="flex md:flex-row flex-col md:justify-end justify-center md:items-end items-center ">
         <CommonButton
@@ -123,29 +122,15 @@ const DataBasesComparisons = () => {
                 <Tooltip key={option.name} title={option.name} placement="top">
                   <Button
                     key={option.name}
-                    style={{
-                      width: "100%",
-                      fontWeight: "600",
-                      fontSize: "15px",
-                      border:
-                        selectedDatabases.includes(option.name) ||
-                        hoverIndex === index
-                          ? "2px solid #3E53D7"
-                          : "2px solid #D9D9D9",
-                      height: "60px",
-                      background: "transparent",
-                      color:
-                        selectedDatabases.includes(option.name) ||
-                        hoverIndex === index
-                          ? "#3E53D7"
-                          : "black",
-                      borderRadius: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    onMouseEnter={() => setHoverIndex(index)}
-                    onMouseLeave={() => setHoverIndex(null)}
+                    className={`w-full font-semibold text-[15px] h-[60px] bg-transparent rounded-[16px] 
+                      flex items-center justify-center border-2 
+                      ${
+                        selectedDatabases.includes(option.name) 
+                          ? "border-[#3E53D7] text-[#3E53D7]"
+                          : "border-blue-300 text-black"
+                      } ${index %2 ===0? "bg-gradient-to-r from-cyan-50 to-sky-50": "bg-gradient-to-r from-blue-50 to-blue-200"}`}
+                   
+                  
                     onClick={() => handleDatabaseClick(option)}
                   >
                     <span

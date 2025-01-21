@@ -68,10 +68,10 @@ export default function LeaderboardFilter({
       value: "MONTH",
       label: "Month",
     },
-    {
-      value: "YEAR",
-      label: "Year",
-    },
+    // {
+    //   value: "YEAR",
+    //   label: "Year",
+    // },
   ];
 
   return (
@@ -85,6 +85,7 @@ export default function LeaderboardFilter({
           onClick={() => {
             setSelectedDate([null, null]);
             setSelectedMetricKeys([]);
+            setMetricType("DAY");
           }}
         >
           Clear filter
@@ -95,21 +96,27 @@ export default function LeaderboardFilter({
           <CommonTypography type="text" classes="text-lg font-medium my-2">
             Resources
           </CommonTypography>
-          <div className="flex flex-wrap md:gap-6 md:mt-3">
+          <div className="flex flex-wrap items-center   gap-3 md:mt-3">
             {DropdownOptions.map((option, index) => (
-              <div className="flex items-center mt-2" key={index}>
+              <div className="flex items-center" key={index}>
+                <div className="flex flex-col items-center justify-center text-center gap-1">
+                <div className="flex items-center gap-1">
                 <input
                   type="checkbox"
                   id={option.value}
                   checked={selectedMetricKeys.includes(option.value) || check}
                   onChange={() => handleMetricChange(option.value)}
+                  className="mt-4 h-5 w-5"
                 />
-                <label
-                  htmlFor={option.value}
-                  className="mx-2 md:text-lg text-base font-medium text-black"
-                >
-                  {option.label}
-                </label>
+                  <img src={option?.icon} className="w-8" draggable={false} />
+                </div>
+                  <label
+                    htmlFor={option.value}
+                    className=" md:text-[14px] text-xs font-medium text-black"
+                  >
+                    {option.label}
+                  </label>
+                </div>
               </div>
             ))}
           </div>
@@ -131,6 +138,7 @@ export default function LeaderboardFilter({
               placeholder="Filter by week/month/year"
               options={items}
               onChange={handleTypeChange}
+              defaultValue={metriceType}
             />
           </div>
         </div>

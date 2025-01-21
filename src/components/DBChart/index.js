@@ -9,6 +9,13 @@ import { formatDate, isDateInRange } from "@/utils/formatDateAndTime";
 import { calculateChartWeightedValue } from "@/utils/chartValueWithFormula";
 import { fetchDbToolsMetricsData } from "@/utils/dbToolsUtil";
 import { METRICES_TYPE } from "@/utils/const";
+import exporting from "highcharts/modules/exporting";
+import exportData from "highcharts/modules/export-data";
+
+if (typeof Highcharts === "object") {
+  exporting(Highcharts);
+  exportData(Highcharts);
+}
 
 const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
@@ -54,7 +61,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
       }
     };
     fetchData();
-  }, [selectedDate, previousDays]);
+  }, [selectedDate, previousDays, isRankingType]);
 
   useEffect(() => {
     if (metricsData && metricsData.length > 0) {
@@ -62,9 +69,20 @@ const DBChart = ({ previousDays, isRankingType }) => {
       setEnabledDatabases(defaultEnabled);
     }
   }, [metricsData]);
+
   const getXAxisCategories = (dateRange, type) => {
     if (type === METRICES_TYPE.WEEK) {
-      return getWeeklyCategories(metricsData); // Get weekly formatted labels
+      return getWeeklyCategories(metricsData).map((item) => (
+        item.label
+      ));
+    } else if (type === METRICES_TYPE.MONTH) {
+      return getMonthlyCategories(metricsData).map((item) => (
+        item.label
+      ));
+    } else if (type === METRICES_TYPE.YEAR) {
+      return getYearlyCategories(metricsData).map((item) => (
+        item.label
+      ));
     }
 
     const allMetrics = metricsData[0]?.metrics || [];
@@ -78,9 +96,10 @@ const DBChart = ({ previousDays, isRankingType }) => {
     return Array.from(uniqueDates);
   };
 
-  const getMetricData = (metricKeys, dateRange, type = "") => {
+  const getMetricData = (metricKeys, dateRange, type) => {
     const allDatesInRange = getXAxisCategories(dateRange);
 
+    // Daily metrics
     if (type === METRICES_TYPE.DAY) {
       return metricsData.map((db) => ({
         databaseName:
@@ -95,16 +114,21 @@ const DBChart = ({ previousDays, isRankingType }) => {
           return calculateChartWeightedValue(matchingMetric, metricKeys);
         }),
       }));
+
+      // Weekly metrics
     } else if (type === METRICES_TYPE.WEEK) {
       const allWeeksInRange = getWeeklyCategories(metricsData);
-
+      console.log("allWeeksInRange", allWeeksInRange)
       return metricsData.map((db) => ({
-        databaseName: db.databaseName || "Unknown Database",
+        databaseName:
+          isRankingType === "Db Tools"
+            ? db.dbToolName || "tool"
+            : db.databaseName,
         data: allWeeksInRange.map(({ startOfWeek, endOfWeek }) => {
           const weeklyMetrics = db.metrics.filter((metric) =>
             isDateInRange(metric.date, startOfWeek, endOfWeek)
           );
-
+          console.log("weeklyMetrics", weeklyMetrics)
           if (weeklyMetrics.length === 0) return null;
 
           // Calculate sum and divide by 7 for weekly average
@@ -112,21 +136,59 @@ const DBChart = ({ previousDays, isRankingType }) => {
             return sum + calculateChartWeightedValue(metric, metricKeys);
           }, 0);
 
-          return weeklySum / 7; // Average per day for the week
+          return weeklySum / weeklyMetrics?.length; // Average per day for the week
         }),
       }));
-    } else {
+
+      // Monthly metrics
+    } else if (type === METRICES_TYPE.MONTH) {
+      const allMonthsInRange = getMonthlyCategories(metricsData);
+      console.log("allMonthsInRange", allMonthsInRange);
+
       return metricsData.map((db) => ({
         databaseName:
           isRankingType === "Db Tools"
             ? db.dbToolName || "tool"
             : db.databaseName,
-        data: allDatesInRange.map((date) => {
-          const matchingMetric = db.metrics.find(
-            (metric) => metric.date === date
+        data: allMonthsInRange.map(({ startOfMonth, endOfMonth }) => {
+          const monthlyMetrics = db.metrics.filter((metric) =>
+            isDateInRange(metric.date, startOfMonth, endOfMonth)
           );
-          if (!matchingMetric) return null;
-          return calculateChartWeightedValue(matchingMetric, metricKeys);
+          console.log("monthlyMetrics", monthlyMetrics);
+
+          if (monthlyMetrics.length === 0) return null;
+
+          // Calculate sum and divide by the number of available data points for the month
+          const monthlySum = monthlyMetrics.reduce((sum, metric) => {
+            return sum + calculateChartWeightedValue(metric, metricKeys);
+          }, 0);
+
+          return monthlySum / monthlyMetrics?.length; // Average per available day for the month
+        }),
+      }));
+    } else if (type === METRICES_TYPE.YEAR) {
+      const allYearsInRange = getYearlyCategories(metricsData);
+      console.log("allYearsInRange", allYearsInRange);
+
+      return metricsData.map((db) => ({
+
+        databaseName:
+          isRankingType === "Db Tools"
+            ? db.dbToolName || "tool"
+            : db.databaseName,
+        data: allYearsInRange.map(({ startOfYear, endOfYear }) => {
+          const yearlyMetrics = db.metrics.filter((metric) =>
+            isDateInRange(metric.date, startOfYear, endOfYear)
+          );
+
+
+          console.log("yearlyMetrics", yearlyMetrics);
+          // Calculate sum of values for the year
+          const yearlySum = yearlyMetrics.reduce((sum, metric) => {
+            return sum + calculateChartWeightedValue(metric, metricKeys);
+          }, 0);
+          // Divide by the actual number of available data points for the year
+          return (yearlySum / yearlyMetrics.length).toFixed(2); // Rounded to 2 decimal places
         }),
       }));
     }
@@ -134,7 +196,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   const getWeeklyCategories = (metricsData) => {
     if (!metricsData || metricsData.length === 0) {
-      throw new Error("No metric data available to calculate weekly ranges.");
+      return []
     }
 
     // Extract all available dates from the metricsData and sort them
@@ -143,7 +205,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
       .sort();
 
     if (allDates.length === 0) {
-      throw new Error("No dates found in the provided metrics data.");
+      console.warn("No dates found in the provided metrics data.");
+      return [];
     }
 
     // Find the earliest and latest dates
@@ -181,7 +244,110 @@ const DBChart = ({ previousDays, isRankingType }) => {
       weekNumber++;
     }
 
-    return weeks.map((week) => week.label); // Return only the week labels for xAxis
+    return weeks.map((week) => week); // Return only the week labels for xAxis
+  };
+  const getMonthlyCategories = (metricsData) => {
+    if (!metricsData || metricsData.length === 0) {
+      return [];
+    }
+
+    // Extract all available dates from the metricsData and sort them
+    const allDates = metricsData
+      .flatMap((db) => db.metrics.map((metric) => metric.date))
+      .sort();
+
+    if (allDates.length === 0) {
+      console.warn("No dates found in the provided metrics data.");
+      return [];
+    }
+
+    // Find the earliest and latest dates
+    const startDate = new Date(allDates[0]); // Earliest date
+    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
+
+    const months = [];
+    let currentStart = new Date(startDate);
+
+    // Ensure month starts from the 1st day
+    currentStart.setDate(1);
+
+    let monthNumber = 1;
+    while (currentStart <= endDate) {
+      let monthEnd = new Date(currentStart);
+
+      // Set to the last day of the month
+      monthEnd.setMonth(currentStart.getMonth() + 1);
+      monthEnd.setDate(0); // Last day of the previous month (current month)
+
+      if (monthEnd > endDate) {
+        monthEnd = endDate; // Ensure last month doesn't exceed the available range
+      }
+
+      const monthYear = currentStart.toLocaleString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+      const monthLabel = `${monthYear}-M${monthNumber}`;
+
+      months.push({
+        startOfMonth: currentStart.toISOString().split("T")[0],
+        endOfMonth: monthEnd.toISOString().split("T")[0],
+        label: monthLabel, // Add formatted label (e.g., Nov-2024-M1)
+      });
+
+      // Move to the next month
+      currentStart.setMonth(currentStart.getMonth() + 1);
+      monthNumber++;
+    }
+
+    return months.map((month) => month); // Return the full array of month objects
+  };
+
+  const getYearlyCategories = (metricsData) => {
+    if (!metricsData || metricsData.length === 0) {
+      return [];
+    }
+
+    // Extract all available dates from the metricsData and sort them
+    const allDates = metricsData
+      .flatMap((db) => db.metrics.map((metric) => metric.date))
+      .sort();
+
+    if (allDates.length === 0) {
+      console.warn("No dates found in the provided metrics data.");
+      return [];
+    }
+
+    // Find the earliest and latest dates
+    const startDate = new Date(allDates[0]); // Earliest date
+    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
+
+    const years = [];
+    let currentStart = new Date(startDate);
+    currentStart.setMonth(0, 1); // Set to January 1st of the start year
+
+    let yearNumber = 1;
+    while (currentStart <= endDate) {
+      let yearEnd = new Date(currentStart);
+      yearEnd.setFullYear(currentStart.getFullYear() + 1, 0, 0); // Set to December 31st
+
+      if (yearEnd > endDate) {
+        yearEnd = endDate; // Ensure last year doesn't exceed the available range
+      }
+
+      const yearLabel = `${currentStart.getFullYear()}-Y${yearNumber}`;
+
+      years.push({
+        startOfYear: currentStart.toISOString().split("T")[0],
+        endOfYear: yearEnd.toISOString().split("T")[0],
+        label: yearLabel, // Add formatted label (e.g., 2024-Y1)
+      });
+
+      currentStart.setFullYear(currentStart.getFullYear() + 1); // Move to next year
+      yearNumber++;
+    }
+
+    return years.map((year) => year); // Return the full array of year objects
   };
 
   const chartData = getMetricData(
@@ -217,8 +383,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
           const message = loading
             ? "Loading..."
             : metricsData.length === 0
-            ? "No data available"
-            : null;
+              ? "No data available"
+              : null;
 
           if (message) {
             if (!chart.customMessage) {
@@ -246,11 +412,10 @@ const DBChart = ({ previousDays, isRankingType }) => {
       },
     },
     title: {
-      text: `${
-        isRankingType === "Db Tools"
+      text: `${isRankingType === "Db Tools"
           ? "Db Tools Metrics Over Time"
           : "Database Metrics Over Time"
-      }`,
+        }`,
       style: { fontSize: "26px", fontWeight: "600" },
     },
     yAxis: { title: null },
@@ -293,6 +458,40 @@ const DBChart = ({ previousDays, isRankingType }) => {
       },
     },
     credits: false,
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: [
+            'printChart',
+            'separator',
+            'downloadCSV',
+            'separator',
+            {
+              text: 'Download JSON',
+              onclick: function () {
+                const categories = this.xAxis[0].categories || [];  // Get x-axis categories if available
+            
+                const chartData = this.series.map(series => ({
+                  name: series.name,
+                  data: series.data.map((point, index) => ({
+                    date: categories[index] || point.x,  // Use categories if available, otherwise fallback to x
+                    value: point.y
+                  }))
+                }));
+            
+                const jsonString = JSON.stringify(chartData, null, 2);
+            
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'chart-data.json';
+                link.click();
+              }
+            }
+          ]
+        }
+      }
+    }
   };
 
   const totalDBs = metricsData.length;
@@ -378,19 +577,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
             <img
               src="/assets/icons/whiteLeftArrow.svg"
               alt="arrow"
-              className="
-      w-8 h-8 
-      bg-[#3E53D7] 
-      p-[7px] 
-      rounded-full 
-      ml-6 mb-3 
-      cursor-pointer 
-      hover:opacity-70 
-      active:translate-y-[1px] 
-      active:shadow-[0_0_15px_5px_rgba(62,83,215,0.4)] 
-      transition-all 
-      duration-100
-    "
+              className="w-8 h-8 bg-[#3E53D7] p-[7px] rounded-full ml-6 mb-3 cursor-pointer hover:opacity-70  active:translate-y-[1px] active:shadow-[0_0_15px_5px_rgba(62,83,215,0.4)] transition-all duration-100"
               onClick={prev10Databases}
               onDoubleClick={prev50Databases}
             />

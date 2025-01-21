@@ -8,10 +8,10 @@ export const Navlinks = [
 ];
 
 export const DropdownOptions = [
-  { value: "githubScore", label: "Github" },
-  { value: "stackoverflowScore", label: "Stack Overflow" },
-  { value: "googleScore", label: "Google Search" },
-  { value: "bingScore", label: "Bing Search" },
+  { value: "githubScore", label: "Github" , icon:"assets/icons/github-icon.svg" },
+  { value: "stackoverflowScore", label: "Stack Overflow",icon:"assets/icons/sflow-icon.svg" },
+  { value: "googleScore", label: "Google Search" ,icon:"assets/icons/google-icon.svg"},
+  { value: "bingScore", label: "Bing Search" ,icon:"assets/icons/bing-icon.svg"},
 ];
 
 export const METRICES_TYPE = {
