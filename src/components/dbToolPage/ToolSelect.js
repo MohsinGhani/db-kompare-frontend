@@ -28,19 +28,19 @@ const ToolSelect = ({
               value: tool.tool_name,
             }))}
           placeholder="Select tools"
-          maxSelection={4}
+          maxSelection={9}
           className="2xl:w-[620px] w-full lg:w-full md:h-[47px] h-auto custom-select"
         />
 
         <CommonButton
           disabled={
-            selectedTools?.length > 4 || selectedToolsOptions?.length === 0
+            selectedTools?.length > 9 || selectedToolsOptions?.length === 0
           }
           style={{
             borderRadius: "0px 4px 4px 0px",
             height: "47px",
             background:
-              selectedTools?.length > 4 || selectedToolsOptions?.length === 0
+              selectedTools?.length > 9 || selectedToolsOptions?.length === 0
                 ? "grey"
                 : "#3E53D7",
             border: "none",

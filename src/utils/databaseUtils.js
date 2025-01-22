@@ -56,7 +56,7 @@ export const fetchMetricsData = async (startDate, endDate) => {
 // Function to fetch the count of databases
 
 export const fetchDatabasesCount = async () => {
-  return fetchAPI(`${API_BASE_URL_1}/get-databases-count`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-databases-count?status=ALL`, {
     method: "GET",
     headers: {
       "x-api-key": API_KEY,
@@ -68,7 +68,7 @@ export const fetchDatabasesCount = async () => {
 // Function to fetch the ranking of databases
 
 export const fetchDatabaseRanking = async (startDate, endDate) => {
-  return fetchAPI(`${API_BASE_URL_1}//get-rankings`, {
+  return fetchAPI(`${API_BASE_URL_1}/get-rankings`, {
     method: "POST",
     headers: {
       "x-api-key": API_KEY,

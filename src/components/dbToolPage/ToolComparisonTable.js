@@ -27,7 +27,8 @@ const ToolComparisonTable = ({
               key !== "tool_name" &&
               key !== "tool_description" &&
               key !== "category_name" &&
-              key !== "category_description"
+              key !== "category_description" &&
+              key !== "db_compare_ranking"
           )
           .map((key) => ({ label: formatLabel(key), key }))
       : [];
@@ -72,6 +73,7 @@ const ToolComparisonTable = ({
       rowScope: "row",
       render: (text) => <div style={{ minWidth: "200px" }}>{text}</div>,
     },
+
     ...selectedTools.map((db) => ({
       title: (
         <div className="flex items-center justify-between gap-2">
@@ -115,6 +117,15 @@ const ToolComparisonTable = ({
       render: (text, record) => {
         let displayValue = text;
         const key = record._attributeKey;
+
+        if (key === "db_compare_ranking") {
+          return (
+            <div>
+              <p>Rank: {text?.rank[0]}</p>
+              <p>Score: {text?.score}</p>
+            </div>
+          );
+        }
 
         const filterKeyMap = {
           deployment_options_on_prem_or_saas: "DeploymentOption",
@@ -191,6 +202,31 @@ const ToolComparisonTable = ({
     })),
   ];
 
+  // Create the db_compare_ranking row separately
+  const dbCompareRankingRow = {
+    name: "DB Compare Ranking",
+    _attributeKey: "db_compare_ranking",
+  };
+  selectedTools.forEach((db) => {
+    const tool = selectedToolsData.find(
+      (tool) => tool?.tool_name === db || tool?.name === db
+    );
+
+    if (tool) {
+      const ranking = tool.db_compare_ranking;
+      if (ranking) {
+        dbCompareRankingRow[db] = {
+          rank: ranking.rank || ["N/A"],
+          score: ranking.score || "0",
+        };
+      } else {
+        dbCompareRankingRow[db] = "No ranking available";
+      }
+    } else {
+      dbCompareRankingRow[db] = "No ranking available";
+    }
+  });
+
   const descriptionRow = { name: "Tool description" };
   selectedTools.forEach((db) => {
     const tool = selectedToolsData.find(
@@ -240,10 +276,11 @@ const ToolComparisonTable = ({
   });
 
   const data = [
-    descriptionRow,
-    categoryNameRow,
-    categoryDescriptionRow,
-    ...dataRows,
+    descriptionRow, // Tool description row
+    categoryNameRow, // Tool type row
+    categoryDescriptionRow, // Tool type description row
+    dbCompareRankingRow, // DB Compare Ranking row (placed after categoryDescriptionRow)
+    ...dataRows, // Remaining data rows
   ];
 
   useEffect(() => {
