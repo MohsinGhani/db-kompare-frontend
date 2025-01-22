@@ -89,8 +89,9 @@ const ComparisonDbListPage = () => {
           </Tooltip> */}
         </div>
         <p className="md:text-base text-sm font-normal mb-3 text-secondary text-center">
-          The DB-Kompare Ranking is a monthly updated list that evaluates and
-          ranks database management systems based on their popularity.
+          {selectedSegment === "Databases Comparison"
+            ? "The DB-Kompare Ranking is a DAILY updated list that evaluates and ranks database management systems based on their popularity."
+            : "The DBTools-Kompare Ranking is a DAILY updated list that evaluates and ranks database management systems based on their popularity."}
         </p>
       </div>
 
