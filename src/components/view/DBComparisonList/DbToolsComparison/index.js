@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
-import { Button, Drawer, Spin, Tooltip } from "antd";
+import { Button, Drawer, Empty, Spin, Tooltip } from "antd";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
 import FiltersComponent from "@/components/shared/CommonFiltersComponent";
@@ -17,19 +17,22 @@ import CommonTypography from "@/components/shared/Typography";
 import CustomSelect from "@/components/shared/CustomSelect";
 import { fetchDbTools, fetchDbToolsCategories } from "@/utils/dbToolsUtil";
 import { toolMatchesFilters } from "@/utils/helper";
+import { core_features } from "@/utils/const";
 
 const DbToolsComparisons = () => {
   const router = useRouter();
   const { list, options } = useParams();
-  const [hoverIndex, setHoverIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [dbToolCategories, setDbToolCategories] = useState([]);
   const [toolsData, setToolsData] = useState([]);
   const [selectedChildTools, setSelectedChildTools] = useState([]);
+  console.log("selectedChildTools", selectedChildTools);
   const [selectedToolCategoriesOptions, setSelectedToolCategoriesOptions] =
     useState([]);
+  const [selectedCoreFeatures, setSelectedCoreFeatures] = useState([]);
+
   const [selectedFilters, setSelectedFilters] = useState({
     AccessControl: "Yes",
     VersionControl: "Yes",
@@ -110,14 +113,23 @@ const DbToolsComparisons = () => {
   }, []);
 
   const filteredOptions = toolsData.filter((option) => {
+    // Check if the tool matches the search term
     const matchesSearch = option?.tool_name
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
 
+    // Check if the tool matches the core features in the search field by typing
     const matchesCoreFeatures = option?.core_features?.some((feature) =>
       feature.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    // Check if the tool matches the selected core features
+    const matchesCoreFeaturesSelected =
+      selectedCoreFeatures.length === 0 ||
+      option?.core_features?.some((feature) =>
+        selectedCoreFeatures.includes(feature)
+      );
 
+    // Check if the tool matches the selected categories
     const matchesCategory =
       selectedToolCategoriesOptions.length === 0 ||
       selectedToolCategoriesOptions.includes(option.category_id);
@@ -127,7 +139,8 @@ const DbToolsComparisons = () => {
     return (
       (matchesSearch || matchesCoreFeatures) &&
       matchesCategory &&
-      matchesFilters
+      matchesFilters &&
+      matchesCoreFeaturesSelected
     );
   });
 
@@ -179,7 +192,6 @@ const DbToolsComparisons = () => {
       });
     }
   };
-
   return (
     <div className="w-full container flex md:mt-8 flex-col gap-10 ">
       <div className="mb-4  rounded-lg flex items-center justify-center gap-2"></div>
@@ -193,6 +205,19 @@ const DbToolsComparisons = () => {
         </div>
 
         <CustomSelect
+          value={selectedCoreFeatures}
+          onChange={(selectedValues) => setSelectedCoreFeatures(selectedValues)}
+          options={core_features
+            .sort((a, b) => a.localeCompare(b))
+            .map((feature, ind) => ({
+              id: ind,
+              label: feature,
+              value: feature,
+            }))}
+          placeholder="Select Core Features"
+          className="md:max-w-[20%] w-full  mt-3 md:mt-0 md:mr-4"
+        />
+        <CustomSelect
           value={selectedToolCategoriesOptions}
           onChange={(selectedValues) =>
             setSelectedToolCategoriesOptions(selectedValues)
@@ -205,8 +230,7 @@ const DbToolsComparisons = () => {
               value: tool.id,
             }))}
           placeholder="Select Tool Category"
-          maxSelection={2}
-          className="md:max-w-[30%] w-full h-10 mt-3 md:mt-0"
+          className="md:max-w-[20%] w-full mt-3 md:mt-0"
         />
       </div>
 
@@ -231,7 +255,7 @@ const DbToolsComparisons = () => {
           }}
           onClick={handleCompareClick}
         >
-          Compare
+          COMPARE
         </CommonButton>
       </div>
       <div className="md:flex md:flex-row items-start justify-between w-full ">
@@ -261,6 +285,10 @@ const DbToolsComparisons = () => {
                 indicator={<LoadingOutlined style={{ fontSize: 90 }} spin />}
               />
             </div>
+          ) : filteredOptions?.length === 0 ? (
+            <div className="grid-cols-1 w-full flex justify-center items-center h-32">
+              <Empty description="No Db tool" />
+            </div>
           ) : (
             <div className="grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 md:grid-cols-3 gap-6 ">
               <>
@@ -274,34 +302,34 @@ const DbToolsComparisons = () => {
                     >
                       <Button
                         key={option.id}
-                        style={{
-                          width: "100%",
-                          fontWeight: "600",
-                          fontSize: "16px",
-                          border:
-                            selectedChildTools.includes(option.tool_name) ||
-                            hoverIndex === index
-                              ? "2px solid #3E53D7"
-                              : "2px solid #D9D9D9",
-                          height: "60px",
-                          background: "transparent",
-                          color: "black",
-                          color:
-                            selectedChildTools.includes(option.tool_name) ||
-                            hoverIndex === index
-                              ? "#3E53D7"
-                              : "black",
-                          borderRadius: "16px",
-
-                          overflow: "hidden",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        onMouseEnter={() => setHoverIndex(index)}
-                        onMouseLeave={() => setHoverIndex(null)}
+                        className={`relative w-full font-semibold text-[15px] h-[60px] bg-transparent rounded-[16px] 
+                          flex items-center justify-center border-2 
+                          ${
+                            selectedChildTools.includes(option.tool_name)
+                              ? "!border-[#3E53D7] !text-[#3E53D7] border-[3px]"
+                              : "border-blue-300 text-black"
+                          } ${
+                          index % 2 === 0
+                            ? "bg-gradient-to-r from-cyan-50 to-sky-100"
+                            : "bg-gradient-to-r from-blue-50 to-blue-200"
+                        }`}
                         onClick={() => handleChildClick(option)}
                       >
+                        <div
+                          className={`absolute top-[20px] left-2 p-[2px] ${
+                            selectedChildTools.includes(option.tool_name)
+                              ? "border-[#3E53D7] border"
+                              : "border-gray-300 bg-white border"
+                          }  rounded-full`}
+                        >
+                          <div
+                            className={`h-[10px] w-[10px]  rounded-full ${
+                              selectedChildTools.includes(option.tool_name)
+                                ? "bg-[#3E53D7]"
+                                : "bg-white"
+                            } `}
+                          />
+                        </div>
                         <span
                           className="truncate capitalize"
                           style={{

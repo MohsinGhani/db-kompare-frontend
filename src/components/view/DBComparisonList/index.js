@@ -56,7 +56,7 @@ const ComparisonDbListPage = () => {
           <h1 className="md:text-5xl text-2xl font-bold mb-4 mr-3">
             Offer Technology
           </h1>
-          <Tooltip
+          {/* <Tooltip
             title={
               <div>
                 <ul className="">
@@ -86,7 +86,7 @@ const ComparisonDbListPage = () => {
                 cursor: "pointer",
               }}
             />
-          </Tooltip>
+          </Tooltip> */}
         </div>
         <p className="md:text-base text-sm font-normal mb-3 text-secondary text-center">
           The DB-Kompare Ranking is a monthly updated list that evaluates and

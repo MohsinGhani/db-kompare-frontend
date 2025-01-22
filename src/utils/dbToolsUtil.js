@@ -64,6 +64,19 @@ export const fetchDbToolsMetricsData = async (startDate, endDate) => {
   });
 };
 
+// Function to fetch the count of databases
+
+export const fetchDbToolsCount = async () => {
+  return fetchAPI(`${API_BASE_URL_1}/get-dbtools-count`, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+
 // Function to fetch the ranking of db tools
 
 export const fetchDbToolsRanking = async (startDate, endDate) => {

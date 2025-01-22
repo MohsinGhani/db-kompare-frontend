@@ -5,7 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import SearchBar from "@/components/shared/SearchInput";
 import CommonButton from "@/components/shared/Button";
 import { fetchDatabases } from "@/utils/databaseUtils";
-import { Button, Spin, Tooltip } from "antd";
+import { Button, Empty, Spin, Tooltip } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { useParams } from "next/navigation";
@@ -105,13 +105,17 @@ const DataBasesComparisons = () => {
             selectedDatabases.includes("list") || selectedDatabases.length === 0
           }
         >
-          Compare
+          COMPARE
         </CommonButton>
       </div>
       {isLoading ? (
         <div className="w-full flex justify-center items-center h-32">
           {" "}
           <Spin indicator={<LoadingOutlined style={{ fontSize: 90 }} spin />} />
+        </div>
+      ) : filteredOptions?.length === 0 ? (
+        <div className="grid-cols-1 w-full flex justify-center items-center h-32">
+          <Empty description="No database" />
         </div>
       ) : (
         <div className="grid w-full grid-cols-1 sm:grid-cols-2  xl:grid-cols-5  md:grid-cols-3 gap-4 p-2">
@@ -122,19 +126,36 @@ const DataBasesComparisons = () => {
                 <Tooltip key={option.name} title={option.name} placement="top">
                   <Button
                     key={option.name}
-                    className={`w-full font-semibold text-[15px] h-[60px] bg-transparent rounded-[16px] 
+                    className={`relative w-full font-semibold text-[15px] h-[60px] bg-transparent rounded-[16px] 
                       flex items-center justify-center border-2 
                       ${
-                        selectedDatabases.includes(option.name) 
-                          ? "border-[#3E53D7] text-[#3E53D7]"
+                        selectedDatabases.includes(option.name)
+                          ? "border-[#3E53D7] text-[#3E53D7] border-[3px]"
                           : "border-blue-300 text-black"
-                      } ${index %2 ===0? "bg-gradient-to-r from-cyan-50 to-sky-50": "bg-gradient-to-r from-blue-50 to-blue-200"}`}
-                   
-                  
+                      } ${
+                      index % 2 === 0
+                        ? "bg-gradient-to-r from-cyan-50 to-sky-100"
+                        : "bg-gradient-to-r from-blue-50 to-blue-200"
+                    }`}
                     onClick={() => handleDatabaseClick(option)}
                   >
+                    <div
+                      className={`absolute top-[20px] left-2 p-[2px] ${
+                        selectedDatabases.includes(option?.name)
+                          ? "border-[#3E53D7] border"
+                          : "border-gray-300 bg-white border"
+                      }  rounded-full`}
+                    >
+                      <div
+                        className={`h-[10px] w-[10px]  rounded-full ${
+                          selectedDatabases.includes(option?.name)
+                            ? "bg-[#3E53D7]"
+                            : "bg-white"
+                        } `}
+                      />
+                    </div>
                     <span
-                      className="truncate capitalize"
+                      className="truncate capitalize ml-4"
                       style={{
                         display: "block",
                         maxWidth: "100%",

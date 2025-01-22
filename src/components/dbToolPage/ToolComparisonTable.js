@@ -12,6 +12,7 @@ const ToolComparisonTable = ({
   setSelectedToolsOptions,
   selectedToolsData,
 }) => {
+
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -72,6 +73,7 @@ const ToolComparisonTable = ({
       rowScope: "row",
       render: (text) => <div style={{ minWidth: "200px" }}>{text}</div>,
     },
+    
     ...selectedTools.map((db) => ({
       title: (
         <div className="flex items-center justify-between gap-2">
@@ -115,6 +117,10 @@ const ToolComparisonTable = ({
       render: (text, record) => {
         let displayValue = text;
         const key = record._attributeKey;
+
+        if(key === "db_compare_ranking") {
+          return null
+        }
 
         const filterKeyMap = {
           deployment_options_on_prem_or_saas: "DeploymentOption",
@@ -191,6 +197,28 @@ const ToolComparisonTable = ({
     })),
   ];
 
+  // Create the db_compare_ranking row separately
+const dbCompareRankingRow = { name: "DB Compare Ranking", _attributeKey: "db_compare_ranking" };
+selectedTools.forEach((db) => {
+  const tool = selectedToolsData.find(
+    (tool) => tool?.tool_name === db || tool?.name === db
+  );
+
+  if (tool) {
+    const ranking = tool.db_compare_ranking;
+    if (ranking) {
+      dbCompareRankingRow[db] = {
+        rank: ranking.rank || ["N/A"],
+        score: ranking.score || "0",
+      };
+    } else {
+      dbCompareRankingRow[db] = "No ranking available";
+    }
+  } else {
+    dbCompareRankingRow[db] = "No ranking available";
+  }
+});
+
   const descriptionRow = { name: "Tool description" };
   selectedTools.forEach((db) => {
     const tool = selectedToolsData.find(
@@ -240,10 +268,11 @@ const ToolComparisonTable = ({
   });
 
   const data = [
-    descriptionRow,
-    categoryNameRow,
-    categoryDescriptionRow,
-    ...dataRows,
+    descriptionRow,           // Tool description row
+    categoryNameRow,          // Tool type row
+    categoryDescriptionRow,   // Tool type description row
+    dbCompareRankingRow,      // DB Compare Ranking row (placed after categoryDescriptionRow)
+    ...dataRows,              // Remaining data rows
   ];
 
   useEffect(() => {

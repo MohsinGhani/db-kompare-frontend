@@ -1,5 +1,6 @@
 import React from "react";
 import { Select } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -22,7 +23,7 @@ const CustomSelect = ({
       value={value}
       placeholder={placeholder}
       onChange={onChange}
-      suffixIcon={null}
+      suffixIcon={<DownOutlined />}
       style={{
         borderRadius: "4px 0 0 4px",
         border: "none",

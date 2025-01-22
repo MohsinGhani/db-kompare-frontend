@@ -88,7 +88,6 @@ const ComparisonDbPage = () => {
               db_compare_ranking: {
                 rank: [
                   `# ${rankChanges.rank || "N/A"}`,
-                  matchingRank?.database_model || "Unknown",
                 ],
                 score: scoreChanges?.totalScore
                   ? Number(scoreChanges.totalScore).toFixed(2)

@@ -11,8 +11,13 @@ import { Button, Drawer } from "antd";
 import CommonTypography from "@/components/shared/Typography";
 import { useParams, useSearchParams } from "next/navigation";
 import { FilterOutlined } from "@ant-design/icons";
-import { fetchDbTools, fetchDbToolsByIDs } from "@/utils/dbToolsUtil";
+import {
+  fetchDbTools,
+  fetchDbToolsByIDs,
+  fetchDbToolsRanking,
+} from "@/utils/dbToolsUtil";
 import { toolMatchesFilters } from "@/utils/helper";
+import { getPreviousDates } from "@/utils/formatDateAndTime";
 
 const DbToolComparison = () => {
   const router = useRouter();
@@ -114,16 +119,45 @@ const DbToolComparison = () => {
     setSelectedToolsIds(newSelectedToolIds);
   }, [toolsData, selectedTools]);
 
+
+  
   useEffect(() => {
     if (selectedToolsIds.length > 0) {
       const fetchSelectedTools = async () => {
+        const previousDays = getPreviousDates();
+        const yesterdayDate = previousDays[0];
+
         try {
-          const response = await fetchDbToolsByIDs(selectedToolsIds);
-          setSelectedToolsData(response.data);
+          const [dbTools, dbToolsRanking] = await Promise.all([
+            fetchDbToolsByIDs(selectedToolsIds),
+            fetchDbToolsRanking(yesterdayDate, yesterdayDate),
+          ]);
+
+          const modifyData = dbTools?.data?.map((toolEntry) => {
+            const matchingRank = dbToolsRanking?.data?.find(
+              (rank) => rank?.dbtool_id === toolEntry?.id
+            );
+
+            const rankChanges = matchingRank?.rankChanges?.[0] || {};
+            const scoreChanges = matchingRank?.scoreChanges?.[0] || {};
+
+            return {
+              ...toolEntry,
+              db_compare_ranking: {
+                rank: [`# ${rankChanges.rank || "N/A"}`],
+                score: scoreChanges?.totalScore
+                  ? Number(scoreChanges.totalScore).toFixed(2)
+                  : "0",
+              },
+            };
+          });
+          // Set the transformed data to state
+          setSelectedToolsData(modifyData);
         } catch (error) {
           console.error("Error fetching tools details:", error);
         }
       };
+
       fetchSelectedTools();
     }
   }, [selectedToolsIds]);
