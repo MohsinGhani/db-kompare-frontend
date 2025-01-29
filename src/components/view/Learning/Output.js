@@ -2,8 +2,7 @@ import { useState } from "react";
 // import { executeCode } from "../api";
 import { Button } from "antd";
 
-const Output = ({ editorRef, language }) => {
-  const [output, setOutput] = useState(null);
+const Output = ({ editorRef, language,result }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -27,7 +26,7 @@ const Output = ({ editorRef, language }) => {
   //       setIsLoading(false);
   //     }
   //   };
-
+console.log("output", result);
   return (
     <>
       <div
@@ -39,8 +38,8 @@ const Output = ({ editorRef, language }) => {
         borderRadius={4}
         borderColor={isError ? "red.500" : "#333"}
       >
-        {output
-          ? output.map((line, i) => <p key={i}>{line}</p>)
+        {result
+          ? result.map((line, i) => <p key={i}>{line.name}</p>)
           : 'Opps! No output to display.'}
       </div>
     </>

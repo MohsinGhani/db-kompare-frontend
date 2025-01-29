@@ -19,13 +19,13 @@ export default function SQLEditor() {
   const executeQuery = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/query", {
+      const response = await fetch("http://localhost:8000/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sql: query }),
       });
       const result = await response.json();
-      setOutput(result);
+      setOutput(result?.data);
     } catch (error) {
       setOutput({ error: "Error executing query." });
     } finally {
