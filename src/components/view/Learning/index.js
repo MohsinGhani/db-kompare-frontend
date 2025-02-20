@@ -42,7 +42,7 @@ export default function SQLEditor() {
           <div className="bg-gray-50 border rounded-xl shadow-inner">
             <Editor
               height="70vh"
-              language={language}
+              language={"pgsql"}
               value={query}
               onChange={(val) => setQuery(val || "")}
               className="rounded-t-xl"

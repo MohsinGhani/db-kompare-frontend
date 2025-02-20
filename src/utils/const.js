@@ -5,13 +5,30 @@ export const Navlinks = [
   { href: "/our-blogs", label: "Blogs" },
   { href: "https://dataeli5.substack.com/", label: "DB Internals" },
   { href: "#", label: "API" },
+  { href: "/questions", label: "Practice SQL" },
 ];
 
 export const DropdownOptions = [
-  { value: "githubScore", label: "Github", icon: "assets/icons/github-icon.svg" },
-  { value: "stackoverflowScore", label: "Stack Overflow", icon: "assets/icons/sflow-icon.svg" },
-  { value: "googleScore", label: "Google Search", icon: "assets/icons/google-icon.svg" },
-  { value: "bingScore", label: "Bing Search", icon: "assets/icons/bing-icon.svg" },
+  {
+    value: "githubScore",
+    label: "Github",
+    icon: "assets/icons/github-icon.svg",
+  },
+  {
+    value: "stackoverflowScore",
+    label: "Stack Overflow",
+    icon: "assets/icons/sflow-icon.svg",
+  },
+  {
+    value: "googleScore",
+    label: "Google Search",
+    icon: "assets/icons/google-icon.svg",
+  },
+  {
+    value: "bingScore",
+    label: "Bing Search",
+    icon: "assets/icons/bing-icon.svg",
+  },
 ];
 
 export const METRICES_TYPE = {
@@ -79,6 +96,45 @@ export const rankingOptions = [
   { value: ["Columnar", "Wide column store"], label: "Columnar DB" },
   { value: "Navigational DBMS", label: "Hierarchial DB" },
 ];
+export const RESOURCE_TYPE = {
+  GITHUB: "GITHUB",
+  STACKOVERFLOW: "STACKOVERFLOW",
+  GOOGLE: "GOOGLE",
+  BING: "BING",
+  ALL: "ALL",
+};
+
+export const LESSON_CATEGORY = {
+  BASIC: "BASIC",
+  INTERMEDIATE: "INTERMEDIATE",
+  HARD: "HARD",
+};
+
+export const TOPICS_CATEGORIES = {
+  SQL: "SQL",
+  PGSQL: "PGSQL",
+  MYSQL: "MYSQL",
+  ORACLE: "ORACLE",
+  MSSQL: "MSSQL",
+  OTHER: "OTHER",
+};
+
+export const SUPPORTED_RUNTIME = {
+  POSTGRES: "POSTGRES",
+  MYSQL: "MYSQL",
+};
+
+export const DIFFICULTY = {
+  ALL: "ALL",
+  EASY: "EASY",
+  MEDIUM: "MEDIUM",
+  HARD: "HARD",
+};
+
+export const QUESTION_TYPE = {
+  INTERVIEW: "INTERVIEW",
+  LESSON: "LESSON",
+};
 
 export const core_features = [
   "Scalability",
@@ -156,9 +212,8 @@ export const core_features = [
   "Third Party Riskmanagement",
   "Visual Query Builder",
   "Web Version Available",
-  "Workflow"
-]
-
+  "Workflow",
+];
 
 export const categoriesItems = [
   {

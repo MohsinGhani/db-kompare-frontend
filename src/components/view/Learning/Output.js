@@ -39,10 +39,12 @@ console.log("output", result);
         borderColor={isError ? "red.500" : "#333"}
       >
         {result
-          ? result.map((line, i) => <p key={i}>{line.name}</p>)
+          ? result?.map((line, i) => <p key={i}>{line?.first_name}</p>)
           : 'Opps! No output to display.'}
       </div>
     </>
   );
 };
 export default Output;
+
+
