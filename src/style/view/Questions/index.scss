@@ -1,0 +1,17 @@
+.questions-container {
+  .ant-table {
+    .ant-table-thead {
+      .ant-table-cell {
+        padding: 18px;
+      }
+    }
+
+    tr:nth-child(even) {
+      background: #f3f6ff;
+    }
+
+    tr:nth-child(odd) {
+      background: white;
+    }
+  }
+}

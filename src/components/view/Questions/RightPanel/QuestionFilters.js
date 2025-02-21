@@ -1,55 +1,63 @@
 "use client";
-import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-import { Dropdown, Input, Space } from "antd";
+
+import { Input, Space, Select } from "antd";
 import React from "react";
+import { TOPICS_CATEGORIES, DIFFICULTY, QUESTION_STATUS } from "@/utils/const";
+
 const { Search } = Input;
-const items = [
+const { Option } = Select;
+
+// Convert object values into selectable items
+const generateSelectItems = (data) =>
+  Object.values(data).map((value) => ({
+    label: value,
+    value: value,
+  }));
+
+// Filter configuration for dynamic rendering
+const filterOptions = [
   {
-    label: "1st menu item",
-    key: "1",
+    label: "Category",
+    key: "category",
+    items: generateSelectItems(TOPICS_CATEGORIES),
   },
   {
-    label: "2nd menu item",
-    key: "2",
+    label: "Difficulty",
+    key: "difficulty",
+    items: generateSelectItems(DIFFICULTY),
   },
   {
-    label: "3rd menu item",
-    key: "3",
+    label: "Status",
+    key: "status",
+    items: generateSelectItems(QUESTION_STATUS),
   },
 ];
-const QuestionFilters = () => {
+
+const QuestionFilters = ({ updateFilter }) => {
   return (
-    <div className="flex items-center gap-2 mt-6 flex-wrap">
-      <Space.Compact className="w-[60%]">
-        <Search placeholder="Search by questions and companies" allowClear />
+    <div className="flex items-center gap-2 mt-3 md:mt-6 flex-wrap">
+      {/* Search Bar */}
+      <Space.Compact className="w-full md:w-[55%]">
+        <Search
+          placeholder="Search by questions and companies"
+          allowClear
+          onChange={(e) => updateFilter("searchTerm", e.target.value)}
+        />
       </Space.Compact>
-      <Dropdown menu={{ items }} trigger={["click"]} className="h-8 px-2">
-        <Space
-          align="center"
-          className="border text-[#191A15CC] font-normal  rounded-md"
-        >
-          <p>Select Category</p>
-          <DownOutlined className="mt-2" />
-        </Space>
-      </Dropdown>
-      <Dropdown menu={{ items }} trigger={["click"]} className="h-8 px-2">
-        <Space
-          align="center"
-          className="border text-[#191A15CC] font-normal  rounded-md"
-        >
-          <p>Select Difficulty</p>
-          <DownOutlined className="mt-2" />
-        </Space>
-      </Dropdown>
-      <Dropdown menu={{ items }} trigger={["click"]} className="h-8 px-2">
-        <Space
-          align="center"
-          className="border text-[#191A15CC] font-normal  rounded-md"
-        >
-          <p>Select Status</p>
-          <DownOutlined className="mt-2" />
-        </Space>
-      </Dropdown>
+
+      {/* Multi-Select Filters */}
+      {filterOptions.map((filter) => (
+        <Select
+          key={filter.key}
+          placeholder={`Select ${filter.label}`}
+          className="w-36"
+          options={filter.items}
+          onChange={(selectedValues) =>
+            updateFilter(filter.key, selectedValues)
+          }
+          allowClear
+        />
+      ))}
     </div>
   );
 };

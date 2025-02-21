@@ -79,7 +79,6 @@ export default function Navbar() {
         const userId = idToken["custom:userId"];
         handleLogin(userId);
       } catch (error) {
-        console.error("Error fetching current user:", error);
         dispatch(setUserDetails(null));
         setLoading(false);
       }

@@ -109,6 +109,11 @@ export const LESSON_CATEGORY = {
   INTERMEDIATE: "INTERMEDIATE",
   HARD: "HARD",
 };
+export const QUESTION_STATUS = {
+  SOLVED: "SOLVED",
+  ERROR: "ERROR",
+  NOT_STARTED: "NOT STARTED",
+};
 
 export const TOPICS_CATEGORIES = {
   SQL: "SQL",
@@ -125,7 +130,6 @@ export const SUPPORTED_RUNTIME = {
 };
 
 export const DIFFICULTY = {
-  ALL: "ALL",
   EASY: "EASY",
   MEDIUM: "MEDIUM",
   HARD: "HARD",

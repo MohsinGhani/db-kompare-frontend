@@ -1,106 +1,86 @@
 "use client";
 
 import { DIFFICULTY } from "@/utils/const";
-import { fetchQuestions } from "@/utils/questionsUtil";
 import { Table } from "antd";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "nextjs-toploader/app";
+import React from "react";
+
+const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
 const columns = [
   {
     title: "Q.No",
     dataIndex: "ind",
     key: "ind",
+    sorter: (a, b) => a.ind - b.ind,
   },
   {
     title: "Company",
     dataIndex: "companies",
     key: "companies",
-    render: (item) => {
-      const company = item[0];
-      return (
-        <div>
-          <img />
-          <p>{company?.name}</p>
-        </div>
-      );
-    },
+    render: (companies) => (
+      <div>{companies.length > 0 && <p>{companies[0]?.name}</p>}</div>
+    ),
   },
   {
     title: "Title",
     dataIndex: "shortTitle",
     key: "shortTitle",
+    sorter: (a, b) => a.shortTitle.localeCompare(b.shortTitle),
   },
   {
     title: "Category",
     dataIndex: "categories",
     key: "categories",
-    render: (item) => {
-      const category = item[0];
-      return <p>{category}</p>;
-    },
+    render: (categories) => <p>{categories[0]}</p>,
+    sorter: (a, b) =>
+      (a.categories[0] || "").localeCompare(b.categories[0] || ""),
   },
   {
     title: "Difficulty",
     dataIndex: "difficulty",
     key: "difficulty",
-    render: (text) => (
+    render: (difficulty) => (
       <p
         className={`${
-          text === DIFFICULTY.EASY
-            ? "text-[#17A44B]"
-            : text === DIFFICULTY.MEDIUM
-            ? "text-[#DA8607]"
-            : "text-[#DE3D28]"
+          difficulty === DIFFICULTY.EASY
+            ? "text-green-600"
+            : difficulty === DIFFICULTY.MEDIUM
+            ? "text-orange-600"
+            : "text-red-600"
         }`}
       >
-        {text}
+        {difficulty}
       </p>
     ),
+    sorter: (a, b) =>
+      (difficultyOrder[a.difficulty] || 4) -
+      (difficultyOrder[b.difficulty] || 4),
   },
   {
     title: "Status",
-    dataIndex: "Status",
-    key: "Status",
-    render: (text) => <p>-</p>,
+    dataIndex: "status",
+    key: "status",
+    render: () => <p>-</p>,
   },
 ];
-const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
-const QuestionsTable = () => {
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const loadQuestions = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchQuestions();
-        const sortedQuestions = data?.data?.sort(
-          (a, b) =>
-            (difficultyOrder[a.difficulty] || 4) -
-            (difficultyOrder[b.difficulty] || 4)
-        );
-        setQuestions(sortedQuestions);
-      } catch (err) {
-        setError("Failed to fetch questions");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuestions();
-  }, []);
+const QuestionsTable = ({ questions, loading }) => {
+  const router = useRouter();
 
   return (
     <Table
       columns={columns}
-      dataSource={questions?.map((item, ind) => ({
-        ...item,
-        ind: ind + 1,
-      }))}
+      dataSource={questions.map((item, ind) => ({ ...item, ind: ind + 1 }))}
       loading={loading}
-      className="font-medium"
+      className="font-medium max-w-[600px] md:max-w-full overflow-auto"
       bordered
+      pagination={false}
+      rowKey="id"
+      onRow={(record) => ({
+        onClick: () => router.push(`/questions/${record.id}`),
+      })}
+      rowClassName="cursor-pointer transition"
     />
   );
 };
