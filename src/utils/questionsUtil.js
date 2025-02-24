@@ -26,3 +26,13 @@ export const fetchQuestions = async () => {
     },
   });
 };
+export const fetchQuestionDetail = async (id) => {
+  const url = `${API_BASE_URL_1}/question/${id}`;
+
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
