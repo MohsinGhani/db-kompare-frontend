@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import "github-markdown-css";
 const CommonMarkdown = ({ markdown }) => {
   return (
-    <div className="markdown-body !bg-transparent container mx-auto p-4">
+    <div className="markdown-body overflow-auto !bg-transparent ">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
     </div>
   );

@@ -29,14 +29,14 @@ const QuestionDetail = () => {
   console.log("question", question);
 
   return (
-    <div className="pt-28 md:pt-20 pb-24 min-h-screen h-full w-full overflow-hidden mb-24 question-details">
+    <div className="pt-28 md:pt-20 pb-24 relative w-full h-screen overflow-auto  question-details">
       <QuestionTop question={question} />
       <SplitPane
         split="vertical"
         minSize={500}
         maxSize={-500}
         defaultSize="50%"
-        className="w-full "
+        className="h-full"
       >
         <LeftPanel question={question} />
         <RightPanel question={question} />

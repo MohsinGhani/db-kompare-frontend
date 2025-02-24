@@ -6,6 +6,7 @@ import CommonTypography from "../shared/Typography";
 import { useRouter } from "nextjs-toploader/app";
 import { Navlinks } from "@/utils/const";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 const socialLinks = [
   { href: "/assets/icons/facebook.svg", alt: "Facebook", link: "" },
   { href: "/assets/icons/instagram.svg", alt: "Instagram", link: "" },
@@ -18,8 +19,13 @@ const socialLinks = [
 
 export default function Footer() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isEditorScreen = pathname.startsWith("/questions");
+
+  if (isEditorScreen) return null;
   return (
-    <div className="md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
+    <div className="relative md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 justify-center">
         <Image
           src={logo}

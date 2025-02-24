@@ -16,7 +16,11 @@ const LeftPanel = ({ question }) => {
           Questions
         </div>
       ),
-      children: <CommonMarkdown markdown={question?.description} />,
+      children: (
+        <div className="h-full overflow-auto py-4">
+          <CommonMarkdown markdown={question?.description} />
+        </div>
+      ),
     },
     {
       key: "2",
@@ -62,8 +66,8 @@ const LeftPanel = ({ question }) => {
     },
   ];
   return (
-    <div className="w-full h-screen bg-[#F6FFFD] px-4 py-6 overflow-y-auto">
-      <div className="flex items-center justify-between gap-3">
+    <div className="w-full h-full overflow-auto bg-[#F6FFFD] px-4 py-6 ">
+      <div className="flex items-center justify-between gap-3 ">
         <p className="font-bold text-2xl w-3/5">{question?.title}</p>
         <div className="flex items-center gap-2">
           <div>
@@ -81,7 +85,7 @@ const LeftPanel = ({ question }) => {
           </div>
         </div>
       </div>
-      <div className="mt-3">
+      <div className="mt-3 h-full">
         <Tabs defaultActiveKey="1" items={tabItems} />
       </div>
     </div>
