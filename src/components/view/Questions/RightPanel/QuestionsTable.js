@@ -10,9 +10,9 @@ const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 const columns = [
   {
     title: "Q.No",
-    dataIndex: "ind",
-    key: "ind",
-    sorter: (a, b) => a.ind - b.ind,
+    dataIndex: "questionNo",
+    key: "questionNo",
+    sorter: (a, b) => a.questionNo - b.questionNo,
   },
   {
     title: "Company",
@@ -21,6 +21,7 @@ const columns = [
     render: (companies) => (
       <div>{companies.length > 0 && <p>{companies[0]?.name}</p>}</div>
     ),
+    sorter: (a, b) => a.companies[0]?.name.localeCompare(b.companies[0]?.name),
   },
   {
     title: "Title",

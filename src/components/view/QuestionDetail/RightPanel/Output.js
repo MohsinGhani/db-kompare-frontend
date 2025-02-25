@@ -23,6 +23,7 @@ const Output = ({ query }) => {
 
   return (
     <div className="bg-[#FAFAFA] h-[30%] p-3 relative">
+      <p className="font-semibold">Output</p>
       <div className="flex gap-2 items-baseline absolute bottom-4 right-4">
         <Button type="dashed">Run Code</Button>
         <div className="relative">

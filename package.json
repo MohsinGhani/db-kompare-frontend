@@ -27,6 +27,7 @@
     "nextjs-toploader": "^3.7.15",
     "quill-image-resize-module-react": "^3.0.0",
     "react": "^18",
+    "react-confetti": "^6.2.3",
     "react-countup": "^6.5.3",
     "react-dom": "^18",
     "react-markdown": "^10.0.0",

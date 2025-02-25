@@ -74,7 +74,7 @@ const RightPanel = ({ question }) => {
   return (
     <div className="flex flex-col bg-[#EFFAFF] h-full px-6 pt-6 overflow-auto">
       <div className="bg-white rounded-t-lg h-[70%] p-4 overflow-hidden ">
-        <div className="flex justify-between items-center mb-4 border-b pb-4">
+        <div className="flex justify-between items-center pb-2">
           <p className="text-2xl font-bold">Input</p>
           <Select
             defaultValue={"POSTGRES"}
