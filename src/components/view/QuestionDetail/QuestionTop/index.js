@@ -22,7 +22,10 @@ const QuestionTop = ({ question }) => {
           icon={<LeftOutlined className="text-black" />}
         />
         <div className="border w-[400px] p-2 h-10 rounded-md bg-white">
-          <p className="text-center text-[#191A15CC] font-normal ">
+          <p className="text-center text-[#191A15CC] font-normal">
+            <span className="font-semibold bg-primary rounded-sm inline-block px-2 text-white mr-1">
+              #{question?.questionNo}
+            </span>{" "}
             {question?.shortTitle}
           </p>
         </div>

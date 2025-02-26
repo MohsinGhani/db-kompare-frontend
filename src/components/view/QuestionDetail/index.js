@@ -11,8 +11,8 @@ import Confetti from "react-confetti";
 
 const QuestionDetail = () => {
   const [question, setQuestion] = useState(null);
+  const [isSolutionCorrect, setIsSolutionCorrect] = useState(false);
   const { id } = useParams();
-
   useEffect(() => {
     if (id) {
       const getQuestionData = async () => {
@@ -27,28 +27,34 @@ const QuestionDetail = () => {
     }
   }, [id]);
 
-  console.log("question", question);
+  console.log("question", isSolutionCorrect);
 
   return (
     <>
-      <div className="pt-28 md:pt-20 pb-24 relative w-full h-screen overflow-auto  question-details">
+      <div className="pt-28 md:pt-20 pb-24 relative w-full h-auto min-h-screen overflow-auto  question-details">
         <QuestionTop question={question} />
         <SplitPane
           split="vertical"
-          minSize={500}
-          maxSize={-500}
+          minSize={200}
+          maxSize={-200}
           defaultSize="50%"
           className="h-full"
         >
           <LeftPanel question={question} />
-          <RightPanel question={question} />
+          <RightPanel
+            question={question}
+            isSolutionCorrect={isSolutionCorrect}
+            setIsSolutionCorrect={setIsSolutionCorrect}
+          />
         </SplitPane>
       </div>
-      {/* <Confetti
-        width={window.innerWidth}
-        height={window.innerHeight}
-        numberOfPieces={300}
-      /> */}
+      {isSolutionCorrect && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={300}
+        />
+      )}
     </>
   );
 };

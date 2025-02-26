@@ -4,8 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import { Select } from "antd";
 import Output from "./Output";
+import ReactConfetti from "react-confetti";
 
-const RightPanel = ({ question }) => {
+const RightPanel = ({ question, setIsSolutionCorrect, isSolutionCorrect }) => {
   const [query, setQuery] = useState(``);
   const editorRef = useRef(null);
   useEffect(() => {
@@ -72,33 +73,40 @@ const RightPanel = ({ question }) => {
   }));
 
   return (
-    <div className="flex flex-col bg-[#EFFAFF] h-full px-6 pt-6 overflow-auto">
-      <div className="bg-white rounded-t-lg h-[70%] p-4 overflow-hidden ">
-        <div className="flex justify-between items-center pb-2">
-          <p className="text-2xl font-bold">Input</p>
-          <Select
-            defaultValue={"POSTGRES"}
-            onChange={onChange}
-            options={selectedOPtions}
+    <>
+      <div className="flex flex-col bg-[#EFFAFF] h-full px-6 pt-6 overflow-auto">
+        <div className="bg-white rounded-t-lg h-[70%] p-4 overflow-hidden ">
+          <div className="flex justify-between items-center pb-2">
+            <p className="text-2xl font-bold">Input</p>
+            <Select
+              defaultValue={"POSTGRES"}
+              onChange={onChange}
+              options={selectedOPtions}
+            />
+          </div>
+          <Editor
+            height="100%"
+            language="pgsql"
+            value={query}
+            onChange={(val) => setQuery(val || "")}
+            beforeMount={handleEditorWillMount} // Register provider before editor mounts
+            onMount={handleEditorDidMount} // Get ref to editor if needed
+            options={{
+              fontSize: 14,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+            }}
           />
         </div>
-        <Editor
-          height="100%"
-          language="pgsql"
-          value={query}
-          onChange={(val) => setQuery(val || "")}
-          beforeMount={handleEditorWillMount} // Register provider before editor mounts
-          onMount={handleEditorDidMount} // Get ref to editor if needed
-          options={{
-            fontSize: 14,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-          }}
+        <Output
+          query={query}
+          question={question}
+          setIsSolutionCorrect={setIsSolutionCorrect}
+          isSolutionCorrect={isSolutionCorrect}
         />
       </div>
-      <Output query={query} />
-    </div>
+    </>
   );
 };
 
