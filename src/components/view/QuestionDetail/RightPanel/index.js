@@ -6,7 +6,13 @@ import { Select } from "antd";
 import Output from "./Output";
 import ReactConfetti from "react-confetti";
 
-const RightPanel = ({ question, setIsSolutionCorrect, isSolutionCorrect }) => {
+const RightPanel = ({
+  question,
+  setIsSolutionCorrect,
+  isSolutionCorrect,
+  user,
+  time,
+}) => {
   const [query, setQuery] = useState(``);
   const editorRef = useRef(null);
   useEffect(() => {
@@ -104,6 +110,8 @@ const RightPanel = ({ question, setIsSolutionCorrect, isSolutionCorrect }) => {
           question={question}
           setIsSolutionCorrect={setIsSolutionCorrect}
           isSolutionCorrect={isSolutionCorrect}
+          user={user}
+          time={time}
         />
       </div>
     </>

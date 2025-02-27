@@ -6,18 +6,14 @@ import { fetchQuestions } from "@/utils/questionsUtil";
 
 const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
-const RightPanel = () => {
+const RightPanel = ({
+  filters,
+  setFilters,
+  filteredQuestions,
+  setFilteredQuestions,
+}) => {
   const [questions, setQuestions] = useState([]);
-  const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Filter states
-  const [filters, setFilters] = useState({
-    searchTerm: "",
-    category: null,
-    difficulty: null,
-    status: null,
-  });
 
   // Fetch questions on mount
   useEffect(() => {
@@ -72,6 +68,18 @@ const RightPanel = () => {
 
     if (filters.status) {
       filtered = filtered.filter((q) => q.status === filters.status);
+    }
+    if (filters.tags && filters.tags.length > 0) {
+      filtered = filtered.filter((q) => {
+        return (
+          q.tags &&
+          q.tags.some((tag) => {
+            // In case tag is an object with an id field, otherwise it is directly the id.
+            const tagId = tag?.id || tag;
+            return filters.tags.includes(tagId);
+          })
+        );
+      });
     }
 
     setFilteredQuestions(filtered);

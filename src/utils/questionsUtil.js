@@ -14,8 +14,6 @@ const fetchAPI = async (url, options = {}) => {
   return await response.json();
 };
 
-// Function to fetch blogs
-
 export const fetchQuestions = async () => {
   const url = `${API_BASE_URL_1}/get-questions`;
 
@@ -26,6 +24,32 @@ export const fetchQuestions = async () => {
     },
   });
 };
+
+export const fetchTags = async () => {
+  const url = `${API_BASE_URL_1}/get-tags`;
+
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+export const fetchSubmissions = async (queryParams = {}) => {
+  // Create a query string from the queryParams object
+  const queryString = new URLSearchParams(queryParams).toString();
+  const url = `${API_BASE_URL_1}/get-submissions${
+    queryString ? `?${queryString}` : ""
+  }`;
+
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+
 export const fetchQuestionDetail = async (id) => {
   const url = `${API_BASE_URL_1}/question/${id}`;
 

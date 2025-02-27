@@ -1,8 +1,9 @@
 import CommonMarkdown from "@/components/shared/CommonMarkdown";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs } from "antd";
+import SubmissionsTable from "./SubmissionsTable";
 
-const LeftPanel = ({ question }) => {
+const LeftPanel = ({ question, user }) => {
   const tabItems = [
     {
       key: "1",
@@ -48,7 +49,7 @@ const LeftPanel = ({ question }) => {
           Your submissions
         </div>
       ),
-      children: <div>Your Submissions Content</div>,
+      children: <SubmissionsTable question={question} type="self" />,
     },
     {
       key: "4",
@@ -62,7 +63,7 @@ const LeftPanel = ({ question }) => {
           Other submissions
         </div>
       ),
-      children: <div>Other Submissions Content</div>,
+      children: <SubmissionsTable question={question} type="others" />,
     },
   ];
   return (

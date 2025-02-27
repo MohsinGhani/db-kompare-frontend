@@ -8,6 +8,8 @@ const Output = ({
   question,
   setIsSolutionCorrect,
   isSolutionCorrect,
+  user,
+  time,
 }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [outputData, setOutputData] = useState([]);
@@ -50,6 +52,8 @@ const Output = ({
     const payload = {
       questionId: question?.id,
       userQuery: query,
+      userId: user?.id,
+      timetaken: time,
     };
     try {
       const res = await runSubmission(payload);

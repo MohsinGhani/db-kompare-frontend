@@ -1,17 +1,38 @@
-import { Col, Grid, Row } from "antd";
-import React from "react";
+"use client";
+
+import { Col, Row } from "antd";
+import React, { useState } from "react";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 
 const Questions = () => {
+  // Filter states
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    category: null,
+    difficulty: null,
+    status: null,
+    tags: [],
+  });
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
   return (
     <div className="pt-28 md:pt-36 pb-20 container questions-container">
       <Row gutter={[16, 16]}>
         <Col xs={24} md={9} xl={6}>
-          <LeftPanel />
+          <LeftPanel
+            filters={filters}
+            setFilters={setFilters}
+            filteredQuestions={filteredQuestions}
+            setFilteredQuestions={setFilteredQuestions}
+          />
         </Col>
         <Col xs={24} md={15} xl={18}>
-          <RightPanel />
+          <RightPanel
+            filters={filters}
+            setFilters={setFilters}
+            filteredQuestions={filteredQuestions}
+            setFilteredQuestions={setFilteredQuestions}
+          />
         </Col>
       </Row>
     </div>
