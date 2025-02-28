@@ -72,19 +72,19 @@ const SubmissionsTable = ({ question, type }) => {
       hidden: type === "others" ? false : true,
     },
     {
-      title: "Time",
+      title: "Submitted At",
       dataIndex: "submittedAt",
       key: "submittedAt",
       render: (value) => formatDate(value),
     },
     {
-      title: "Time Taken",
+      title: "Time Taken to Submit",
       dataIndex: "timetaken",
       key: "timetaken",
       render: (value) => formatTimeTaken(value),
     },
     {
-      title: "Execution Time",
+      title: "Query Execution Time",
       dataIndex: "executiontime",
       key: "executiontime",
       render: (value) => formatExecutionTime(value),
