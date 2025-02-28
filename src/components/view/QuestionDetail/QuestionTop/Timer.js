@@ -2,7 +2,7 @@ import { PauseOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 
 const Timer = ({ time, setTime }) => {
-  const [running, setRunning] = useState(false);
+  const [running, setRunning] = useState(true);
 
   // Run the timer if `running` is true
   useEffect(() => {

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import QuestionFilters from "./QuestionFilters";
 import QuestionsTable from "./QuestionsTable";
 import { fetchQuestions } from "@/utils/questionsUtil";
+import { useSelector } from "react-redux";
 
 const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
@@ -11,6 +12,7 @@ const RightPanel = ({
   setFilters,
   filteredQuestions,
   setFilteredQuestions,
+  user,
 }) => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,9 +107,13 @@ const RightPanel = ({
         </p>
       </div>
 
-      <QuestionFilters updateFilter={updateFilter} />
+      <QuestionFilters updateFilter={updateFilter} user={user} />
 
-      <QuestionsTable questions={filteredQuestions} loading={loading} />
+      <QuestionsTable
+        questions={filteredQuestions}
+        loading={loading}
+        user={user}
+      />
     </div>
   );
 };

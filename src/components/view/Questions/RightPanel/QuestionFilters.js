@@ -15,25 +15,28 @@ const generateSelectItems = (data) =>
   }));
 
 // Filter configuration for dynamic rendering
-const filterOptions = [
-  {
-    label: "Category",
-    key: "category",
-    items: generateSelectItems(TOPICS_CATEGORIES),
-  },
-  {
-    label: "Difficulty",
-    key: "difficulty",
-    items: generateSelectItems(DIFFICULTY),
-  },
-  {
-    label: "Status",
-    key: "status",
-    items: generateSelectItems(QUESTION_STATUS),
-  },
-];
 
-const QuestionFilters = ({ updateFilter }) => {
+const QuestionFilters = ({ updateFilter, user }) => {
+  const filterOptions = [
+    {
+      label: "Category",
+      key: "category",
+      items: generateSelectItems(TOPICS_CATEGORIES),
+      visible: true,
+    },
+    {
+      label: "Difficulty",
+      key: "difficulty",
+      items: generateSelectItems(DIFFICULTY),
+      visible: true,
+    },
+    {
+      label: "Status",
+      key: "status",
+      items: generateSelectItems(QUESTION_STATUS),
+      visible: user ? true : false,
+    },
+  ].filter((item) => item?.visible === true);
   return (
     <div className="flex items-center gap-2 mt-3 md:mt-6 flex-wrap">
       {/* Search Bar */}

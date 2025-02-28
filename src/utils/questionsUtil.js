@@ -35,6 +35,7 @@ export const fetchTags = async () => {
     },
   });
 };
+
 export const fetchSubmissions = async (queryParams = {}) => {
   // Create a query string from the queryParams object
   const queryString = new URLSearchParams(queryParams).toString();
@@ -42,6 +43,15 @@ export const fetchSubmissions = async (queryParams = {}) => {
     queryString ? `?${queryString}` : ""
   }`;
 
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+export const fetchUserSubmissions = async (userId) => {
+  const url = `${API_BASE_URL_1}/get-user-submissions?userId=${userId}`;
   return fetchAPI(url, {
     method: "GET",
     headers: {

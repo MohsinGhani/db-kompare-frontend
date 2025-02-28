@@ -37,6 +37,14 @@ const QuestionDetail = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (isSolutionCorrect) {
+      setTimeout(() => {
+        setIsSolutionCorrect(false);
+      }, 5000);
+    }
+  }, [isSolutionCorrect]);
+
   if (loading) return <CommonLoader />;
 
   return (
@@ -56,7 +64,7 @@ const QuestionDetail = () => {
             isSolutionCorrect={isSolutionCorrect}
             setIsSolutionCorrect={setIsSolutionCorrect}
             user={userDetails?.data?.data}
-            timer={time}
+            time={time}
           />
         </SplitPane>
       </div>

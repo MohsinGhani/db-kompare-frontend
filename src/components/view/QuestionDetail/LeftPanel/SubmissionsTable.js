@@ -2,32 +2,37 @@
 
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Table, Tag, Button, message } from "antd";
+import { Table, Tag, Button, message, Avatar } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { fetchSubmissions } from "@/utils/questionsUtil";
+import CommonTable from "@/components/shared/CommonTable";
+import { getInitials } from "@/utils/getInitials";
 
 const SubmissionsTable = ({ question, type }) => {
   const [submissionsData, setSubmissionsData] = useState([]);
+  const [submissionsDataLoading, setSubmissionsDataLoading] = useState(false);
   const { userDetails } = useSelector((state) => state.auth);
   useEffect(() => {
     const getSubmData = async () => {
       if (question) {
-        const res = await fetchSubmissions({
-          questionId: question?.id,
-          userId: userDetails?.data?.data?.id,
-          type,
-        });
-        setSubmissionsData(res?.data || []);
+        setSubmissionsDataLoading(true);
+        try {
+          const res = await fetchSubmissions({
+            questionId: question?.id,
+            userId: userDetails?.data?.data?.id,
+            type,
+          });
+          setSubmissionsData(res?.data || []);
+          setSubmissionsDataLoading(false);
+        } catch (error) {
+          message.error("Failed to get submission data..!");
+          setSubmissionsDataLoading(false);
+        }
       }
     };
     getSubmData();
   }, [question, type, userDetails]);
-
-  const handleDelete = (record) => {
-    // Implement your delete logic here (e.g., call an API to remove the submission).
-    console.log("Delete submission:", record);
-  };
 
   // Convert timetaken (in seconds) to a more readable format like "5 min 23 sec"
   const formatTimeTaken = (secondsString) => {
@@ -51,6 +56,21 @@ const SubmissionsTable = ({ question, type }) => {
   };
 
   const columns = [
+    {
+      title: "User name",
+      dataIndex: "user",
+      key: "user",
+      width: 140,
+      render: (user) => (
+        <div className="flex items-center gap-2">
+          <Avatar shape="circle" className="bg-[#F6F6FF] text-[#3E53D7]">
+            {getInitials(user?.name)}
+          </Avatar>
+          <p>{user?.name}</p>
+        </div>
+      ),
+      hidden: type === "others" ? false : true,
+    },
     {
       title: "Time",
       dataIndex: "submittedAt",
@@ -107,12 +127,14 @@ const SubmissionsTable = ({ question, type }) => {
   ];
 
   return (
-    <Table
+    <CommonTable
       columns={columns}
       dataSource={submissionsData}
       rowKey="id"
       pagination={false}
-      className="font-normal"
+      className="font-normal common-table"
+      bordered
+      loading={submissionsDataLoading}
     />
   );
 };
