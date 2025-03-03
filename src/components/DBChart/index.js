@@ -72,17 +72,11 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   const getXAxisCategories = (dateRange, type) => {
     if (type === METRICES_TYPE.WEEK) {
-      return getWeeklyCategories(metricsData).map((item) => (
-        item.label
-      ));
+      return getWeeklyCategories(metricsData).map((item) => item.label);
     } else if (type === METRICES_TYPE.MONTH) {
-      return getMonthlyCategories(metricsData).map((item) => (
-        item.label
-      ));
+      return getMonthlyCategories(metricsData).map((item) => item.label);
     } else if (type === METRICES_TYPE.YEAR) {
-      return getYearlyCategories(metricsData).map((item) => (
-        item.label
-      ));
+      return getYearlyCategories(metricsData).map((item) => item.label);
     }
 
     const allMetrics = metricsData[0]?.metrics || [];
@@ -118,7 +112,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
       // Weekly metrics
     } else if (type === METRICES_TYPE.WEEK) {
       const allWeeksInRange = getWeeklyCategories(metricsData);
-      console.log("allWeeksInRange", allWeeksInRange)
+      console.log("allWeeksInRange", allWeeksInRange);
       return metricsData.map((db) => ({
         databaseName:
           isRankingType === "Db Tools"
@@ -128,7 +122,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
           const weeklyMetrics = db.metrics.filter((metric) =>
             isDateInRange(metric.date, startOfWeek, endOfWeek)
           );
-          console.log("weeklyMetrics", weeklyMetrics)
+          console.log("weeklyMetrics", weeklyMetrics);
           if (weeklyMetrics.length === 0) return null;
 
           // Calculate sum and divide by 7 for weekly average
@@ -171,7 +165,6 @@ const DBChart = ({ previousDays, isRankingType }) => {
       console.log("allYearsInRange", allYearsInRange);
 
       return metricsData.map((db) => ({
-
         databaseName:
           isRankingType === "Db Tools"
             ? db.dbToolName || "tool"
@@ -180,7 +173,6 @@ const DBChart = ({ previousDays, isRankingType }) => {
           const yearlyMetrics = db.metrics.filter((metric) =>
             isDateInRange(metric.date, startOfYear, endOfYear)
           );
-
 
           console.log("yearlyMetrics", yearlyMetrics);
           // Calculate sum of values for the year
@@ -196,7 +188,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   const getWeeklyCategories = (metricsData) => {
     if (!metricsData || metricsData.length === 0) {
-      return []
+      return [];
     }
 
     // Extract all available dates from the metricsData and sort them
@@ -356,8 +348,6 @@ const DBChart = ({ previousDays, isRankingType }) => {
     metriceType
   );
 
-  console.log("chartData", chartData);
-
   const handleLegendItemClick = function (event) {
     event.preventDefault();
     const seriesIndex = this.index;
@@ -383,8 +373,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
           const message = loading
             ? "Loading..."
             : metricsData.length === 0
-              ? "No data available"
-              : null;
+            ? "No data available"
+            : null;
 
           if (message) {
             if (!chart.customMessage) {
@@ -412,10 +402,11 @@ const DBChart = ({ previousDays, isRankingType }) => {
       },
     },
     title: {
-      text: `${isRankingType === "Db Tools"
+      text: `${
+        isRankingType === "Db Tools"
           ? "Db Tools Metrics Over Time"
           : "Database Metrics Over Time"
-        }`,
+      }`,
       style: { fontSize: "26px", fontWeight: "600" },
     },
     yAxis: { title: null },
@@ -462,36 +453,38 @@ const DBChart = ({ previousDays, isRankingType }) => {
       buttons: {
         contextButton: {
           menuItems: [
-            'printChart',
-            'separator',
-            'downloadCSV',
-            'separator',
+            "printChart",
+            "separator",
+            "downloadCSV",
+            "separator",
             {
-              text: 'Download JSON',
+              text: "Download JSON",
               onclick: function () {
-                const categories = this.xAxis[0].categories || [];  // Get x-axis categories if available
-            
-                const chartData = this.series.map(series => ({
+                const categories = this.xAxis[0].categories || []; // Get x-axis categories if available
+
+                const chartData = this.series.map((series) => ({
                   name: series.name,
                   data: series.data.map((point, index) => ({
-                    date: categories[index] || point.x,  // Use categories if available, otherwise fallback to x
-                    value: point.y
-                  }))
+                    date: categories[index] || point.x, // Use categories if available, otherwise fallback to x
+                    value: point.y,
+                  })),
                 }));
-            
+
                 const jsonString = JSON.stringify(chartData, null, 2);
-            
-                const blob = new Blob([jsonString], { type: 'application/json' });
-                const link = document.createElement('a');
+
+                const blob = new Blob([jsonString], {
+                  type: "application/json",
+                });
+                const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = 'chart-data.json';
+                link.download = "chart-data.json";
                 link.click();
-              }
-            }
-          ]
-        }
-      }
-    }
+              },
+            },
+          ],
+        },
+      },
+    },
   };
 
   const totalDBs = metricsData.length;
