@@ -6,20 +6,15 @@ import {
   fetchDatabaseRanking,
   fetchDatabases,
 } from "@/utils/databaseUtils";
-import {
-  fetchCommentsData,
-  addComment,
-  deleteComment,
-  updateCommentStatus,
-} from "@/utils/commentUtils";
 import ComparisonTable from "@/components/comparisonPage/ComparisonTable";
 import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
-import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
+// import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 import Blog from "@/components/view/Blog";
 import { useParams } from "next/navigation";
+import CommonRenderComments from "@/components/shared/CommonRenderComments";
 
 const ComparisonDbPage = () => {
   const router = useRouter();
@@ -73,7 +68,6 @@ const ComparisonDbPage = () => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
         const previousDays = getPreviousDates();
-
         const yesterdayDate = previousDays[0];
 
         try {
@@ -186,14 +180,12 @@ const ComparisonDbPage = () => {
           fetchAllBlogs={false}
         />
 
-        <div className="w-full md:pt-8 ">
-          {/* <CommentsSection
-            selectedDatabases={selectedDatabases}
-            selectedDatabaseIds={selectedDatabaseIds}
-          /> */}
-          <DatabaseComments
-            selectedDatabases={selectedDatabases}
-            selectedDatabaseIds={selectedDatabaseIds}
+        <div className="w-full md:pt-8">
+          {/* Updated CommentsSection usage */}
+          <CommonRenderComments
+            entityType="database"
+            entityOptions={selectedDatabases}
+            entityOptionIds={selectedDatabaseIds}
           />
         </div>
       </div>
@@ -202,78 +194,3 @@ const ComparisonDbPage = () => {
 };
 
 export default ComparisonDbPage;
-
-import CommonComments from "@/components/shared/CommonComments";
-
-const DatabaseComments = ({ selectedDatabaseIds, selectedDatabases }) => {
-  // Local state for comments and loading indicator
-  const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  // The current user id (could be fetched from Redux or other auth context)
-  const userId = "current-user-id";
-
-  // Fetch comments using the provided utility function
-  const fetchComments = async () => {
-    setLoading(true);
-    try {
-      // Assume fetchCommentsData accepts an array of databaseIds
-      const response = await fetchCommentsData(selectedDatabaseIds);
-      setComments(response.data || []);
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Action handlers that call your API functions
-  const handleAddComment = async (payload) => {
-    return addComment(payload);
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    return deleteComment({ commentId });
-  };
-
-  const handleDisableComment = async (commentId, status) => {
-    return updateCommentStatus({
-      id: commentId,
-      status: "inactive",
-      updatedBy: userId,
-    });
-  };
-
-  const handleUndisableComment = async (commentId, status) => {
-    return updateCommentStatus({
-      id: commentId,
-      status: "active",
-      updatedBy: userId,
-    });
-  };
-
-  return (
-    <div className="p-4">
-      <CommonComments
-        commentsData={comments}
-        entityOptions={selectedDatabases}
-        // Use "databaseId" for databases, "blogId" for blogs, or "dbtoolId" for dbtools, etc.
-        entityFieldName="databaseId"
-        entityLabel="Database"
-        defaultEntityId={selectedDatabaseIds}
-        userId={userId}
-        onAddComment={handleAddComment}
-        onDeleteComment={handleDeleteComment}
-        onDisableComment={handleDisableComment}
-        onUndisableComment={handleUndisableComment}
-        fetchComments={fetchComments}
-        loading={loading}
-      />
-    </div>
-  );
-};
