@@ -11,7 +11,7 @@ import { fetchDbToolsMetricsData } from "@/utils/dbToolsUtil";
 import { METRICES_TYPE } from "@/utils/const";
 import exporting from "highcharts/modules/exporting";
 import exportData from "highcharts/modules/export-data";
-
+import dayjs from "dayjs";
 if (typeof Highcharts === "object") {
   exporting(Highcharts);
   exportData(Highcharts);
@@ -19,7 +19,10 @@ if (typeof Highcharts === "object") {
 
 const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
-  const [selectedDate, setSelectedDate] = useState([null, null]);
+  const [selectedDate, setSelectedDate] = useState([
+    dayjs().subtract(30, "day"),
+    dayjs(),
+  ]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
   const [metriceType, setMetricType] = useState(METRICES_TYPE.DAY);
   const [metricsData, setMetricsData] = useState([]);
@@ -35,33 +38,32 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const startDate = formatDate(selectedDate[0]) || "2024-11-18";
-      const endDate = formatDate(selectedDate[1]) || previousDays[0];
+      // Format the Day.js objects into a string format (YYYY-MM-DD)
+      const startDate = selectedDate[0]
+        ? selectedDate[0].format("YYYY-MM-DD")
+        : dayjs().subtract(60, "day").format("YYYY-MM-DD");
+      const endDate = selectedDate[1]
+        ? selectedDate[1].format("YYYY-MM-DD")
+        : dayjs().format("YYYY-MM-DD");
 
-      if (isRankingType === "Db Tools") {
-        try {
-          setLoading(true);
-          const data = await fetchDbToolsMetricsData(startDate, endDate);
-          setMetricsData(data.data || []);
-        } catch (error) {
-          console.error("Error fetching db tools metrics data:", error);
-        } finally {
-          setLoading(false);
+      try {
+        setLoading(true);
+        let data;
+        if (isRankingType === "Db Tools") {
+          data = await fetchDbToolsMetricsData(startDate, endDate);
+        } else {
+          data = await fetchMetricsData(startDate, endDate);
         }
-      } else {
-        try {
-          setLoading(true);
-          const data = await fetchMetricsData(startDate, endDate);
-          setMetricsData(data.data || []);
-        } catch (error) {
-          console.error("Error fetching databases metrics data:", error);
-        } finally {
-          setLoading(false);
-        }
+        setMetricsData(data.data || []);
+      } catch (error) {
+        console.error("Error fetching metrics data:", error);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchData();
-  }, [selectedDate, previousDays, isRankingType]);
+  }, [selectedDate, isRankingType, fetchDbToolsMetricsData, fetchMetricsData]);
 
   useEffect(() => {
     if (metricsData && metricsData.length > 0) {
