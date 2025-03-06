@@ -4,6 +4,7 @@ import CommonButton from "@/components/shared/Button";
 import Link from "next/link";
 import googleIcon from "@/../public/assets/icons/googleIcon.svg";
 import githubIcon from "@/../public/assets/icons/githubIcon.svg";
+import linkedInIcon from "@/../public/assets/icons/linkedInIcon.png";
 import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import { Form } from "antd";
@@ -124,7 +125,7 @@ const SignIn = () => {
                 width={20}
                 height={20}
               />
-              Sign in with Google
+              Continue with Google
             </button>
             <button
               onClick={() => socialRegisteration({ custom: "GitHub" })}
@@ -136,7 +137,19 @@ const SignIn = () => {
                 width={20}
                 height={20}
               />
-              Sign in with Github
+              Continue with Github
+            </button>
+            <button
+              onClick={() => socialRegisteration({ custom: "LinkedIn" })}
+              className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+            >
+              <Image
+                src={linkedInIcon}
+                alt="Github Icon"
+                width={20}
+                height={20}
+              />
+              Continue with LinkedIn
             </button>
 
             <div className="mb-8 flex items-center justify-center">

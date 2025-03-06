@@ -8,6 +8,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import googleIcon from "@/../public/assets/icons/googleIcon.svg";
 import githubIcon from "@/../public/assets/icons/githubIcon.svg";
+import linkedInIcon from "@/../public/assets/icons/linkedInIcon.png";
 import Image from "next/image";
 import CommonInput from "@/components/shared/CommonInput";
 import CommonModal from "@/components/shared/CommonModal";
@@ -100,7 +101,7 @@ const Signup = () => {
                   width={20}
                   height={20}
                 />
-                Sign in with Google
+                Continue with Google
               </button>
 
               <button
@@ -113,9 +114,20 @@ const Signup = () => {
                   width={20}
                   height={20}
                 />
-                Sign in with Github
+                Continue with Github
               </button>
-
+              <button
+                onClick={() => socialRegisteration({ custom: "LinkedIn" })}
+                className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
+              >
+                <Image
+                  src={linkedInIcon}
+                  alt="Github Icon"
+                  width={20}
+                  height={20}
+                />
+                Continue with LinkedIn
+              </button>
               <div className="mb-8 flex items-center justify-center">
                 <span className="hidden h-[1px] w-full max-w-[60px] bg-[#D9D9D9] sm:block"></span>
                 <p className="w-full px-5 text-center text-base font-medium text-secondary">

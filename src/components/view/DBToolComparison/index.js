@@ -18,6 +18,7 @@ import {
 } from "@/utils/dbToolsUtil";
 import { toolMatchesFilters } from "@/utils/helper";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
+import CommonRenderComments from "@/components/shared/CommonRenderComments";
 
 const DbToolComparison = () => {
   const router = useRouter();
@@ -119,8 +120,6 @@ const DbToolComparison = () => {
     setSelectedToolsIds(newSelectedToolIds);
   }, [toolsData, selectedTools]);
 
-
-  
   useEffect(() => {
     if (selectedToolsIds.length > 0) {
       const fetchSelectedTools = async () => {
@@ -247,6 +246,11 @@ const DbToolComparison = () => {
               selectedTools={selectedTools}
               setSelectedToolsOptions={setSelectedToolsOptions}
               selectedToolsData={selectedToolsData}
+            />
+            <CommonRenderComments
+              entityType="dbtool"
+              entityOptionIds={selectedToolsIds}
+              entityOptions={selectedToolsOptions}
             />
           </div>
         </div>

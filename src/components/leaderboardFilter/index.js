@@ -73,7 +73,6 @@ export default function LeaderboardFilter({
     //   label: "Year",
     // },
   ];
-
   return (
     <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 lg:mt-24 border rounded-2xl flex-col border-[#D9D9D9]">
       <div className="flex justify-between">
@@ -100,16 +99,18 @@ export default function LeaderboardFilter({
             {DropdownOptions.map((option, index) => (
               <div className="flex items-center" key={index}>
                 <div className="flex flex-col items-center justify-center text-center gap-1">
-                <div className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  id={option.value}
-                  checked={selectedMetricKeys.includes(option.value) || check}
-                  onChange={() => handleMetricChange(option.value)}
-                  className="mt-4 h-5 w-5"
-                />
-                  <img src={option?.icon} className="w-8" draggable={false} />
-                </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      id={option.value}
+                      checked={
+                        selectedMetricKeys.includes(option.value) || check
+                      }
+                      onChange={() => handleMetricChange(option.value)}
+                      className="mt-4 h-5 w-5"
+                    />
+                    <img src={option?.icon} className="w-8" draggable={false} />
+                  </div>
                   <label
                     htmlFor={option.value}
                     className=" md:text-[14px] text-xs font-medium text-black"
@@ -130,6 +131,7 @@ export default function LeaderboardFilter({
               className="w-full dateRange "
               value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
               onChange={handleDateChange}
+              allowClear={false}
             />
 
             <Select

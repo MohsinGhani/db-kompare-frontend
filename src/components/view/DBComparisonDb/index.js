@@ -11,9 +11,10 @@ import ComparisonHeader from "@/components/comparisonPage/ComparisonHeader";
 import DatabaseSelect from "@/components/comparisonPage/DatabaseSelect";
 import CommonButton from "@/components/shared/Button";
 import { getPreviousDates } from "@/utils/formatDateAndTime";
-import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
+// import CommentsSection from "@/components/comparisonPage/ComparisonComments/CommentsSection";
 import Blog from "@/components/view/Blog";
 import { useParams } from "next/navigation";
+import CommonRenderComments from "@/components/shared/CommonRenderComments";
 
 const ComparisonDbPage = () => {
   const router = useRouter();
@@ -67,7 +68,6 @@ const ComparisonDbPage = () => {
     if (selectedDatabaseIds.length > 0) {
       const fetchSelectedDatabases = async () => {
         const previousDays = getPreviousDates();
-
         const yesterdayDate = previousDays[0];
 
         try {
@@ -86,9 +86,7 @@ const ComparisonDbPage = () => {
             return {
               ...dbEntry,
               db_compare_ranking: {
-                rank: [
-                  `# ${rankChanges.rank || "N/A"}`,
-                ],
+                rank: [`# ${rankChanges.rank || "N/A"}`],
                 score: scoreChanges?.totalScore
                   ? Number(scoreChanges.totalScore).toFixed(2)
                   : "0",
@@ -182,10 +180,12 @@ const ComparisonDbPage = () => {
           fetchAllBlogs={false}
         />
 
-        <div className="w-full md:pt-8 ">
-          <CommentsSection
-            selectedDatabases={selectedDatabases}
-            selectedDatabaseIds={selectedDatabaseIds}
+        <div className="w-full md:pt-8">
+          {/* Updated CommentsSection usage */}
+          <CommonRenderComments
+            entityType="database"
+            entityOptions={selectedDatabases}
+            entityOptionIds={selectedDatabaseIds}
           />
         </div>
       </div>

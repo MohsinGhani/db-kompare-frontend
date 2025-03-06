@@ -89,10 +89,10 @@ const DBToolsRankingTable = ({ previousDays }) => {
 
   const rankColumns = rankCol.slice(0, 3).map((date, ind) => {
     const formattedDate = ind !== 0 ? formatDateForHeader(date) : date;
-  
+
     const iconStyle = { marginRight: 10 };
     const noIconStyle = { marginRight: 25 };
-  
+
     return (
       <Column
         key={`rank-${date}`}
@@ -101,64 +101,62 @@ const DBToolsRankingTable = ({ previousDays }) => {
         dataIndex={ind === 0 ? "index" : `rank_${date}`} // Use 'index' for Local Ranking
         sorter={(a, b) => {
           if (ind === 0) {
-            // Sorting logic for Local Ranking (index)
+            // Sorting logic for Local Ranking (using the original ranking from data)
             return a.index - b.index;
           } else {
-            // Sorting logic for Rank columns
+            // Sorting logic for other rank columns
             const rankA = Number(a[`rank_${date}`] || 0);
             const rankB = Number(b[`rank_${date}`] || 0);
             return rankA - rankB;
           }
         }}
         render={(value, row, rowIndex) => {
+          // For displaying, if it's the local ranking column, decide if you want:
+          // Option A: Always show the data record's original rank:
           if (ind === 0) {
-            // Fetch status from the second column
-            const statusKey = `rank_status_${rankCol[2]}`; // Assuming second column has trend data
+            const statusKey = `rank_status_${rankCol[2]}`; // Assumed trend column key
             const status = row[statusKey];
-  
             return (
               <span className="flex items-center justify-center">
                 {status === "INCREASED" ? (
-                  <CaretUpOutlined style={{ color: "#00CC67", ...iconStyle }} />
+                  <CaretUpOutlined
+                    style={{ color: "#00CC67", marginRight: 10 }}
+                  />
                 ) : status === "DECREASED" ? (
-                  <CaretDownOutlined style={{ color: "#E33C33", ...iconStyle }} />
+                  <CaretDownOutlined
+                    style={{ color: "#E33C33", marginRight: 10 }}
+                  />
                 ) : (
-                  <span style={noIconStyle}></span>
+                  <span style={{ marginRight: 25 }}></span>
                 )}
-                <span>{rowIndex + 1}</span>
+                <span>{row.index}</span>
               </span>
             );
           }
-  
+          const statusKey = `rank_status_${date}`;
+          const status = row[statusKey];
           const rank = value;
-          const status = row[`rank_status_${date}`];
-  
-          // Check if rank is not available, if not show '-'
-          if (!rank) {
-            return (
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ marginLeft: 25 }}>-</span>
-              </span>
-            );
-          }
-  
           return (
             <span style={{ display: "flex", alignItems: "center" }}>
               {status === "INCREASED" ? (
-                <CaretUpOutlined style={{ color: "#00CC67", ...iconStyle }} />
+                <CaretUpOutlined
+                  style={{ color: "#00CC67", marginRight: 10 }}
+                />
               ) : status === "DECREASED" ? (
-                <CaretDownOutlined style={{ color: "#E33C33", ...iconStyle }} />
+                <CaretDownOutlined
+                  style={{ color: "#E33C33", marginRight: 10 }}
+                />
               ) : (
-                <span style={noIconStyle}></span>
+                <span style={{ marginRight: 25 }}></span>
               )}
-              <span>{rank}</span>
+              <span>{rank || "-"}</span>
             </span>
           );
         }}
       />
     );
   });
-  
+
   const scoreColumns = previousDays.slice(0, 3).map((date) => {
     const formattedDate = formatDateForHeader(date);
 
@@ -198,16 +196,15 @@ const DBToolsRankingTable = ({ previousDays }) => {
   });
 
   // Formatting and sorting data
-  const formattedData = rankingTableData.map((db,ind) => {
+  const formattedData = rankingTableData.map((db, ind) => {
     const dataRow = {
-      index:ind+1,
       DBMS: db.name,
       DatabaseModel: db.category,
       DatabaseModelId: db.category_id,
     };
 
-    const lastTwoRankChanges = db.rankChanges.slice(0, 2);
-    const lastThreeScoreChanges = db.scoreChanges.slice(0, 3);
+    const lastTwoRankChanges = db?.rankChanges.slice(0, 2);
+    const lastThreeScoreChanges = db?.scoreChanges.slice(0, 3);
 
     previousDays.forEach((date) => {
       const rank = lastTwoRankChanges.find((change) => change.date === date);
@@ -240,13 +237,18 @@ const DBToolsRankingTable = ({ previousDays }) => {
     return db.DatabaseModelId === selectedOption;
   });
 
-  const sortedData = filteredData.sort((a, b) => {
-    const latestDate = previousDays[0];
-    const scoreA = a[`score_${latestDate}`] || 0;
-    const scoreB = b[`score_${latestDate}`] || 0;
-    return scoreB - scoreA;
-  });
-
+  const sortedData = filteredData
+    .sort((a, b) => {
+      const latestDate = previousDays[0];
+      const scoreA = a[`score_${latestDate}`] || 0;
+      const scoreB = b[`score_${latestDate}`] || 0;
+      return scoreB - scoreA;
+    })
+    .map((item, ind) => ({
+      index: ind + 1,
+      ...item,
+    }));
+  console.log("sortedData", sortedData);
   return (
     <div className="w-full mt-0 md:mt-12 lg:mt-0">
       <div className="flex flex-row items-center justify-between mt-20 lg:mt-8 mb-5">
