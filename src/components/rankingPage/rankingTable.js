@@ -24,13 +24,13 @@ const RankingTable = ({ previousDays }) => {
 
   const [loading, setLoading] = useState(false);
 
-  console.log(previousDays);
   const router = useRouter();
 
   const [rankingTableData, setRankingTableData] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("All");
-
+  // This state will hold the sorter order for the local ranking column.
+  const [localRankSorter, setLocalRankSorter] = useState(null);
   const handleRankingChange = (selectedOption) => {
     setSelectedOption(selectedOption);
   };
@@ -120,7 +120,17 @@ const RankingTable = ({ previousDays }) => {
             // Fetch status from the second column
             const statusKey = `rank_status_${rankCol[2]}`; // Assuming second column has trend data
             const status = row[statusKey];
-
+            let displayRank;
+            if (localRankSorter === "ascend") {
+              // Ascending sort: use the current row index (1-based)
+              displayRank = rowIndex + 1;
+            } else if (localRankSorter === "descend") {
+              // Descending sort: reverse the ranking order
+              displayRank = sortedData?.length - rowIndex;
+            } else {
+              // Default: use the static value from the data
+              displayRank = row.index;
+            }
             return (
               <span className="flex items-center justify-center">
                 {status === "INCREASED" ? (
@@ -132,7 +142,7 @@ const RankingTable = ({ previousDays }) => {
                 ) : (
                   <span style={noIconStyle}></span>
                 )}
-                <span>{rowIndex + 1}</span>
+                <span>{displayRank}</span>
               </span>
             );
           }
@@ -205,9 +215,8 @@ const RankingTable = ({ previousDays }) => {
   });
 
   // Formatting and sorting data
-  const formattedData = rankingTableData.map((db, ind) => {
+  const formattedData = rankingTableData.map((db) => {
     const dataRow = {
-      index: ind + 1,
       DBMS: db.name,
       DatabaseModel: db.database_model,
       SecondaryDatabaseModel: db.secondary_database_model?.join(", ") || "-",
@@ -278,12 +287,14 @@ const RankingTable = ({ previousDays }) => {
     }
   });
 
-  const sortedData = filteredData.sort((a, b) => {
-    const latestDate = previousDays[0];
-    const scoreA = a[`score_${latestDate}`] || 0;
-    const scoreB = b[`score_${latestDate}`] || 0;
-    return scoreB - scoreA;
-  });
+  const sortedData = filteredData
+    .sort((a, b) => {
+      const latestDate = previousDays[0];
+      const scoreA = a[`score_${latestDate}`] || 0;
+      const scoreB = b[`score_${latestDate}`] || 0;
+      return scoreB - scoreA;
+    })
+    .map((item, ind) => ({ ...item, index: ind + 1 }));
 
   return (
     <div className="w-full mt-0 md:mt-12 lg:mt-0">
@@ -322,6 +333,15 @@ const RankingTable = ({ previousDays }) => {
             rowClassName={(record, index) =>
               index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
             }
+            onChange={(pagination, filters, sorter, extra) => {
+              // Check if the local ranking column is the one being sorted.
+              if (!Array.isArray(sorter)) {
+                setLocalRankSorter(sorter.order);
+              } else {
+                setLocalRankSorter(sorter.order);
+                setLocalRankSorter(null);
+              }
+            }}
           >
             <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
               {rankColumns}
