@@ -13,6 +13,7 @@ import exporting from "highcharts/modules/exporting";
 import exportData from "highcharts/modules/export-data";
 import dayjs from "dayjs";
 import { getReadableValue } from "@/utils/helper";
+import { toast } from "react-toastify";
 if (typeof Highcharts === "object") {
   exporting(Highcharts);
   exportData(Highcharts);
@@ -39,6 +40,15 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // If both dates are selected, check that the range is not more than 30 days.
+      if (selectedDate[0] && selectedDate[1]) {
+        const daysDiff = selectedDate[1].diff(selectedDate[0], "day");
+        if (daysDiff > 30) {
+          toast.error("Selected date range should not exceed 30 days.");
+          return;
+        }
+      }
+
       // Format the Day.js objects into a string format (YYYY-MM-DD)
       const startDate = selectedDate[0]
         ? selectedDate[0].format("YYYY-MM-DD")
@@ -51,7 +61,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
         setLoading(true);
         let data;
         if (isRankingType === "Db Tools") {
-          data = await fetchDbToolsMetricsData(startDate, endDate);
+          data = await fetchDbToolsMetricsData(startDate, endDate, metriceType);
         } else {
           data = await fetchMetricsData(startDate, endDate, metriceType);
         }
@@ -84,12 +94,10 @@ const DBChart = ({ previousDays, isRankingType }) => {
     const uniqueDates = allMetrics.map((metric) =>
       getReadableValue(metric.date, metriceType)
     );
-    console.log("uniqueDates", uniqueDates);
     return Array.from(uniqueDates);
   };
 
   const chartData = metricsData || [];
-  console.log("chartData", chartData);
   const handleLegendItemClick = function (event) {
     event.preventDefault();
     const seriesIndex = this.index;
@@ -178,7 +186,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
       },
     },
     series: chartData.map((db, i) => ({
-      name: db.databaseName,
+      name: isRankingType === "Db Tools" ? db?.dbToolName : db?.databaseName,
       data: db.metrics.map((metric) => metric.ui_popularity.totalScore),
       visible: enabledDatabases[i] ?? false,
       showInLegend: i >= dbIndexRange[0] && i < dbIndexRange[1],

@@ -32,7 +32,7 @@ export const DropdownOptions = [
 
 export const METRICES_TYPE = {
   DAILY: "daily",
-  weekly: "weekly",
+  WEEKLY: "weekly",
   MONTHLY: "monthly",
   YEARLY: "yearly",
 };

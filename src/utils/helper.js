@@ -1,8 +1,10 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
 import { METRICES_TYPE } from "./const";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import isoWeek from "dayjs/plugin/isoWeek";
+dayjs.extend(customParseFormat);
 dayjs.extend(isoWeek);
 
 const getAmplifyUserToken = () => {
@@ -245,26 +247,16 @@ export function getReadableValue(metricString, metriceType) {
         return dayjs(value, "YYYY-MM").format("MMMM YYYY");
       case "weekly": {
         // Expecting value as "YYYY-Www", e.g., "2024-W49"
-        const date = dayjs(value, "YYYY-[W]WW");
-        return `Week ${date.isoWeek()}, ${date.year()}`;
+        const parts = value.split("-");
+        const year = parts[0];
+        const week = parts[1].replace(/^W/, ""); // Remove the leading "W"
+        return `Week ${week}, ${year}`;
       }
       case "yearly":
         // Simply return the year
         return value;
       default:
         return metricString;
-    }
-  } else {
-    // If no '#' exists, assume metricString is a date in "YYYY-MM-DD" format
-    const date = dayjs(metricString, "YYYY-MM-DD");
-    if (metriceType === METRICES_TYPE.DAILY) {
-      return date.format("MMM D, YYYY");
-    } else if (metriceType === METRICES_TYPE.WEEKLY) {
-      return `Week ${date.isoWeek()}, ${date.year()}`;
-    } else if (metriceType === METRICES_TYPE.MONTHLY) {
-      return date.format("MMMM YYYY");
-    } else if (metriceType === METRICES_TYPE.YEARLY) {
-      return date.format("YYYY");
     }
   }
 

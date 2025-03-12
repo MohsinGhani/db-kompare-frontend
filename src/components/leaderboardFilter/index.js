@@ -68,7 +68,6 @@ export default function LeaderboardFilter({
         <button
           className="text-primary text-base font-medium underline"
           onClick={() => {
-            setSelectedDate([null, null]);
             setSelectedMetricKeys([]);
             setMetricType("DAY");
           }}
