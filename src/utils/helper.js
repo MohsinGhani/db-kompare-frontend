@@ -1,5 +1,9 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+import { METRICES_TYPE } from "./const";
+dayjs.extend(isoWeek);
 
 const getAmplifyUserToken = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
@@ -225,6 +229,47 @@ export const toolMatchesFilters = (tool, filters) => {
   }
   return true;
 };
+
+export function getReadableValue(metricString, metriceType) {
+  // Ensure metricString is a string
+  if (typeof metricString !== "string") {
+    return metricString;
+  }
+
+  // Check if the string uses the prefix pattern
+  if (metricString.includes("#")) {
+    const [prefix, value] = metricString.split("#");
+    switch (prefix) {
+      case "monthly":
+        // Expecting value as "YYYY-MM"
+        return dayjs(value, "YYYY-MM").format("MMMM YYYY");
+      case "weekly": {
+        // Expecting value as "YYYY-Www", e.g., "2024-W49"
+        const date = dayjs(value, "YYYY-[W]WW");
+        return `Week ${date.isoWeek()}, ${date.year()}`;
+      }
+      case "yearly":
+        // Simply return the year
+        return value;
+      default:
+        return metricString;
+    }
+  } else {
+    // If no '#' exists, assume metricString is a date in "YYYY-MM-DD" format
+    const date = dayjs(metricString, "YYYY-MM-DD");
+    if (metriceType === METRICES_TYPE.DAILY) {
+      return date.format("MMM D, YYYY");
+    } else if (metriceType === METRICES_TYPE.WEEKLY) {
+      return `Week ${date.isoWeek()}, ${date.year()}`;
+    } else if (metriceType === METRICES_TYPE.MONTHLY) {
+      return date.format("MMMM YYYY");
+    } else if (metriceType === METRICES_TYPE.YEARLY) {
+      return date.format("YYYY");
+    }
+  }
+
+  return metricString;
+}
 
 export function formatLabel(label) {
   return label

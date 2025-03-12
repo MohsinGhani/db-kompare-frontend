@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import CommonTypography from "../shared/Typography";
 import { DatePicker, Dropdown, Select } from "antd";
-import { DropdownOptions } from "@/utils/const";
+import { DropdownOptions, METRICES_TYPE } from "@/utils/const";
 import { MoreOutlined } from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
@@ -55,24 +55,10 @@ export default function LeaderboardFilter({
   const handleTypeChange = (value) => {
     setMetricType(value);
   };
-  const items = [
-    {
-      value: "DAY",
-      label: "Day",
-    },
-    {
-      value: "WEEK",
-      label: "Week",
-    },
-    {
-      value: "MONTH",
-      label: "Month",
-    },
-    // {
-    //   value: "YEAR",
-    //   label: "Year",
-    // },
-  ];
+  const items = Object.keys(METRICES_TYPE).map((key) => ({
+    value: key?.toLowerCase(),
+    label: key?.toUpperCase(),
+  }));
   return (
     <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 lg:mt-24 border rounded-2xl flex-col border-[#D9D9D9]">
       <div className="flex justify-between">
@@ -124,7 +110,7 @@ export default function LeaderboardFilter({
         </div>
         <div className="w-full ">
           <CommonTypography type="text" classes="text-lg font-medium my-2">
-            Select Date (By default, it will show on daily basis)
+            Select Date (By default, it will show last 30 DAYS data.)
           </CommonTypography>
           <div className="flex items-center justify-center mt-4 gap-2">
             <RangePicker
