@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import CommonTypography from "../shared/Typography";
-import { DatePicker } from "antd";
-import { DropdownOptions } from "@/utils/const";
+import { DatePicker, Dropdown, Select } from "antd";
+import { DropdownOptions, METRICES_TYPE } from "@/utils/const";
+import { MoreOutlined } from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
 
@@ -12,6 +13,8 @@ export default function LeaderboardFilter({
   setSelectedDate,
   selectedMetricKeys,
   setSelectedMetricKeys,
+  metriceType,
+  setMetricType,
 }) {
   const [check, setCheck] = useState(false);
 
@@ -26,7 +29,6 @@ export default function LeaderboardFilter({
   }, [selectedMetricKeys]);
 
   // Add handler for metric selection with logic for 'totalScore'
-
   const handleMetricChange = (value) => {
     setCheck(false);
     let allMetricKeys = DropdownOptions.map((option) => option.value);
@@ -49,18 +51,24 @@ export default function LeaderboardFilter({
   // Add handler for updating selected date range
 
   const handleDateChange = (dates) => setSelectedDate(dates || [null, null]);
-
+  const handleTypeChange = (value) => {
+    setMetricType(value);
+  };
+  const items = Object.keys(METRICES_TYPE).map((key) => ({
+    value: key?.toLowerCase(),
+    label: key?.toUpperCase(),
+  }));
   return (
-    <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 border rounded-2xl flex-col border-[#D9D9D9]">
+    <div className="md:flex p-6 justify-center gap-4 py-6 mb-4 lg:mt-24 border rounded-2xl flex-col border-[#D9D9D9]">
       <div className="flex justify-between">
         <CommonTypography type="text" classes="text-2xl font-bold">
           Filters
         </CommonTypography>
         <button
-          className="text-[#3E53D7] text-base font-medium underline"
+          className="text-primary text-base font-medium underline"
           onClick={() => {
-            setSelectedDate([null, null]);
             setSelectedMetricKeys([]);
+            setMetricType("DAY");
           }}
         >
           Clear filter
@@ -69,36 +77,56 @@ export default function LeaderboardFilter({
       <div className="md:flex justify-between gap-5">
         <div className="w-full">
           <CommonTypography type="text" classes="text-lg font-medium my-2">
-            Database Resources
+            Resources
           </CommonTypography>
-          <div className="flex flex-wrap md:gap-6 md:mt-3">
+          <div className="flex flex-wrap items-center   gap-3 md:mt-3">
             {DropdownOptions.map((option, index) => (
-              <div className="flex items-center mt-2" key={index}>
-                <input
-                  type="checkbox"
-                  id={option.value}
-                  checked={selectedMetricKeys.includes(option.value) || check}
-                  onChange={() => handleMetricChange(option.value)}
-                />
-                <label
-                  htmlFor={option.value}
-                  className="mx-2 md:text-lg text-base font-medium text-black"
-                >
-                  {option.label}
-                </label>
+              <div className="flex items-center" key={index}>
+                <div className="flex flex-col items-center justify-center text-center gap-1">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      id={option.value}
+                      checked={
+                        selectedMetricKeys.includes(option.value) || check
+                      }
+                      onChange={() => handleMetricChange(option.value)}
+                      className="mt-4 h-5 w-5"
+                    />
+                    <img src={option?.icon} className="w-8" draggable={false} />
+                  </div>
+                  <label
+                    htmlFor={option.value}
+                    className=" md:text-[14px] text-xs font-medium text-black"
+                  >
+                    {option.label}
+                  </label>
+                </div>
               </div>
             ))}
           </div>
         </div>
-        <div className="w-full">
+        <div className="w-full ">
           <CommonTypography type="text" classes="text-lg font-medium my-2">
-            Select Date
+            Select Date (By default, it will show last 30 DAYS data.)
           </CommonTypography>
-          <RangePicker
-            className="w-full dateRange h-9 mt-3"
-            value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
-            onChange={handleDateChange}
-          />
+          <div className="flex items-center justify-center mt-4 gap-2">
+            <RangePicker
+              className="w-full dateRange "
+              value={selectedDate[0] && selectedDate[1] ? selectedDate : null}
+              onChange={handleDateChange}
+              allowClear={false}
+            />
+
+            <Select
+              className="w-full md:w-2/4"
+              showSearch
+              placeholder="Filter by week/month/year"
+              options={items}
+              onChange={handleTypeChange}
+              defaultValue={metriceType}
+            />
+          </div>
         </div>
       </div>
     </div>

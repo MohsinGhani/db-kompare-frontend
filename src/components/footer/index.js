@@ -3,12 +3,17 @@
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import CommonTypography from "../shared/Typography";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { Navlinks } from "@/utils/const";
+import Link from "next/link";
 const socialLinks = [
-  { href: "/assets/icons/facebook.svg", alt: "Facebook" },
-  { href: "/assets/icons/instagram.svg", alt: "Instagram" },
-  { href: "/assets/icons/linkedin.svg", alt: "LinkedIn" },
+  { href: "/assets/icons/facebook.svg", alt: "Facebook", link: "" },
+  { href: "/assets/icons/instagram.svg", alt: "Instagram", link: "" },
+  {
+    href: "/assets/icons/linkedin.svg",
+    alt: "LinkedIn",
+    link: "https://www.linkedin.com/company/dbkompare-com/about/",
+  },
 ];
 
 export default function Footer() {
@@ -49,15 +54,16 @@ export default function Footer() {
         </ul>
 
         <div className="flex gap-8">
-          {socialLinks.map(({ href, alt }, idx) => (
-            <Image
-              key={idx}
-              src={href}
-              alt={alt}
-              width={25}
-              height={25}
-              style={{ cursor: "pointer" }}
-            />
+          {socialLinks.map(({ href, alt, link }, idx) => (
+            <Link href={link} key={idx}>
+              <Image
+                src={href}
+                alt={alt}
+                width={25}
+                height={25}
+                style={{ cursor: "pointer" }}
+              />
+            </Link>
           ))}
         </div>
       </div>

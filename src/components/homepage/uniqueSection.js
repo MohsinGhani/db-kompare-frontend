@@ -27,13 +27,12 @@ const MakeUsUnique = () => {
   ];
 
   return (
-    <div className="  text-5xl  text-center xl:px-32 lg:px-4 px-9  py-10 md:py-24 w-full">
-
+    <div className="container  text-5xl  text-center  py-10 md:py-24 w-full">
       <CommonTypography classes="md:text-5xl text-2xl font-bold">
         What Makes Us Unique
       </CommonTypography>
       <br />
-      <h2 className="my-4 md:text-base text-sm font-normal text-[#565758]">
+      <h2 className="my-4 md:text-base text-sm font-normal text-secondary">
         Revolutionizing How You Discover and Compare Knowledge
       </h2>
 
@@ -41,12 +40,13 @@ const MakeUsUnique = () => {
         {uniqueSectionData.map((item, index) => (
           <div
             key={index}
-            className={`p-4 flex flex-col gap-5 md:pl-14 md:px-10 text-start lg:w-1/3 lg:${index === 0 ? "" : "border-l border-[#E4E4E7]"
-              } lg:${index === uniqueSectionData.length - 1 ? "" : "border-r"}`}
+            className={`p-4 flex flex-col gap-5 md:pl-14 md:px-10 text-start lg:w-1/3 lg:${
+              index === 0 ? "" : "border-l border-[#E4E4E7]"
+            } lg:${index === uniqueSectionData.length - 1 ? "" : "border-r"}`}
           >
             <Image src={item.icon} alt={item.title} />
             <h3 className="text-black text-2xl font-bold mb-2">{item.title}</h3>
-            <p className="text-[#565758] text-base">{item.description}</p>
+            <p className="text-secondary text-base">{item.description}</p>
           </div>
         ))}
       </div>

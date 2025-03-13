@@ -3,7 +3,7 @@ import parse from "html-react-parser";
 import { Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-const ProcessDataHtml = ({ htmlString, record }) => {
+const ProcessDataHtml = ({ htmlString, record, showOnLine = false }) => {
   // Process and display HTML content with specific styling and tooltips
 
   const processHtml = (html) => {
@@ -78,6 +78,10 @@ const ProcessDataHtml = ({ htmlString, record }) => {
     return null;
   }
 
-  return <div>{processHtml(htmlString)}</div>;
+  return (
+    <div className={`${showOnLine ? "flex flex-wrap" : ""} `}>
+      {processHtml(htmlString)}
+    </div>
+  );
 };
 export default ProcessDataHtml;

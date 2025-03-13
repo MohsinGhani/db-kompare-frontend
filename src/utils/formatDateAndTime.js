@@ -64,3 +64,50 @@ export const formatDateForHeader = (date) => {
 
   return `${day}${suffix} ${month}, ${year}`;
 };
+
+export const formatRelativeTime = (dateString) => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) {
+    return "just now";
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `${minutes} min${minutes > 1 ? "s" : ""} ago`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours} hr${hours > 1 ? "s" : ""} ago`;
+  } else {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+};
+
+export const formatReadableDate = (date) => {
+  if (!date) return null;
+
+  let parsedDate;
+
+  if (typeof date === "number") {
+    parsedDate = new Date(date);
+  } else if (typeof date === "string") {
+    parsedDate = new Date(date);
+  } else if (date instanceof Date) {
+    parsedDate = date;
+  } else {
+    console.error(
+      "Invalid input type. Expected a timestamp, date string, or Date object."
+    );
+    return null;
+  }
+
+  if (isNaN(parsedDate.getTime())) {
+    console.error("Invalid date.");
+    return null;
+  }
+
+  const options = { year: "numeric", month: "long", day: "numeric" };
+
+  return parsedDate.toLocaleDateString(undefined, options);
+};
