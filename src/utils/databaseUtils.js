@@ -42,14 +42,14 @@ export const fetchDatabaseByIds = async (ids) => {
 
 // Function to fetch metrics data
 
-export const fetchMetricsData = async (startDate, endDate) => {
+export const fetchMetricsData = async (startDate, endDate, aggregationType) => {
   return fetchAPI(`${API_BASE_URL_1}/get-metrices`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-api-key": API_KEY,
     },
-    body: JSON.stringify({ startDate, endDate }),
+    body: JSON.stringify({ startDate, endDate, aggregationType }),
   });
 };
 

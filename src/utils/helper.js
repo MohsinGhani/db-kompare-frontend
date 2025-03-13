@@ -1,5 +1,11 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import dayjs from "dayjs";
+import { METRICES_TYPE } from "./const";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import isoWeek from "dayjs/plugin/isoWeek";
+dayjs.extend(customParseFormat);
+dayjs.extend(isoWeek);
 
 const getAmplifyUserToken = () => {
   const getAcceessToken = Object.keys(localStorage || []).filter((k) =>
@@ -225,6 +231,37 @@ export const toolMatchesFilters = (tool, filters) => {
   }
   return true;
 };
+
+export function getReadableValue(metricString, metriceType) {
+  // Ensure metricString is a string
+  if (typeof metricString !== "string") {
+    return metricString;
+  }
+
+  // Check if the string uses the prefix pattern
+  if (metricString.includes("#")) {
+    const [prefix, value] = metricString.split("#");
+    switch (prefix) {
+      case "monthly":
+        // Expecting value as "YYYY-MM"
+        return dayjs(value, "YYYY-MM").format("MMMM YYYY");
+      case "weekly": {
+        // Expecting value as "YYYY-Www", e.g., "2024-W49"
+        const parts = value.split("-");
+        const year = parts[0];
+        const week = parts[1].replace(/^W/, ""); // Remove the leading "W"
+        return `Week ${week}, ${year}`;
+      }
+      case "yearly":
+        // Simply return the year
+        return value;
+      default:
+        return metricString;
+    }
+  }
+
+  return metricString;
+}
 
 export function formatLabel(label) {
   return label

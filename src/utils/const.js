@@ -31,10 +31,10 @@ export const DropdownOptions = [
 ];
 
 export const METRICES_TYPE = {
-  DAY: "DAY",
-  WEEK: "WEEK",
-  MONTH: "MONTH",
-  YEAR: "YEAR",
+  DAILY: "daily",
+  WEEKLY: "weekly",
+  MONTHLY: "monthly",
+  YEARLY: "yearly",
 };
 
 export const CommentStatus = {

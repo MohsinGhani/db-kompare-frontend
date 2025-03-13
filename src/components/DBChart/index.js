@@ -12,6 +12,8 @@ import { METRICES_TYPE } from "@/utils/const";
 import exporting from "highcharts/modules/exporting";
 import exportData from "highcharts/modules/export-data";
 import dayjs from "dayjs";
+import { getReadableValue } from "@/utils/helper";
+import { toast } from "react-toastify";
 if (typeof Highcharts === "object") {
   exporting(Highcharts);
   exportData(Highcharts);
@@ -20,11 +22,11 @@ if (typeof Highcharts === "object") {
 const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
   const [selectedDate, setSelectedDate] = useState([
-    dayjs().subtract(30, "day"),
+    dayjs().subtract(60, "day"),
     dayjs(),
   ]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
-  const [metriceType, setMetricType] = useState(METRICES_TYPE.DAY);
+  const [metriceType, setMetricType] = useState(METRICES_TYPE.DAILY);
   const [metricsData, setMetricsData] = useState([]);
   const [dbIndexRange, setDbIndexRange] = useState([0, CHUNK_SIZE]);
   const [enabledDatabases, setEnabledDatabases] = useState([]);
@@ -38,10 +40,19 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // If both dates are selected, check that the range is not more than 30 days.
+      if (selectedDate[0] && selectedDate[1]) {
+        const daysDiff = selectedDate[1].diff(selectedDate[0], "day");
+        if (daysDiff > 60) {
+          toast.error("Selected date range should not exceed 60 days.");
+          return;
+        }
+      }
+
       // Format the Day.js objects into a string format (YYYY-MM-DD)
       const startDate = selectedDate[0]
         ? selectedDate[0].format("YYYY-MM-DD")
-        : dayjs().subtract(60, "day").format("YYYY-MM-DD");
+        : dayjs().subtract(60, "days").format("YYYY-MM-DD");
       const endDate = selectedDate[1]
         ? selectedDate[1].format("YYYY-MM-DD")
         : dayjs().format("YYYY-MM-DD");
@@ -50,9 +61,9 @@ const DBChart = ({ previousDays, isRankingType }) => {
         setLoading(true);
         let data;
         if (isRankingType === "Db Tools") {
-          data = await fetchDbToolsMetricsData(startDate, endDate);
+          data = await fetchDbToolsMetricsData(startDate, endDate, metriceType);
         } else {
-          data = await fetchMetricsData(startDate, endDate);
+          data = await fetchMetricsData(startDate, endDate, metriceType);
         }
         setMetricsData(data.data || []);
       } catch (error) {
@@ -63,7 +74,13 @@ const DBChart = ({ previousDays, isRankingType }) => {
     };
 
     fetchData();
-  }, [selectedDate, isRankingType, fetchDbToolsMetricsData, fetchMetricsData]);
+  }, [
+    selectedDate,
+    isRankingType,
+    fetchDbToolsMetricsData,
+    fetchMetricsData,
+    metriceType,
+  ]);
 
   useEffect(() => {
     if (metricsData && metricsData.length > 0) {
@@ -72,283 +89,29 @@ const DBChart = ({ previousDays, isRankingType }) => {
     }
   }, [metricsData]);
 
-  const getXAxisCategories = (dateRange, type) => {
-    if (type === METRICES_TYPE.WEEK) {
-      return getWeeklyCategories(metricsData).map((item) => item.label);
-    } else if (type === METRICES_TYPE.MONTH) {
-      return getMonthlyCategories(metricsData).map((item) => item.label);
-    } else if (type === METRICES_TYPE.YEAR) {
-      return getYearlyCategories(metricsData).map((item) => item.label);
-    }
-
+  const getXAxisCategories = () => {
     const allMetrics = metricsData[0]?.metrics || [];
-    const uniqueDates = new Set(
-      allMetrics
-        .filter((metric) =>
-          isDateInRange(metric.date, dateRange[0], dateRange[1])
-        )
-        .map((metric) => metric.date)
+    const uniqueDates = allMetrics.map((metric) =>
+      getReadableValue(metric.date, metriceType)
     );
     return Array.from(uniqueDates);
   };
-
-  const getMetricData = (metricKeys, dateRange, type) => {
-    const allDatesInRange = getXAxisCategories(dateRange);
+  const getMetricData = (metricKeys) => {
+    const allDatesInRange = getXAxisCategories();
 
     // Daily metrics
-    if (type === METRICES_TYPE.DAY) {
-      return metricsData.map((db) => ({
-        databaseName:
-          isRankingType === "Db Tools"
-            ? db.dbToolName || "tool"
-            : db.databaseName,
-        data: allDatesInRange.map((date) => {
-          const matchingMetric = db.metrics.find(
-            (metric) => metric.date === date
-          );
-          if (!matchingMetric) return null;
-          return calculateChartWeightedValue(matchingMetric, metricKeys);
-        }),
-      }));
-
-      // Weekly metrics
-    } else if (type === METRICES_TYPE.WEEK) {
-      const allWeeksInRange = getWeeklyCategories(metricsData);
-      console.log("allWeeksInRange", allWeeksInRange);
-      return metricsData.map((db) => ({
-        databaseName:
-          isRankingType === "Db Tools"
-            ? db.dbToolName || "tool"
-            : db.databaseName,
-        data: allWeeksInRange.map(({ startOfWeek, endOfWeek }) => {
-          const weeklyMetrics = db.metrics.filter((metric) =>
-            isDateInRange(metric.date, startOfWeek, endOfWeek)
-          );
-          console.log("weeklyMetrics", weeklyMetrics);
-          if (weeklyMetrics.length === 0) return null;
-
-          // Calculate sum and divide by 7 for weekly average
-          const weeklySum = weeklyMetrics.reduce((sum, metric) => {
-            return sum + calculateChartWeightedValue(metric, metricKeys);
-          }, 0);
-
-          return weeklySum / weeklyMetrics?.length; // Average per day for the week
-        }),
-      }));
-
-      // Monthly metrics
-    } else if (type === METRICES_TYPE.MONTH) {
-      const allMonthsInRange = getMonthlyCategories(metricsData);
-      console.log("allMonthsInRange", allMonthsInRange);
-
-      return metricsData.map((db) => ({
-        databaseName:
-          isRankingType === "Db Tools"
-            ? db.dbToolName || "tool"
-            : db.databaseName,
-        data: allMonthsInRange.map(({ startOfMonth, endOfMonth }) => {
-          const monthlyMetrics = db.metrics.filter((metric) =>
-            isDateInRange(metric.date, startOfMonth, endOfMonth)
-          );
-          console.log("monthlyMetrics", monthlyMetrics);
-
-          if (monthlyMetrics.length === 0) return null;
-
-          // Calculate sum and divide by the number of available data points for the month
-          const monthlySum = monthlyMetrics.reduce((sum, metric) => {
-            return sum + calculateChartWeightedValue(metric, metricKeys);
-          }, 0);
-
-          return monthlySum / monthlyMetrics?.length; // Average per available day for the month
-        }),
-      }));
-    } else if (type === METRICES_TYPE.YEAR) {
-      const allYearsInRange = getYearlyCategories(metricsData);
-      console.log("allYearsInRange", allYearsInRange);
-
-      return metricsData.map((db) => ({
-        databaseName:
-          isRankingType === "Db Tools"
-            ? db.dbToolName || "tool"
-            : db.databaseName,
-        data: allYearsInRange.map(({ startOfYear, endOfYear }) => {
-          const yearlyMetrics = db.metrics.filter((metric) =>
-            isDateInRange(metric.date, startOfYear, endOfYear)
-          );
-
-          console.log("yearlyMetrics", yearlyMetrics);
-          // Calculate sum of values for the year
-          const yearlySum = yearlyMetrics.reduce((sum, metric) => {
-            return sum + calculateChartWeightedValue(metric, metricKeys);
-          }, 0);
-          // Divide by the actual number of available data points for the year
-          return (yearlySum / yearlyMetrics.length).toFixed(2); // Rounded to 2 decimal places
-        }),
-      }));
-    }
+    return metricsData.map((db) => ({
+      ...db,
+      data: allDatesInRange.map((date) => {
+        const matchingMetric = db.metrics.find(
+          (metric) => getReadableValue(metric.date, metriceType) === date
+        );
+        if (!matchingMetric) return null;
+        return calculateChartWeightedValue(matchingMetric, metricKeys);
+      }),
+    }));
   };
-
-  const getWeeklyCategories = (metricsData) => {
-    if (!metricsData || metricsData.length === 0) {
-      return [];
-    }
-
-    // Extract all available dates from the metricsData and sort them
-    const allDates = metricsData
-      .flatMap((db) => db.metrics.map((metric) => metric.date))
-      .sort();
-
-    if (allDates.length === 0) {
-      console.warn("No dates found in the provided metrics data.");
-      return [];
-    }
-
-    // Find the earliest and latest dates
-    const startDate = new Date(allDates[0]); // Earliest date
-    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
-
-    const weeks = [];
-    let currentStart = new Date(startDate);
-
-    // Ensure weeks start on Monday
-    currentStart.setDate(currentStart.getDate() - currentStart.getDay() + 1);
-
-    let weekNumber = 1;
-    while (currentStart <= endDate) {
-      let weekEnd = new Date(currentStart);
-      weekEnd.setDate(currentStart.getDate() + 6); // End of the week (Sunday)
-
-      if (weekEnd > endDate) {
-        weekEnd = endDate; // Ensure last week doesn't exceed the available range
-      }
-
-      const monthYear = currentStart.toLocaleString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
-      const weekLabel = `${monthYear}-W${weekNumber}`;
-
-      weeks.push({
-        startOfWeek: currentStart.toISOString().split("T")[0],
-        endOfWeek: weekEnd.toISOString().split("T")[0],
-        label: weekLabel, // Add formatted label (e.g., Nov-2024-W1)
-      });
-
-      currentStart.setDate(currentStart.getDate() + 7); // Move to next Monday
-      weekNumber++;
-    }
-
-    return weeks.map((week) => week); // Return only the week labels for xAxis
-  };
-  const getMonthlyCategories = (metricsData) => {
-    if (!metricsData || metricsData.length === 0) {
-      return [];
-    }
-
-    // Extract all available dates from the metricsData and sort them
-    const allDates = metricsData
-      .flatMap((db) => db.metrics.map((metric) => metric.date))
-      .sort();
-
-    if (allDates.length === 0) {
-      console.warn("No dates found in the provided metrics data.");
-      return [];
-    }
-
-    // Find the earliest and latest dates
-    const startDate = new Date(allDates[0]); // Earliest date
-    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
-
-    const months = [];
-    let currentStart = new Date(startDate);
-
-    // Ensure month starts from the 1st day
-    currentStart.setDate(1);
-
-    let monthNumber = 1;
-    while (currentStart <= endDate) {
-      let monthEnd = new Date(currentStart);
-
-      // Set to the last day of the month
-      monthEnd.setMonth(currentStart.getMonth() + 1);
-      monthEnd.setDate(0); // Last day of the previous month (current month)
-
-      if (monthEnd > endDate) {
-        monthEnd = endDate; // Ensure last month doesn't exceed the available range
-      }
-
-      const monthYear = currentStart.toLocaleString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
-      const monthLabel = `${monthYear}-M${monthNumber}`;
-
-      months.push({
-        startOfMonth: currentStart.toISOString().split("T")[0],
-        endOfMonth: monthEnd.toISOString().split("T")[0],
-        label: monthLabel, // Add formatted label (e.g., Nov-2024-M1)
-      });
-
-      // Move to the next month
-      currentStart.setMonth(currentStart.getMonth() + 1);
-      monthNumber++;
-    }
-
-    return months.map((month) => month); // Return the full array of month objects
-  };
-
-  const getYearlyCategories = (metricsData) => {
-    if (!metricsData || metricsData.length === 0) {
-      return [];
-    }
-
-    // Extract all available dates from the metricsData and sort them
-    const allDates = metricsData
-      .flatMap((db) => db.metrics.map((metric) => metric.date))
-      .sort();
-
-    if (allDates.length === 0) {
-      console.warn("No dates found in the provided metrics data.");
-      return [];
-    }
-
-    // Find the earliest and latest dates
-    const startDate = new Date(allDates[0]); // Earliest date
-    const endDate = new Date(allDates[allDates.length - 1]); // Latest date
-
-    const years = [];
-    let currentStart = new Date(startDate);
-    currentStart.setMonth(0, 1); // Set to January 1st of the start year
-
-    let yearNumber = 1;
-    while (currentStart <= endDate) {
-      let yearEnd = new Date(currentStart);
-      yearEnd.setFullYear(currentStart.getFullYear() + 1, 0, 0); // Set to December 31st
-
-      if (yearEnd > endDate) {
-        yearEnd = endDate; // Ensure last year doesn't exceed the available range
-      }
-
-      const yearLabel = `${currentStart.getFullYear()}-Y${yearNumber}`;
-
-      years.push({
-        startOfYear: currentStart.toISOString().split("T")[0],
-        endOfYear: yearEnd.toISOString().split("T")[0],
-        label: yearLabel, // Add formatted label (e.g., 2024-Y1)
-      });
-
-      currentStart.setFullYear(currentStart.getFullYear() + 1); // Move to next year
-      yearNumber++;
-    }
-
-    return years.map((year) => year); // Return the full array of year objects
-  };
-
-  const chartData = getMetricData(
-    selectedMetricKeys,
-    selectedDate,
-    metriceType
-  );
+  const chartData = getMetricData(selectedMetricKeys) || [];
 
   const handleLegendItemClick = function (event) {
     event.preventDefault();
@@ -438,7 +201,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
       },
     },
     series: chartData.map((db, i) => ({
-      name: db.databaseName,
+      name: isRankingType === "Db Tools" ? db?.dbToolName : db?.databaseName,
       data: db.data,
       visible: enabledDatabases[i] ?? false,
       showInLegend: i >= dbIndexRange[0] && i < dbIndexRange[1],
@@ -467,7 +230,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
                 const chartData = this.series.map((series) => ({
                   name: series.name,
                   data: series.data.map((point, index) => ({
-                    date: categories[index] || point.x, // Use categories if available, otherwise fallback to x
+                    date: categories[index] || point.x,
+                    metriceType, // Use categories if available, otherwise fallback to x
                     value: point.y,
                   })),
                 }));
