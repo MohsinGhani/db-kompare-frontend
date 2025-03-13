@@ -22,7 +22,7 @@ if (typeof Highcharts === "object") {
 const DBChart = ({ previousDays, isRankingType }) => {
   const CHUNK_SIZE = 10;
   const [selectedDate, setSelectedDate] = useState([
-    dayjs().subtract(30, "day"),
+    dayjs().subtract(60, "day"),
     dayjs(),
   ]);
   const [selectedMetricKeys, setSelectedMetricKeys] = useState([]);
@@ -43,8 +43,8 @@ const DBChart = ({ previousDays, isRankingType }) => {
       // If both dates are selected, check that the range is not more than 30 days.
       if (selectedDate[0] && selectedDate[1]) {
         const daysDiff = selectedDate[1].diff(selectedDate[0], "day");
-        if (daysDiff > 30) {
-          toast.error("Selected date range should not exceed 30 days.");
+        if (daysDiff > 60) {
+          toast.error("Selected date range should not exceed 60 days.");
           return;
         }
       }
@@ -52,7 +52,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
       // Format the Day.js objects into a string format (YYYY-MM-DD)
       const startDate = selectedDate[0]
         ? selectedDate[0].format("YYYY-MM-DD")
-        : dayjs().subtract(60, "day").format("YYYY-MM-DD");
+        : dayjs().subtract(60, "days").format("YYYY-MM-DD");
       const endDate = selectedDate[1]
         ? selectedDate[1].format("YYYY-MM-DD")
         : dayjs().format("YYYY-MM-DD");
@@ -89,15 +89,30 @@ const DBChart = ({ previousDays, isRankingType }) => {
     }
   }, [metricsData]);
 
-  const getXAxisCategories = (dateRange, type) => {
+  const getXAxisCategories = () => {
     const allMetrics = metricsData[0]?.metrics || [];
     const uniqueDates = allMetrics.map((metric) =>
       getReadableValue(metric.date, metriceType)
     );
     return Array.from(uniqueDates);
   };
+  const getMetricData = (metricKeys) => {
+    const allDatesInRange = getXAxisCategories();
 
-  const chartData = metricsData || [];
+    // Daily metrics
+    return metricsData.map((db) => ({
+      ...db,
+      data: allDatesInRange.map((date) => {
+        const matchingMetric = db.metrics.find(
+          (metric) => getReadableValue(metric.date, metriceType) === date
+        );
+        if (!matchingMetric) return null;
+        return calculateChartWeightedValue(matchingMetric, metricKeys);
+      }),
+    }));
+  };
+  const chartData = getMetricData(selectedMetricKeys) || [];
+
   const handleLegendItemClick = function (event) {
     event.preventDefault();
     const seriesIndex = this.index;
@@ -187,7 +202,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
     },
     series: chartData.map((db, i) => ({
       name: isRankingType === "Db Tools" ? db?.dbToolName : db?.databaseName,
-      data: db.metrics.map((metric) => metric.ui_popularity.totalScore),
+      data: db.data,
       visible: enabledDatabases[i] ?? false,
       showInLegend: i >= dbIndexRange[0] && i < dbIndexRange[1],
     })),

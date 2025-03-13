@@ -29,7 +29,6 @@ export default function LeaderboardFilter({
   }, [selectedMetricKeys]);
 
   // Add handler for metric selection with logic for 'totalScore'
-
   const handleMetricChange = (value) => {
     setCheck(false);
     let allMetricKeys = DropdownOptions.map((option) => option.value);

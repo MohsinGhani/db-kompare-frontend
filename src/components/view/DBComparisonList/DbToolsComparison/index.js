@@ -28,7 +28,6 @@ const DbToolsComparisons = () => {
   const [dbToolCategories, setDbToolCategories] = useState([]);
   const [toolsData, setToolsData] = useState([]);
   const [selectedChildTools, setSelectedChildTools] = useState([]);
-  console.log("selectedChildTools", selectedChildTools);
   const [selectedToolCategoriesOptions, setSelectedToolCategoriesOptions] =
     useState([]);
   const [selectedCoreFeatures, setSelectedCoreFeatures] = useState([]);
@@ -65,7 +64,6 @@ const DbToolsComparisons = () => {
       try {
         const data = await fetchDbToolsCategories();
         const categories = data.data || [];
-        console.log("categories", categories);
         setDbToolCategories(categories);
       } catch (error) {
         console.error("Error fetching db tools categories:", error);
