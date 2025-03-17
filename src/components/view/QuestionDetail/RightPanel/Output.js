@@ -5,8 +5,6 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
-// Extend dayjs with the relativeTime plugin
 dayjs.extend(relativeTime);
 
 const Output = ({
@@ -44,10 +42,10 @@ const Output = ({
     };
     try {
       const res = await runQuery(payload);
-      setOutputData(res?.data);
-      if (!res?.data) {
+      setOutputData(res?.data?.data);
+      if (!res?.data?.data) {
         setError(res?.message?.error || "Failed to run query");
-        setIsSolutionCorrect(false);
+        // setIsSolutionCorrect(false);
       } else {
         setError(null);
       }
@@ -61,6 +59,11 @@ const Output = ({
   };
 
   const handleSubmission = async () => {
+    if (!user) {
+      toast.error("Please login to submit the solution");
+      return;
+    }
+
     setLoadingSubmission(true);
     const payload = {
       questionId: question?.id,

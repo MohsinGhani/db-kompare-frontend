@@ -36,6 +36,7 @@ const LeftPanel = ({ question, user }) => {
         </div>
       ),
       children: <CommonMarkdown markdown={question?.solutionExplanation} />,
+      disabled: !user,
     },
     {
       key: "3",
@@ -50,6 +51,7 @@ const LeftPanel = ({ question, user }) => {
         </div>
       ),
       children: <SubmissionsTable question={question} type="self" />,
+      disabled: !user,
     },
     {
       key: "4",

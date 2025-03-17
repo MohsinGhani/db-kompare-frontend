@@ -13,16 +13,26 @@ const SubmissionsTable = ({ question, type }) => {
   const [submissionsData, setSubmissionsData] = useState([]);
   const [submissionsDataLoading, setSubmissionsDataLoading] = useState(false);
   const { userDetails } = useSelector((state) => state.auth);
+  const user = userDetails?.data?.data;
   useEffect(() => {
     const getSubmData = async () => {
       if (question) {
         setSubmissionsDataLoading(true);
         try {
-          const res = await fetchSubmissions({
-            questionId: question?.id,
-            userId: userDetails?.data?.data?.id,
-            type,
-          });
+          let payload = {};
+          if (!user) {
+            payload = {
+              questionId: question?.id,
+            };
+          } else {
+            payload = {
+              questionId: question?.id,
+              userId: user?.id,
+              type,
+            };
+          }
+
+          const res = await fetchSubmissions(payload);
           setSubmissionsData(res?.data || []);
           setSubmissionsDataLoading(false);
         } catch (error) {
