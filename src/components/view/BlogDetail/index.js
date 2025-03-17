@@ -17,6 +17,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import loadingAnimationIcon from "@/../public/assets/icons/Animation-loader.gif";
 import { usePathname } from "next/navigation";
 import { selectAuthLoading } from "@/redux/slices/authSlice";
+import CommonRenderComments from "@/components/shared/CommonRenderComments";
 
 const BlogDetail = ({ id }) => {
   const [blog, setBlog] = useState();
@@ -234,7 +235,7 @@ const BlogDetail = ({ id }) => {
                             width="15"
                             height="15"
                             viewBox="0 0 15 15"
-                            class="fill-current"
+                            className="fill-current"
                           >
                             <path d="M3.89531 8.67529H3.10666C2.96327 8.67529 2.86768 8.77089 2.86768 8.91428V9.67904C2.86768 9.82243 2.96327 9.91802 3.10666 9.91802H3.89531C4.03871 9.91802 4.1343 9.82243 4.1343 9.67904V8.91428C4.1343 8.77089 4.03871 8.67529 3.89531 8.67529Z"></path>
                             <path d="M6.429 8.67529H5.64035C5.49696 8.67529 5.40137 8.77089 5.40137 8.91428V9.67904C5.40137 9.82243 5.49696 9.91802 5.64035 9.91802H6.429C6.57239 9.91802 6.66799 9.82243 6.66799 9.67904V8.91428C6.66799 8.77089 6.5485 8.67529 6.429 8.67529Z"></path>
@@ -309,6 +310,11 @@ const BlogDetail = ({ id }) => {
                 </div>
               </div>
             </div>
+            <CommonRenderComments
+              entityType="blog"
+              entityOptionIds={id}
+              className="lg:!max-w-full"
+            />
           </div>
         </div>
       </div>

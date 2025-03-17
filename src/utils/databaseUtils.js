@@ -1,3 +1,5 @@
+import { DATABASE_STATUS } from "./const";
+
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -42,14 +44,14 @@ export const fetchDatabaseByIds = async (ids) => {
 
 // Function to fetch metrics data
 
-export const fetchMetricsData = async (startDate, endDate) => {
+export const fetchMetricsData = async (startDate, endDate, aggregationType) => {
   return fetchAPI(`${API_BASE_URL_1}/get-metrices`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-api-key": API_KEY,
     },
-    body: JSON.stringify({ startDate, endDate }),
+    body: JSON.stringify({ startDate, endDate, aggregationType }),
   });
 };
 

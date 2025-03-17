@@ -32,10 +32,10 @@ export const DropdownOptions = [
 ];
 
 export const METRICES_TYPE = {
-  DAY: "DAY",
-  WEEK: "WEEK",
-  MONTH: "MONTH",
-  YEAR: "YEAR",
+  DAILY: "daily",
+  WEEKLY: "weekly",
+  MONTHLY: "monthly",
+  YEARLY: "yearly",
 };
 
 export const CommentStatus = {
@@ -74,6 +74,12 @@ export const UserRole = {
 export const BlogType = {
   BLOG: "BLOG",
   SAVED_BLOG: "SAVED_BLOG",
+};
+
+export const ENTITY_TYPE = {
+  DATABASE: "database",
+  DBTOOL: "dbtool",
+  BLOG: "blog",
 };
 
 export const rankingOptions = [
@@ -2525,3 +2531,9 @@ export const dbTools = [
     value: "PowerDesigner",
   },
 ];
+
+export const DATABASE_STATUS = {
+  ALL: "ALL",
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};

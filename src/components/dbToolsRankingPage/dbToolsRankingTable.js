@@ -17,6 +17,7 @@ const { Column, ColumnGroup } = Table;
 
 const DBToolsRankingTable = ({ previousDays }) => {
   const router = useRouter();
+  // Prepend "Local Ranking" to the dates array for the first column.
   const rankCol = useMemo(
     () => ["Local Ranking", ...previousDays],
     [previousDays]
@@ -25,6 +26,8 @@ const DBToolsRankingTable = ({ previousDays }) => {
   const [rankingTableData, setRankingTableData] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("All");
+  // This state will hold the sorter order for the local ranking column.
+  const [localRankSorter, setLocalRankSorter] = useState(null);
 
   const handleRankingChange = (selectedOption) => {
     setSelectedOption(selectedOption);
@@ -37,6 +40,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
   const onClose = () => {
     setOpen(false);
   };
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -71,7 +75,6 @@ const DBToolsRankingTable = ({ previousDays }) => {
   const normalizeDatabaseModel = (model) => {
     let text = "";
     if (Array.isArray(model)) {
-      // Join array elements with comma and space
       text = model.join(", ");
     } else if (typeof model === "string") {
       text = model;
@@ -87,127 +90,18 @@ const DBToolsRankingTable = ({ previousDays }) => {
     textAlign: "center",
   };
 
-  const rankColumns = rankCol.slice(0, 3).map((date, ind) => {
-    const formattedDate = ind !== 0 ? formatDateForHeader(date) : date;
-  
-    const iconStyle = { marginRight: 10 };
-    const noIconStyle = { marginRight: 25 };
-  
-    return (
-      <Column
-        key={`rank-${date}`}
-        minWidth={140}
-        title={<span style={columnStyle}>{formattedDate}</span>}
-        dataIndex={ind === 0 ? "index" : `rank_${date}`} // Use 'index' for Local Ranking
-        sorter={(a, b) => {
-          if (ind === 0) {
-            // Sorting logic for Local Ranking (index)
-            return a.index - b.index;
-          } else {
-            // Sorting logic for Rank columns
-            const rankA = Number(a[`rank_${date}`] || 0);
-            const rankB = Number(b[`rank_${date}`] || 0);
-            return rankA - rankB;
-          }
-        }}
-        render={(value, row, rowIndex) => {
-          if (ind === 0) {
-            // Fetch status from the second column
-            const statusKey = `rank_status_${rankCol[2]}`; // Assuming second column has trend data
-            const status = row[statusKey];
-  
-            return (
-              <span className="flex items-center justify-center">
-                {status === "INCREASED" ? (
-                  <CaretUpOutlined style={{ color: "#00CC67", ...iconStyle }} />
-                ) : status === "DECREASED" ? (
-                  <CaretDownOutlined style={{ color: "#E33C33", ...iconStyle }} />
-                ) : (
-                  <span style={noIconStyle}></span>
-                )}
-                <span>{rowIndex + 1}</span>
-              </span>
-            );
-          }
-  
-          const rank = value;
-          const status = row[`rank_status_${date}`];
-  
-          // Check if rank is not available, if not show '-'
-          if (!rank) {
-            return (
-              <span style={{ display: "flex", alignItems: "center" }}>
-                <span style={{ marginLeft: 25 }}>-</span>
-              </span>
-            );
-          }
-  
-          return (
-            <span style={{ display: "flex", alignItems: "center" }}>
-              {status === "INCREASED" ? (
-                <CaretUpOutlined style={{ color: "#00CC67", ...iconStyle }} />
-              ) : status === "DECREASED" ? (
-                <CaretDownOutlined style={{ color: "#E33C33", ...iconStyle }} />
-              ) : (
-                <span style={noIconStyle}></span>
-              )}
-              <span>{rank}</span>
-            </span>
-          );
-        }}
-      />
-    );
-  });
-  
-  const scoreColumns = previousDays.slice(0, 3).map((date) => {
-    const formattedDate = formatDateForHeader(date);
-
-    return (
-      <Column
-        key={`score-${date}`}
-        minWidth={130}
-        title={<span style={columnStyle}>{formattedDate}</span>}
-        dataIndex={`score_${date}`}
-        render={(text) => {
-          const parsedText = parseFloat(text);
-
-          if (isNaN(parsedText)) {
-            return <span>-</span>;
-          }
-
-          // Round the number to 2 decimal places
-          const roundedText = parsedText.toFixed(2);
-          const isLatestDate = date === previousDays[0];
-
-          if (isLatestDate) {
-            return <span>{roundedText}</span>;
-          }
-
-          return (
-            <span
-              style={{
-                color: parsedText > 0 ? "#00CC67" : "#E33C33",
-              }}
-            >
-              {parsedText > 0 ? `+${roundedText}` : roundedText}
-            </span>
-          );
-        }}
-      />
-    );
-  });
-
-  // Formatting and sorting data
-  const formattedData = rankingTableData.map((db,ind) => {
+  // ------------------------------
+  // First, format the data.
+  // ------------------------------
+  const formattedData = rankingTableData.map((db, ind) => {
     const dataRow = {
-      index:ind+1,
       DBMS: db.name,
       DatabaseModel: db.category,
       DatabaseModelId: db.category_id,
     };
 
-    const lastTwoRankChanges = db.rankChanges.slice(0, 2);
-    const lastThreeScoreChanges = db.scoreChanges.slice(0, 3);
+    const lastTwoRankChanges = db?.rankChanges.slice(0, 2);
+    const lastThreeScoreChanges = db?.scoreChanges.slice(0, 3);
 
     previousDays.forEach((date) => {
       const rank = lastTwoRankChanges.find((change) => change.date === date);
@@ -236,15 +130,138 @@ const DBToolsRankingTable = ({ previousDays }) => {
     if (selectedOption === "All" || selectedOption === "all") {
       return true;
     }
-
     return db.DatabaseModelId === selectedOption;
   });
 
-  const sortedData = filteredData.sort((a, b) => {
-    const latestDate = previousDays[0];
-    const scoreA = a[`score_${latestDate}`] || 0;
-    const scoreB = b[`score_${latestDate}`] || 0;
-    return scoreB - scoreA;
+  // Default sort: by the latest score in descending order.
+  const sortedData = filteredData
+    .sort((a, b) => {
+      const latestDate = previousDays[0];
+      const scoreA = a[`score_${latestDate}`] || 0;
+      const scoreB = b[`score_${latestDate}`] || 0;
+      return scoreB - scoreA;
+    })
+    .map((item, ind) => ({
+      // Save the original ranking from the default order
+      index: ind + 1,
+      ...item,
+    }));
+
+  // Get the total number of rows for calculating descending order ranks.
+  const dataLength = sortedData.length;
+
+  // ------------------------------
+  // Build the column definitions.
+  // ------------------------------
+  const rankColumns = rankCol.slice(0, 3).map((date, ind) => {
+    // For the local ranking column (first column)
+    if (ind === 0) {
+      return (
+        <Column
+          key="local-ranking"
+          minWidth={140}
+          title={<span style={columnStyle}>Local Ranking</span>}
+          dataIndex="index" // use 'index' from data for default display
+          sorter={(a, b) => a.index - b.index}
+          render={(value, row, rowIndex) => {
+            // Use the status from one of the rank status fields (assumed from the 3rd column key)
+            const statusKey = `rank_status_${rankCol[2]}`;
+            const status = row[statusKey];
+            let displayRank;
+            if (localRankSorter === "ascend") {
+              // Ascending sort: use the current row index (1-based)
+              displayRank = rowIndex + 1;
+            } else if (localRankSorter === "descend") {
+              // Descending sort: reverse the ranking order
+              displayRank = dataLength - rowIndex;
+            } else {
+              // Default: use the static value from the data
+              displayRank = row.index;
+            }
+            return (
+              <span className="flex items-center justify-center">
+                {status === "INCREASED" ? (
+                  <CaretUpOutlined
+                    style={{ color: "#00CC67", marginRight: 10 }}
+                  />
+                ) : status === "DECREASED" ? (
+                  <CaretDownOutlined
+                    style={{ color: "#E33C33", marginRight: 10 }}
+                  />
+                ) : (
+                  <span style={{ marginRight: 25 }}></span>
+                )}
+                <span>{displayRank}</span>
+              </span>
+            );
+          }}
+        />
+      );
+    } else {
+      // For other rank columns (by date)
+      const formattedDate = formatDateForHeader(date);
+      return (
+        <Column
+          key={`rank-${date}`}
+          minWidth={140}
+          title={<span style={columnStyle}>{formattedDate}</span>}
+          dataIndex={`rank_${date}`}
+          sorter={(a, b) => {
+            const rankA = Number(a[`rank_${date}`] || 0);
+            const rankB = Number(b[`rank_${date}`] || 0);
+            return rankA - rankB;
+          }}
+          render={(value, row) => {
+            const statusKey = `rank_status_${date}`;
+            const status = row[statusKey];
+            return (
+              <span style={{ display: "flex", alignItems: "center" }}>
+                {status === "INCREASED" ? (
+                  <CaretUpOutlined
+                    style={{ color: "#00CC67", marginRight: 10 }}
+                  />
+                ) : status === "DECREASED" ? (
+                  <CaretDownOutlined
+                    style={{ color: "#E33C33", marginRight: 10 }}
+                  />
+                ) : (
+                  <span style={{ marginRight: 25 }}></span>
+                )}
+                <span>{value || "-"}</span>
+              </span>
+            );
+          }}
+        />
+      );
+    }
+  });
+
+  const scoreColumns = previousDays.slice(0, 3).map((date) => {
+    const formattedDate = formatDateForHeader(date);
+    return (
+      <Column
+        key={`score-${date}`}
+        minWidth={130}
+        title={<span style={columnStyle}>{formattedDate}</span>}
+        dataIndex={`score_${date}`}
+        render={(text) => {
+          const parsedText = parseFloat(text);
+          if (isNaN(parsedText)) {
+            return <span>-</span>;
+          }
+          const roundedText = parsedText.toFixed(2);
+          const isLatestDate = date === previousDays[0];
+          if (isLatestDate) {
+            return <span>{roundedText}</span>;
+          }
+          return (
+            <span style={{ color: parsedText > 0 ? "#00CC67" : "#E33C33" }}>
+              {parsedText > 0 ? `+${roundedText}` : roundedText}
+            </span>
+          );
+        }}
+      />
+    );
   });
 
   return (
@@ -267,7 +284,7 @@ const DBToolsRankingTable = ({ previousDays }) => {
         </div>
       </div>
       <div className="md:flex md:flex-row items-start justify-between w-full">
-        <div className=" hidden md:block min-w-[150px] sm:min-w-[200px] md:min-w-[250px] mr-4 ">
+        <div className="hidden md:block min-w-[150px] sm:min-w-[200px] md:min-w-[250px] mr-4 ">
           <DBToolsRankingOptions onChange={handleRankingChange} />
         </div>
         <div className="w-full overflow-auto">
@@ -281,6 +298,15 @@ const DBToolsRankingTable = ({ previousDays }) => {
               index % 2 === 0 ? "bg-[#EEEEEE]" : "bg-white"
             }
             loading={loading}
+            onChange={(pagination, filters, sorter, extra) => {
+              // Check if the local ranking column is the one being sorted.
+              if (!Array.isArray(sorter)) {
+                setLocalRankSorter(sorter.order);
+              } else {
+                setLocalRankSorter(sorter.order);
+                setLocalRankSorter(null);
+              }
+            }}
           >
             <ColumnGroup title={<span style={columnStyle}>Ranks</span>}>
               {rankColumns}
