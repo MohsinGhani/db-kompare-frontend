@@ -2,14 +2,14 @@
 
 import CommonTable from "@/components/shared/CommonTable";
 import { DIFFICULTY } from "@/utils/const";
-import { fetchSubmissions, fetchUserSubmissions } from "@/utils/questionsUtil";
+import { fetchUserSubmissions } from "@/utils/questionsUtil";
 import { Tag } from "antd";
 import { useRouter } from "nextjs-toploader/app";
 import React, { useEffect, useState } from "react";
 
 const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
-const QuestionsTable = ({ questions, loading, user }) => {
+const QuestionsTable = ({ questions, loading, user, setQuestions }) => {
   const router = useRouter();
   const [userSubmissions, setUserSubmissions] = useState([]);
 
@@ -27,23 +27,22 @@ const QuestionsTable = ({ questions, loading, user }) => {
     getUserSubmission();
   }, [user]);
 
-  // Enrich each question with the latest submission status (if exists) based on matching questionId.
   const enrichedQuestions = questions.map((item, ind) => {
-    // Find the submission for this question.
-    // (Assuming fetchUserSubmissions returns the latest submission per question;
-    // otherwise, you might need to sort and pick the latest one.)
-    const submission = userSubmissions?.find(
+    const submission = userSubmissions.find(
       (sub) => sub?.questionId === item?.id
     );
+    const storedQuery = localStorage.getItem(`query-${item.id}`);
+    const inProgressFromStorage = storedQuery !== null && storedQuery !== "";
+
     let status = "-";
-    const inProgress = false;
     if (submission) {
       status = submission.queryStatus ? "Solved" : "Error";
-    } else if (inProgress) {
+    } else if (inProgressFromStorage && user) {
       status = "In Progress";
     } else {
       status = "Not Started";
     }
+
     return { ...item, ind: ind + 1, status };
   });
 
@@ -53,27 +52,7 @@ const QuestionsTable = ({ questions, loading, user }) => {
       dataIndex: "questionNo",
       key: "questionNo",
       sorter: (a, b) => a.questionNo - b.questionNo,
-      render: (no, record) => {
-        const text = record?.status;
-        const color =
-          text === "Solved"
-            ? "#17A44B"
-            : text === "Error"
-            ? "#DE3D28"
-            : text === "In Progress"
-            ? "#DA8607"
-            : "#848484";
-        return (
-          <div
-            style={{
-              background: color,
-              padding: "0px !important",
-            }}
-          >
-            {no}
-          </div>
-        );
-      },
+      render: (no) => no, // Just return the number, no need for custom div/span
     },
     {
       title: "Company",
@@ -142,16 +121,25 @@ const QuestionsTable = ({ questions, loading, user }) => {
   return (
     <CommonTable
       columns={columns}
-      dataSource={enrichedQuestions.map((item) => ({ ...item }))}
+      dataSource={enrichedQuestions?.map((item) => ({ ...item }))}
       loading={loading}
-      className="font-medium max-w-[600px] md:max-w-full overflow-auto"
+      className="cursor-pointer transition max-w-[600px] md:max-w-full overflow-auto questions-table"
       bordered
       pagination={false}
       rowKey="id"
       onRow={(record) => ({
         onClick: () => router.push(`/questions/${record.id}`),
       })}
-      rowClassName="cursor-pointer transition"
+      rowClassName={(record) => {
+        const status = record?.status;
+        return status === "Solved"
+          ? "row-solved"
+          : status === "Error"
+          ? "row-error"
+          : status === "In Progress"
+          ? "row-in-progress"
+          : "row-default";
+      }}
     />
   );
 };

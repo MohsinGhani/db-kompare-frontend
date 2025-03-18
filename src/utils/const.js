@@ -116,7 +116,7 @@ export const LESSON_CATEGORY = {
   HARD: "HARD",
 };
 export const QUESTION_STATUS = {
-  SOLVED: "SOLVED",
+  SOLVED: "Solved",
   ERROR: "ERROR",
   NOT_STARTED: "NOT STARTED",
 };

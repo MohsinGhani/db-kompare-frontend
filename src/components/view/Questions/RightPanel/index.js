@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import QuestionFilters from "./QuestionFilters";
 import QuestionsTable from "./QuestionsTable";
-import { fetchQuestions } from "@/utils/questionsUtil";
+import { fetchQuestions, fetchUserSubmissions } from "@/utils/questionsUtil";
 import { useSelector } from "react-redux";
 
 const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
@@ -16,7 +16,7 @@ const RightPanel = ({
 }) => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [userSubmissions, setUserSubmissions] = useState([]);
   // Fetch questions on mount
   useEffect(() => {
     const loadQuestions = async () => {
@@ -39,6 +39,45 @@ const RightPanel = ({
 
     loadQuestions();
   }, []);
+  useEffect(() => {
+    if (!user) return;
+    const getUserSubmission = async () => {
+      try {
+        // Make sure to await the response from fetchUserSubmissions
+        const res = await fetchUserSubmissions(user.id);
+        setUserSubmissions(res?.data || []);
+      } catch (error) {
+        console.log(error?.message);
+      }
+    };
+    getUserSubmission();
+  }, [user]);
+
+  useEffect(() => {
+    if (questions.length === 0 || userSubmissions.length === 0) return;
+
+    const enrichedQuestions = questions.map((item, ind) => {
+      const submission = userSubmissions.find(
+        (sub) => sub?.questionId === item?.id
+      );
+      const storedQuery = localStorage.getItem(`query-${item.id}`);
+      const inProgressFromStorage = storedQuery !== null && storedQuery !== "";
+
+      let status = "-";
+      if (submission) {
+        status = submission.queryStatus ? "Solved" : "Error";
+      } else if (inProgressFromStorage && user) {
+        status = "In Progress";
+      } else {
+        status = "Not Started";
+      }
+
+      return { ...item, ind: ind + 1, status };
+    });
+
+    // setQuestions(enrichedQuestions);
+    // setFilteredQuestions(enrichedQuestions);
+  }, [questions, userSubmissions, setQuestions]);
 
   // Apply filters when the filters state changes
   useEffect(() => {
@@ -113,6 +152,7 @@ const RightPanel = ({
         questions={filteredQuestions}
         loading={loading}
         user={user}
+        setQuestions={setQuestions}
       />
     </div>
   );

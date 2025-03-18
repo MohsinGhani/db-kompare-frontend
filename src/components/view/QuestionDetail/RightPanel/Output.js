@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+
 dayjs.extend(relativeTime);
 
 const Output = ({
@@ -21,43 +22,42 @@ const Output = ({
   const [loadingQuery, setLoadingQuery] = useState(false);
   const [loadingSubmission, setLoadingSubmission] = useState(false);
   const [outSubmittedDate, setOutSubmittedDate] = useState(null);
+  const [runQueryResponse, setRunQueryResponse] = useState(false);
 
+  // Handle typing state (delayed reset)
   useEffect(() => {
     if (query) {
       setIsTyping(true);
-      const timer = setTimeout(() => {
-        setIsTyping(false);
-      }, 1000);
+      const timer = setTimeout(() => setIsTyping(false), 1000);
       return () => clearTimeout(timer);
-    } else {
-      setIsTyping(false);
     }
+    setIsTyping(false);
   }, [query]);
 
+  // Handle query execution
   const handleRunQuery = async () => {
     setLoadingQuery(true);
-    const payload = {
-      questionId: question?.id,
-      query: query,
-    };
+    const payload = { questionId: question?.id, query };
+
     try {
       const res = await runQuery(payload);
-      setOutputData(res?.data?.data);
-      if (!res?.data?.data) {
-        setError(res?.message?.error || "Failed to run query");
-        // setIsSolutionCorrect(false);
-      } else {
+      if (res?.data?.data) {
+        setOutputData(res.data.data);
         setError(null);
+        setRunQueryResponse(true);
+      } else {
+        setError(res?.message?.error || "Failed to run query");
       }
-      // Set the submitted date to the current time
       setOutSubmittedDate(new Date());
     } catch (error) {
       toast.error(error?.message || "Failed to run query");
     } finally {
       setLoadingQuery(false);
+      setRunQueryResponse(true);
     }
   };
 
+  // Handle submission of user query
   const handleSubmission = async () => {
     if (!user) {
       toast.error("Please login to submit the solution");
@@ -71,21 +71,17 @@ const Output = ({
       userId: user?.id,
       timetaken: time,
     };
+
     try {
       const res = await runSubmission(payload);
       if (res?.data?.correct) {
         setIsSolutionCorrect(true);
-        setOutputData(res?.data?.userOutput);
-      } else if (!res?.data?.correct) {
-        setOutputData(res?.data?.userOutput);
+      } else {
         setIsSolutionCorrect(false);
       }
-      if (!res?.data) {
-        setError(res?.message?.error || "Failed to run query");
-      } else {
-        setError(null);
-      }
-      // Optionally, update the submitted time after a submission as well
+
+      setOutputData(res?.data?.userOutput || []);
+      setError(res?.message?.error || null);
       setOutSubmittedDate(new Date());
     } catch (error) {
       toast.error(error?.message || "Failed to run query");
@@ -94,16 +90,18 @@ const Output = ({
     }
   };
 
+  // Determine if output data exists
   const isOutputData = outputData?.length > 0;
   const isLoading = loadingQuery || loadingSubmission;
+
   return (
-    <div className="bg-[#FAFAFA] h-auto p-3 relative">
+    <div className="bg-[#FAFAFA] w-full h-auto p-3 relative">
       <p className="font-semibold">
         Submitted Output{" "}
         {outSubmittedDate ? dayjs(outSubmittedDate).fromNow() : ""}
       </p>
 
-      <div className="overflow-auto h-[250px]">
+      <div className="overflow-auto w-full h-[250px]">
         {isOutputData ? (
           <DynamicTable data={outputData} />
         ) : isLoading ? (
@@ -119,6 +117,7 @@ const Output = ({
           </div>
         )}
       </div>
+
       <div
         className={`flex gap-2 items-baseline justify-end ${
           !isOutputData ? "absolute bottom-4 right-4" : "mt-6"
@@ -142,10 +141,11 @@ const Output = ({
               className="mb-[-2px] h-40 object-cover absolute bottom-5"
               draggable={false}
             />
-          ) : (!isSolutionCorrect && isOutputData) || error ? (
+          ) : (!isSolutionCorrect && isOutputData && !runQueryResponse) ||
+            error ? (
             <img
               src="/assets/icons/dog-sad.svg"
-              alt="dog-play"
+              alt="dog-sad"
               className="-mb-[7px] h-28 object-cover absolute bottom-8"
               draggable={false}
             />
@@ -170,13 +170,9 @@ const Output = ({
   );
 };
 
-export default Output;
-
 const DynamicTable = ({ data }) => {
   const columns = React.useMemo(() => {
-    if (!data || data.length === 0) {
-      return [];
-    }
+    if (!data || data.length === 0) return [];
     return Object.keys(data[0]).map((key) => ({
       title: key,
       dataIndex: key,
@@ -190,8 +186,10 @@ const DynamicTable = ({ data }) => {
       dataSource={data}
       rowKey={(record, index) => index}
       pagination={false}
-      className="h-[300px] mt-4"
+      className="h-[300px] mt-4 common table w-full"
       bordered
     />
   );
 };
+
+export default Output;

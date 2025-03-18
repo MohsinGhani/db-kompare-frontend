@@ -5,7 +5,6 @@ import React from "react";
 import { TOPICS_CATEGORIES, DIFFICULTY, QUESTION_STATUS } from "@/utils/const";
 
 const { Search } = Input;
-const { Option } = Select;
 
 // Convert object values into selectable items
 const generateSelectItems = (data) =>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Table, Tag, Button, message, Avatar } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, RedoOutlined, Refr } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { fetchSubmissions } from "@/utils/questionsUtil";
 import CommonTable from "@/components/shared/CommonTable";
@@ -14,33 +14,34 @@ const SubmissionsTable = ({ question, type }) => {
   const [submissionsDataLoading, setSubmissionsDataLoading] = useState(false);
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
-  useEffect(() => {
-    const getSubmData = async () => {
-      if (question) {
-        setSubmissionsDataLoading(true);
-        try {
-          let payload = {};
-          if (!user) {
-            payload = {
-              questionId: question?.id,
-            };
-          } else {
-            payload = {
-              questionId: question?.id,
-              userId: user?.id,
-              type,
-            };
-          }
 
-          const res = await fetchSubmissions(payload);
-          setSubmissionsData(res?.data || []);
-          setSubmissionsDataLoading(false);
-        } catch (error) {
-          message.error("Failed to get submission data..!");
-          setSubmissionsDataLoading(false);
+  const getSubmData = async () => {
+    if (question) {
+      setSubmissionsDataLoading(true);
+      try {
+        let payload = {};
+        if (!user) {
+          payload = {
+            questionId: question?.id,
+          };
+        } else {
+          payload = {
+            questionId: question?.id,
+            userId: user?.id,
+            type,
+          };
         }
+
+        const res = await fetchSubmissions(payload);
+        setSubmissionsData(res?.data || []);
+        setSubmissionsDataLoading(false);
+      } catch (error) {
+        message.error("Failed to get submission data..!");
+        setSubmissionsDataLoading(false);
       }
-    };
+    }
+  };
+  useEffect(() => {
     getSubmData();
   }, [question, type, userDetails]);
 
@@ -137,15 +138,27 @@ const SubmissionsTable = ({ question, type }) => {
   ];
 
   return (
-    <CommonTable
-      columns={columns}
-      dataSource={submissionsData}
-      rowKey="id"
-      pagination={false}
-      className="font-normal common-table"
-      bordered
-      loading={submissionsDataLoading}
-    />
+    <>
+      <div className="text-right mb-2">
+        <Button
+          loading={submissionsDataLoading}
+          onClick={getSubmData}
+          type="primary"
+          icon={<RedoOutlined />}
+        >
+          Refresh
+        </Button>
+      </div>
+      <CommonTable
+        columns={columns}
+        dataSource={submissionsData}
+        rowKey="id"
+        pagination={false}
+        className="font-normal common-table"
+        bordered
+        loading={submissionsDataLoading}
+      />
+    </>
   );
 };
 

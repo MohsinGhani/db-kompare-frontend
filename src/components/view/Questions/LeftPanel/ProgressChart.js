@@ -153,7 +153,7 @@ const ProgressChart = () => {
         name: "Easy",
         data: [
           {
-            y: 65,
+            y: 4,
             color: "#17A44B", // Green
           },
         ],
@@ -164,7 +164,7 @@ const ProgressChart = () => {
         name: "Medium",
         data: [
           {
-            y: 50,
+            y: 10,
             color: "#DA8607",
           },
         ],
@@ -175,7 +175,7 @@ const ProgressChart = () => {
         name: "Hard",
         data: [
           {
-            y: 40,
+            y: 10,
             color: "#DE3D28",
           },
         ],
