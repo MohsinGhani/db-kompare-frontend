@@ -53,27 +53,26 @@ const RightPanel = ({
     getUserSubmission();
   }, [user]);
 
+  const enrichedQuestions = questions.map((item, ind) => {
+    const submission = userSubmissions.find(
+      (sub) => sub?.questionId === item?.id
+    );
+    const storedQuery = localStorage.getItem(`query-${item.id}`);
+    const inProgressFromStorage = storedQuery !== null && storedQuery !== "";
+
+    let status = "-";
+    if (submission) {
+      status = submission.queryStatus ? "Solved" : "Error";
+    } else if (inProgressFromStorage && user) {
+      status = "In Progress";
+    } else {
+      status = "Not Started";
+    }
+
+    return { ...item, ind: ind + 1, status };
+  });
   useEffect(() => {
     if (questions.length === 0 || userSubmissions.length === 0) return;
-
-    const enrichedQuestions = questions.map((item, ind) => {
-      const submission = userSubmissions.find(
-        (sub) => sub?.questionId === item?.id
-      );
-      const storedQuery = localStorage.getItem(`query-${item.id}`);
-      const inProgressFromStorage = storedQuery !== null && storedQuery !== "";
-
-      let status = "-";
-      if (submission) {
-        status = submission.queryStatus ? "Solved" : "Error";
-      } else if (inProgressFromStorage && user) {
-        status = "In Progress";
-      } else {
-        status = "Not Started";
-      }
-
-      return { ...item, ind: ind + 1, status };
-    });
 
     // setQuestions(enrichedQuestions);
     // setFilteredQuestions(enrichedQuestions);
@@ -81,7 +80,7 @@ const RightPanel = ({
 
   // Apply filters when the filters state changes
   useEffect(() => {
-    let filtered = [...questions];
+    let filtered = [...enrichedQuestions];
 
     if (filters.searchTerm) {
       filtered = filtered.filter(
@@ -124,7 +123,7 @@ const RightPanel = ({
     }
 
     setFilteredQuestions(filtered);
-  }, [filters, questions]);
+  }, [filters, questions, userSubmissions]);
 
   // Update filters dynamically
   const updateFilter = useCallback((key, value) => {

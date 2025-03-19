@@ -81,24 +81,28 @@ const SubmissionsTable = ({ question, type }) => {
         </div>
       ),
       hidden: type === "others" ? false : true,
+      sorter: (a, b) => a.user?.name.localeCompare(b.user?.name), // Add sorting for user name
     },
     {
       title: "Submitted At",
       dataIndex: "submittedAt",
       key: "submittedAt",
       render: (value) => formatDate(value),
+      sorter: (a, b) => new Date(a.submittedAt) - new Date(b.submittedAt), // Sort by submission date
     },
     {
       title: "Time Taken to Submit",
       dataIndex: "timetaken",
       key: "timetaken",
       render: (value) => formatTimeTaken(value),
+      sorter: (a, b) => a.timetaken - b.timetaken, // Sort by time taken
     },
     {
       title: "Query Execution Time",
       dataIndex: "executiontime",
       key: "executiontime",
       render: (value) => formatExecutionTime(value),
+      sorter: (a, b) => a.executiontime - b.executiontime, // Sort by execution time
     },
     {
       title: "Status",
@@ -113,10 +117,12 @@ const SubmissionsTable = ({ question, type }) => {
           {value ? "Solved" : "Error"}
         </p>
       ),
+      sorter: (a, b) =>
+        a.queryStatus === b.queryStatus ? 0 : a.queryStatus ? -1 : 1, // Sort by status (Solved first)
     },
     {
       title: "Submission",
-      dataIndex: "userQuery", // This is the field from your data
+      dataIndex: "userQuery",
       key: "userQuery",
       render: (_, record) => (
         <img

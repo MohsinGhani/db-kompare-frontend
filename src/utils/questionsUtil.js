@@ -60,6 +60,16 @@ export const fetchUserSubmissions = async (userId) => {
   });
 };
 
+export const fetchSubmissionProgress = async (userId) => {
+  const url = `${API_BASE_URL_1}/get-submission-progress?userId=${userId}`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+
 export const fetchQuestionDetail = async (id) => {
   const url = `${API_BASE_URL_1}/question/${id}`;
 

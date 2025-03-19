@@ -20,7 +20,7 @@ const HomepageCards = () => {
       description:
         "Compare codebases, solutions, and answers side-by-side to choose what fits your project or query best.",
       link: {
-        href: "/db-comparisons/list",
+        href: "/db-comparisons/list/options",
         text: "DB Comparison",
       },
     },

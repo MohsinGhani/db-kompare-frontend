@@ -1,11 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsMore from "highcharts/highcharts-more";
 import SolidGauge from "highcharts/modules/solid-gauge";
 import { Divider } from "antd";
+import { fetchSubmissionProgress } from "@/utils/questionsUtil";
+import { DIFFICULTY } from "@/utils/const";
 
 // Load Highcharts modules properly
 if (typeof Highcharts === "object") {
@@ -41,42 +43,43 @@ const RADIUS = {
     INNER: "65%",
   },
 };
+// Function to calculate the progress percentage for each difficulty
+const calculateProgress = (solved, total) => {
+  if (total === 0) return 0; // Avoid division by zero
+  return (solved / total) * 100;
+};
 
-const stats = [
-  {
-    name: "Easy",
-    color: "#17A44B",
-    count: {
-      completed: 12,
-      all: 78,
-    },
-  },
-  {
-    name: "Medium",
-    color: "#DA8607",
-    count: {
-      completed: 22,
-      all: 53,
-    },
-  },
-  {
-    name: "Hard",
-    color: "#DE3D28",
-    count: {
-      completed: 52,
-      all: 78,
-    },
-  },
-];
+const ProgressChart = ({ user }) => {
+  const [progressData, setProgressData] = useState(null); // Store the progress data
+  const [progressPercentage, setProgressPercentage] = useState(0);
 
-const ProgressChart = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchSubmissionProgress(user?.id ?? "");
+        if (response && response.data) {
+          const { progressPercentage: perc, progress } = response.data;
+          setProgressData(progress);
+          setProgressPercentage(perc);
+        }
+      } catch (error) {
+        console.error("Error fetching user submissions:", error);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  // Chart options dynamically based on fetched data
   const chartOptions = {
     chart: {
       type: "solidgauge",
       height: "120%",
     },
     title: {
-      text: "<p style='font-weight:400; color:#191A15; font-size:14px;'>Completed</p><br><p style='font-weight:700; font-size: 2em'>65%</p>",
+      text: `<p style='font-weight:400; color:#191A15; font-size:14px;'>Completed</p><br><p style='font-weight:700; font-size: 2em'>${Math.round(
+        Number(progressPercentage)
+      )}%</p>`,
       style: {
         fontSize: "16px",
         color: "#000", // Black text
@@ -85,7 +88,6 @@ const ProgressChart = () => {
       y: 10,
       align: "center",
     },
-    // Disable tooltip
     tooltip: {
       enabled: false,
       borderWidth: 0,
@@ -149,11 +151,13 @@ const ProgressChart = () => {
     },
     series: [
       {
-        // Outer ring (Green)
         name: "Easy",
         data: [
           {
-            y: 4,
+            y: calculateProgress(
+              progressData?.EASY?.solved || 0,
+              progressData?.EASY?.total || 0
+            ),
             color: "#17A44B", // Green
           },
         ],
@@ -164,7 +168,11 @@ const ProgressChart = () => {
         name: "Medium",
         data: [
           {
-            y: 10,
+            y: calculateProgress(
+              progressData?.MEDIUM?.solved || 0,
+              progressData?.MEDIUM?.total || 0
+            ),
+            // y: progressData?.MEDIUM?.solved || 0,
             color: "#DA8607",
           },
         ],
@@ -175,7 +183,10 @@ const ProgressChart = () => {
         name: "Hard",
         data: [
           {
-            y: 10,
+            y: calculateProgress(
+              progressData?.HARD?.solved || 0,
+              progressData?.HARD?.total || 0
+            ),
             color: "#DE3D28",
           },
         ],
@@ -190,28 +201,36 @@ const ProgressChart = () => {
   };
 
   return (
-    <div className=" w-full">
+    <div className="w-full">
       <p className="text-2xl font-bold text-left">Your Progress</p>
-      <div className="w-full overflow-hidden ">
+      <div className="w-full overflow-hidden">
         <HighchartsReact highcharts={Highcharts} options={chartOptions} />
       </div>
       <div className="flex flex-col md:flex-row gap-2 justify-center text-right">
-        {stats?.map((item, ind) => (
+        {Object.values(DIFFICULTY).map((difficulty, ind) => (
           <div
             key={ind}
             className="flex items-center text-xs font-medium gap-1"
           >
             <div
-              style={{ backgroundColor: item.color }}
+              style={{
+                backgroundColor:
+                  difficulty === DIFFICULTY.EASY
+                    ? "#17A44B"
+                    : difficulty === DIFFICULTY.MEDIUM
+                    ? "#DA8607"
+                    : "#DE3D28",
+              }}
               className="h-[8px] w-[8px] rounded-full"
             ></div>
-            <p>{item.name}</p>
+            <p>{difficulty}</p>
             <p>
-              {item.count.completed}/{item.count.all}
+              {progressData?.[difficulty]?.solved || 0}/
+              {progressData?.[difficulty]?.total || 0}
             </p>
 
             {/* Only add Divider if it's NOT the last item */}
-            {ind !== stats.length - 1 && (
+            {ind !== 2 && (
               <Divider
                 type="vertical"
                 className="!m-0 !w-[1px] h-[12px] bg-gray-300 hidden md:block"

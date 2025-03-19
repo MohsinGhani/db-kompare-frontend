@@ -117,8 +117,9 @@ export const LESSON_CATEGORY = {
 };
 export const QUESTION_STATUS = {
   SOLVED: "Solved",
-  ERROR: "ERROR",
-  NOT_STARTED: "NOT STARTED",
+  ERROR: "Error",
+  NOT_STARTED: "Not Started",
+  IN_PROGRESS: "In Progress",
 };
 
 export const TOPICS_CATEGORIES = {

@@ -44,7 +44,7 @@ export default function Homepage() {
                 </CommonButton>
                 <CommonButton
                   className="bg-transparent border border-[#3E53D7]  lg:w-52 md:w-40 w-full mt-3 text-primary md:text-base text-lg "
-                  onClick={() => router.push("/db-comparisons/list")}
+                  onClick={() => router.push("/db-comparisons/list/options")}
                 >
                   DB Comparison
                 </CommonButton>

@@ -9,42 +9,8 @@ import React, { useEffect, useState } from "react";
 
 const difficultyOrder = { EASY: 1, MEDIUM: 2, HARD: 3 };
 
-const QuestionsTable = ({ questions, loading, user, setQuestions }) => {
+const QuestionsTable = ({ questions, loading, user }) => {
   const router = useRouter();
-  const [userSubmissions, setUserSubmissions] = useState([]);
-
-  useEffect(() => {
-    if (!user) return;
-    const getUserSubmission = async () => {
-      try {
-        // Make sure to await the response from fetchUserSubmissions
-        const res = await fetchUserSubmissions(user.id);
-        setUserSubmissions(res?.data || []);
-      } catch (error) {
-        console.log(error?.message);
-      }
-    };
-    getUserSubmission();
-  }, [user]);
-
-  const enrichedQuestions = questions.map((item, ind) => {
-    const submission = userSubmissions.find(
-      (sub) => sub?.questionId === item?.id
-    );
-    const storedQuery = localStorage.getItem(`query-${item.id}`);
-    const inProgressFromStorage = storedQuery !== null && storedQuery !== "";
-
-    let status = "-";
-    if (submission) {
-      status = submission.queryStatus ? "Solved" : "Error";
-    } else if (inProgressFromStorage && user) {
-      status = "In Progress";
-    } else {
-      status = "Not Started";
-    }
-
-    return { ...item, ind: ind + 1, status };
-  });
 
   const columns = [
     {
@@ -117,11 +83,10 @@ const QuestionsTable = ({ questions, loading, user, setQuestions }) => {
       hidden: user ? false : true,
     },
   ];
-
   return (
     <CommonTable
       columns={columns}
-      dataSource={enrichedQuestions?.map((item) => ({ ...item }))}
+      dataSource={questions?.map((item) => ({ ...item }))}
       loading={loading}
       className="cursor-pointer transition max-w-[600px] md:max-w-full overflow-auto questions-table"
       bordered
