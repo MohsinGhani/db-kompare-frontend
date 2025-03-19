@@ -1,0 +1,66 @@
+.questions-container {
+  .ant-table {
+    .ant-table-thead {
+      .ant-table-cell {
+        padding: 18px;
+      }
+    }
+    /* General Row Styles */
+    tr {
+      td {
+        border-bottom: none !important;
+      }
+    }
+
+    /* Solved status */
+    .row-solved td:nth-child(1) {
+      background-color: #17a44b;
+      color: #fff;
+      padding: 10px !important;
+    }
+
+    /* Error status */
+    .row-error td:nth-child(1) {
+      background-color: #de3d28;
+      color: #fff;
+      padding: 10px !important;
+    }
+
+    /* In Progress status */
+    .row-in-progress td:nth-child(1) {
+      background-color: #da8607;
+      color: #fff;
+      padding: 10px !important;
+    }
+
+    /* Default status */
+    .row-default td:nth-child(1) {
+      background-color: #848484;
+      color: #fff;
+      padding: 10px !important;
+    }
+
+    tr:nth-child(even) {
+      background: #f3f6ff;
+    }
+
+    tr:nth-child(odd) {
+      background: white;
+    }
+  }
+}
+
+.question-details {
+  .Pane {
+    overflow: auto;
+    .monaco-editor {
+      border-top: 1px solid #dfe0eb;
+      .margin-view-overlays {
+        border-right: 1px solid #dfe0eb;
+      }
+      .decorationsOverviewRuler {
+        display: none !important;
+      }
+    }
+  }
+}

@@ -108,7 +108,7 @@ export default function LeaderboardFilter({
         </div>
         <div className="w-full ">
           <CommonTypography type="text" classes="text-lg font-medium my-2">
-            Select Date (By default, it will show last 30 DAYS data.)
+            Select Date (By default, it will show last 60 DAYS data.)
           </CommonTypography>
           <div className="flex items-center justify-center mt-4 gap-2">
             <RangePicker
