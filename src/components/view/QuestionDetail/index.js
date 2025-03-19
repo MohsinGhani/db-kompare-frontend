@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-// import SplitPane from "react-split-pane";
+import Split from "react-split"; // Import react-split
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 import QuestionTop from "./QuestionTop";
@@ -49,20 +49,20 @@ const QuestionDetail = () => {
 
   return (
     <>
-      <div className="pt-28 md:pt-20 pb-24 relative w-full h-auto min-h-screen overflow-auto  question-details">
+      <div className="pt-20  relative w-full h-auto min-h-screen overflow-auto  question-details">
         <QuestionTop question={question} time={time} setTime={setTime} />
-        {/* <SplitPane
-          split="vertical"
-          minSize={200}
-          maxSize={-200}
-          defaultSize="50%"
-          className="h-full"
+        {/* Using react-split here for split functionality */}
+        {/* <Split
+          sizes={[50, 50]} // Initial split ratio (50% - 50%)
+          minSize={[200, 200]} // Minimum size for each panel
+          gutterSize={10} // Space between the panels
+          className="flex h-full"
         > */}
-        <div className="flex h-full">
-          <div className="w-1/2">
+        <div className="flex h-screen screens">
+          <div className="w-1/2 h-full">
             <LeftPanel question={question} user={userDetails?.data?.data} />
           </div>
-          <div className="w-1/2">
+          <div className="w-1/2 h-full ">
             <RightPanel
               question={question}
               isSolutionCorrect={isSolutionCorrect}
@@ -72,8 +72,10 @@ const QuestionDetail = () => {
             />
           </div>
         </div>
-        {/* </SplitPane> */}
+        {/* </Split> */}
       </div>
+
+      {/* Display Confetti on correct solution */}
       {isSolutionCorrect && (
         <Confetti
           width={window.innerWidth}
