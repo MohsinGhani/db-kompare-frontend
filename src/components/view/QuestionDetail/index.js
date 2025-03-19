@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import SplitPane from "react-split-pane";
+// import SplitPane from "react-split-pane";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 import QuestionTop from "./QuestionTop";
@@ -51,22 +51,28 @@ const QuestionDetail = () => {
     <>
       <div className="pt-28 md:pt-20 pb-24 relative w-full h-auto min-h-screen overflow-auto  question-details">
         <QuestionTop question={question} time={time} setTime={setTime} />
-        <SplitPane
+        {/* <SplitPane
           split="vertical"
           minSize={200}
           maxSize={-200}
           defaultSize="50%"
           className="h-full"
-        >
-          <LeftPanel question={question} user={userDetails?.data?.data} />
-          <RightPanel
-            question={question}
-            isSolutionCorrect={isSolutionCorrect}
-            setIsSolutionCorrect={setIsSolutionCorrect}
-            user={userDetails?.data?.data}
-            time={time}
-          />
-        </SplitPane>
+        > */}
+        <div className="flex h-full">
+          <div className="w-1/2">
+            <LeftPanel question={question} user={userDetails?.data?.data} />
+          </div>
+          <div className="w-1/2">
+            <RightPanel
+              question={question}
+              isSolutionCorrect={isSolutionCorrect}
+              setIsSolutionCorrect={setIsSolutionCorrect}
+              user={userDetails?.data?.data}
+              time={time}
+            />
+          </div>
+        </div>
+        {/* </SplitPane> */}
       </div>
       {isSolutionCorrect && (
         <Confetti
