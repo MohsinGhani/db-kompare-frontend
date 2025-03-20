@@ -6,6 +6,7 @@ export const Navlinks = [
   { href: "https://dataeli5.substack.com/", label: "DB Internals" },
   { href: "#", label: "API" },
   { href: "/questions", label: "Practice SQL" },
+  { href: "/run", label: "Run SQL" },
 ];
 
 export const DropdownOptions = [
