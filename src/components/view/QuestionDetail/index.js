@@ -51,28 +51,27 @@ const QuestionDetail = () => {
     <>
       <div className="pt-20  relative w-full h-auto min-h-screen overflow-auto  question-details">
         <QuestionTop question={question} time={time} setTime={setTime} />
-        {/* Using react-split here for split functionality */}
-        {/* <Split
-          sizes={[50, 50]} // Initial split ratio (50% - 50%)
-          minSize={[200, 200]} // Minimum size for each panel
-          gutterSize={10} // Space between the panels
-          className="flex h-full"
-        > */}
-        <div className="flex h-screen screens">
-          <div className="w-1/2 h-full">
-            <LeftPanel question={question} user={userDetails?.data?.data} />
-          </div>
-          <div className="w-1/2 h-full ">
-            <RightPanel
-              question={question}
-              isSolutionCorrect={isSolutionCorrect}
-              setIsSolutionCorrect={setIsSolutionCorrect}
-              user={userDetails?.data?.data}
-              time={time}
-            />
-          </div>
-        </div>
-        {/* </Split> */}
+        <Split
+          sizes={[50, 50]} // Initial split sizes (50% each)
+          minSize={400} // Minimum width for each panel
+          expandToMin={false} // Do not expand to minimum size automatically
+          gutterSize={5} // Width of the divider
+          gutterAlign="center" // Center the gutter between panels
+          snapOffset={30} // Distance at which panels snap to minimum size
+          dragInterval={1} // Drag in increments of 1 pixel
+          direction="horizontal" // Split horizontally (side-by-side)
+          cursor="col-resize" // Cursor style when hovering over the gutter
+          className="!h-screen !flex"
+        >
+          <LeftPanel question={question} user={userDetails?.data?.data} />
+          <RightPanel
+            question={question}
+            isSolutionCorrect={isSolutionCorrect}
+            setIsSolutionCorrect={setIsSolutionCorrect}
+            user={userDetails?.data?.data}
+            time={time}
+          />
+        </Split>
       </div>
 
       {/* Display Confetti on correct solution */}
