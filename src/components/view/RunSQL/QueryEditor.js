@@ -53,10 +53,6 @@ const QueryEditor = () => {
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
-
-  const onChangeRuntime = (value) => {
-    console.log(`selected ${value}`);
-  };
   return (
     <div className="w-full h-[75%]">
       {" "}

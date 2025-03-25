@@ -75,18 +75,6 @@ const DataDefination = () => {
         />
       ),
     },
-    {
-      title: "Action",
-      render: (_, record) =>
-        dataSource.length >= 1 ? (
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <Button type="link">Delete</Button>
-          </Popconfirm>
-        ) : null,
-    },
   ];
 
   const editableColumns = columns.map((col) => ({

@@ -8,7 +8,7 @@ import QueryResult from "./QueryResult";
 
 const RunSQL = () => {
   return (
-    <div className="grid grid-cols-2 grid-rows-2 gap-[5px] h-screen box-border p-24 runsql-container ">
+    <div className="grid grid-cols-2 grid-rows-2 gap-[5px] py-24 h-screen box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
       {/* DBML */}
       <div className="border border-[#DFE0EB]  min-w-[100px] rounded-[8px] min-h-[100px] overflow-hidden">
         <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
