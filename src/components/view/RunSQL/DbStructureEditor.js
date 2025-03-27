@@ -9,7 +9,12 @@ import { toast } from "react-toastify";
 const DbStructureEditor = ({ dbStructure, user }) => {
   // Keep a copy of the original schema as baseline
   const [baseline] = useState(dbStructure);
-  const [query, setQuery] = useState(dbStructure);
+  // Set an initial query with the comment once
+  const initialQuery = `-- Remove the below query to create new Tables...
+-- Don't worry, we will keep the old queries for you
+
+${dbStructure}`;
+  const [query, setQuery] = useState(initialQuery);
   const [error, setError] = useState(null);
 
   const editorRef = useRef(null);
@@ -57,18 +62,16 @@ const DbStructureEditor = ({ dbStructure, user }) => {
     editorRef.current = editor;
   };
 
+  // Compute new queries by removing the baseline
   const newQueries = query?.replace(baseline, "").trim();
 
   const handleRunQuery = async () => {
     try {
-      // Compute new SQL queries by removing the baseline (already executed queries)
-
       if (!newQueries) {
         toast.error("No new queries found.");
         return;
       }
 
-      // Execute only the new queries
       const res = await executeQuery({
         userId: user.id,
         query: newQueries,
@@ -76,16 +79,16 @@ const DbStructureEditor = ({ dbStructure, user }) => {
       if (!res?.data) {
         setError(res?.message?.error || "Failed to run query");
       }
-      // You can update state or notify success here as needed.
+      // Update state or notify success here as needed.
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
     }
   };
 
   return (
-    <div className="w-full h-[75%]">
+    <div className="w-full h-[78%]">
       <Editor
-        height={"100%"}
+        height="100%"
         language="pgsql"
         value={query}
         onChange={(value) => setQuery(value)}
@@ -99,12 +102,11 @@ const DbStructureEditor = ({ dbStructure, user }) => {
         }}
       />
       <div className="border-t flex justify-between items-center px-3">
-        <p className={`text-red-500 ${!error ? "invisible" : ""} `}>
+        <p className={`text-red-500 ${!error ? "invisible" : ""}`}>
           Error: {error}
         </p>
         <Button
           onClick={handleRunQuery}
-          // disabled={!newQueries}
           className="bg-[#3E53D7] text-white px-4 py-2 rounded-md mt-2 disabled:hover:!text-gray-400 disabled:hover:!border-gray-400"
         >
           Run query

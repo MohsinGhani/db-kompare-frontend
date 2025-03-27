@@ -9,13 +9,13 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import CommonLoader from "@/components/shared/CommonLoader";
 import { executeQuery, getSingleFiddle, getLatestFiddle } from "@/utils/runSQL";
+import TopSection from "./TopSection";
 
 const RunSQL = ({ fiddleId }) => {
   const [fiddle, setFiddle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [queryLoading, setQueryLoading] = useState(false);
-
   const [queryResult, setQueryResult] = useState(null);
 
   const { userDetails } = useSelector((state) => state.auth);
@@ -70,65 +70,68 @@ const RunSQL = ({ fiddleId }) => {
       {loading ? (
         <CommonLoader />
       ) : (
-        <div className="grid grid-cols-2 grid-rows-2 gap-[5px] py-24 min-h-screen box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
-          {/* DB Structure Editor */}
-          <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
-            <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-              <div className="bg-[#3E53D7] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                1
+        <div className="py-20">
+          <TopSection user={user} fiddle={fiddle} />
+          <div className="grid grid-cols-2 grid-rows-2 gap-[5px]  box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
+            {/* DB Structure Editor */}
+            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
+              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
+                <div className="bg-[#3E53D7] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                  1
+                </div>
+                <span className="font-medium">Define Database Structure</span>
               </div>
-              <span className="font-medium">Define Database Structure</span>
+              <div className="h-full">
+                <DbStructureEditor
+                  dbStructure={fiddle?.dbStructure}
+                  user={user}
+                />
+              </div>
             </div>
-            <div className="h-full">
-              <DbStructureEditor
-                dbStructure={fiddle?.dbStructure}
-                user={user}
-              />
-            </div>
-          </div>
 
-          {/* SQL Query Editor */}
-          <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
-            <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-              <div className="bg-[#3EB6D7] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                3
+            {/* SQL Query Editor */}
+            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
+              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
+                <div className="bg-[#3EB6D7] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                  3
+                </div>
+                <span className="font-medium">Write SQL Query</span>
               </div>
-              <span className="font-medium">Write SQL Query</span>
+              <div className="h-full overflow-hidden">
+                <QueryEditor
+                  query={query}
+                  handleQuery={handleQuery}
+                  setQuery={setQuery}
+                  queryResult={queryResult?.data}
+                  queryLoading={queryLoading}
+                />
+              </div>
             </div>
-            <div className="h-full overflow-hidden">
-              <QueryEditor
-                query={query}
-                handleQuery={handleQuery}
-                setQuery={setQuery}
-                queryResult={queryResult?.data}
-                queryLoading={queryLoading}
-              />
-            </div>
-          </div>
 
-          {/* Data Definations */}
-          <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
-            <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-              <div className="bg-[#D7853E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                2
+            {/* Data Definations */}
+            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
+              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
+                <div className="bg-[#D7853E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                  2
+                </div>
+                <span className="font-medium">Define Data</span>
               </div>
-              <span className="font-medium">Define Data</span>
+              <div className="h-full w-full overflow-hidden data-defination">
+                <DataDefination dataSample={fiddle?.dataSample} />
+              </div>
             </div>
-            <div className="h-full w-full overflow-hidden data-defination">
-              <DataDefination dataSample={fiddle?.dataSample} />
-            </div>
-          </div>
 
-          {/* Query Result */}
-          <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px]">
-            <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-              <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                4
+            {/* Query Result */}
+            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px]">
+              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
+                <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                  4
+                </div>
+                <span className="font-medium">Query Result</span>
               </div>
-              <span className="font-medium">Query Result</span>
-            </div>
-            <div>
-              <QueryResult queryResult={queryResult} />
+              <div>
+                <QueryResult queryResult={queryResult} />
+              </div>
             </div>
           </div>
         </div>

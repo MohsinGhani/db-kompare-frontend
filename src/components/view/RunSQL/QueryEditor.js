@@ -64,7 +64,7 @@ const QueryEditor = ({
   };
 
   return (
-    <div className="w-full h-[75%]">
+    <div className="w-full h-[78%]">
       {" "}
       <Editor
         height={"100%"}

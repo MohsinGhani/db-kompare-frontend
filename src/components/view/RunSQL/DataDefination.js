@@ -88,7 +88,7 @@ const DataDefinition = ({ dataSample }) => {
 
     return {
       key: tabKey,
-      label: tabKey.charAt(0).toUpperCase() + tabKey.slice(1),
+      label: tabKey.charAt(0) + tabKey.slice(1),
       children: (
         <CommonTable
           components={{
