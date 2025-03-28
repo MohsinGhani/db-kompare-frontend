@@ -14,9 +14,12 @@ const CommonTable = ({
   footer,
   onRow,
   rowClassName,
+  components,
+  size,
 }) => {
   return (
     <Table
+      components={components}
       className={`common-table ${className}`}
       rowKey={rowKey}
       bordered={bordered}
@@ -28,6 +31,7 @@ const CommonTable = ({
       locale={locale}
       footer={footer}
       onRow={onRow}
+      size={size}
       rowClassName={rowClassName}
     />
   );

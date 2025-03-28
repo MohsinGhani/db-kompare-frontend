@@ -89,7 +89,7 @@ const LeftPanel = ({ question, user }) => {
         </div>
       </div>
       <div className="mt-3 h-full">
-        <Tabs defaultActiveKey="1" items={tabItems} />
+        <Tabs animated defaultActiveKey="1" items={tabItems} />
       </div>
     </div>
   );

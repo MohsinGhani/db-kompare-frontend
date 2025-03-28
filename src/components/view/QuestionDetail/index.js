@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Split from "react-split"; // Import react-split
+import Split from "react-split";
 import LeftPanel from "./LeftPanel";
 import RightPanel from "./RightPanel";
 import QuestionTop from "./QuestionTop";

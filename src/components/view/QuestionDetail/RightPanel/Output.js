@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import CommonDynamicTable from "@/components/shared/CommonDynamicTable";
 
 dayjs.extend(relativeTime);
 
@@ -103,7 +104,7 @@ const Output = ({
 
       <div className="overflow-auto w-full h-[250px]">
         {isOutputData ? (
-          <DynamicTable data={outputData} />
+          <CommonDynamicTable data={outputData} />
         ) : isLoading ? (
           <div className="h-full flex items-center justify-center">
             <Spin spinning tip={"Please wait..."} />
@@ -167,28 +168,6 @@ const Output = ({
         </div>
       </div>
     </div>
-  );
-};
-
-const DynamicTable = ({ data }) => {
-  const columns = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
-    return Object.keys(data[0]).map((key) => ({
-      title: key,
-      dataIndex: key,
-      key,
-    }));
-  }, [data]);
-
-  return (
-    <CommonTable
-      columns={columns}
-      dataSource={data}
-      rowKey={(record, index) => index}
-      pagination={false}
-      className="h-[300px] mt-4 common table w-full"
-      bordered
-    />
   );
 };
 
