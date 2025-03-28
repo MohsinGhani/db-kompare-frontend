@@ -17,68 +17,66 @@ import {
 import TopSection from "./TopSection";
 
 const RunSQL = ({ fiddleId }) => {
+  const { userDetails } = useSelector((state) => state.auth);
+  const user = userDetails?.data?.data;
+
   const [fiddle, setFiddle] = useState(null);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [queryLoading, setQueryLoading] = useState(false);
   const [queryResult, setQueryResult] = useState(null);
 
-  const { userDetails } = useSelector((state) => state.auth);
-  const user = userDetails?.data?.data;
+  // Always call useEffect, but guard its logic with a check for `user`
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        let fiddleData;
+        if (fiddleId) {
+          // If a fiddle ID is provided, fetch that specific fiddle.
+          fiddleData = await getSingleFiddle(fiddleId);
+        } else {
+          // Otherwise, try to fetch the latest fiddle for the user.
+          fiddleData = await getSingleFiddle("latest", user.id);
+          if (!fiddleData?.data) {
+            const schemaCreated = await createUserSchema({ userId: user.id });
+            if (schemaCreated?.data) {
+              const payload = { ownerId: user.id };
+              const fiddleAdded = await addFiddle(payload);
+              if (fiddleAdded) {
+                fiddleData = await getSingleFiddle("latest", user.id);
+              }
+            }
+          }
+        }
+        setFiddle(fiddleData?.data);
+      } catch (err) {
+        toast.error(err?.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!user)
+    fetchData();
+  }, [fiddleId, user]);
+
+  // Update the query and query result based on fiddle data
+  useEffect(() => {
+    if (fiddle) {
+      if (fiddle.query) setQuery(fiddle.query);
+      if (fiddle.queryResult) setQueryResult(fiddle.queryResult);
+    }
+  }, [fiddle]);
+
+  // Render a placeholder if there's no user
+  if (!user) {
     return (
       <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
         Please Login we will add for logged out user as well!
       </p>
     );
-
-  // Fetch the fiddle data
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      let fiddleData;
-      if (fiddleId) {
-        // If a fiddle ID is provided, fetch that specific fiddle.
-        fiddleData = await getSingleFiddle(fiddleId);
-      } else {
-        // Otherwise, try to fetch the latest fiddle for the user.
-        fiddleData = await getSingleFiddle("latest", user.id);
-
-        // If no fiddle data is found, create the user schema and add a new fiddle.
-        if (!fiddleData?.data) {
-          const schemaCreated = await createUserSchema({ userId: user?.id });
-          if (schemaCreated?.data) {
-            const payload = { ownerId: user.id };
-            const fiddleAdded = await addFiddle(payload);
-            if (fiddleAdded) {
-              fiddleData = await await getSingleFiddle("latest", user.id);
-            }
-          }
-        }
-      }
-      // Set the fiddle state with the retrieved data.
-      setFiddle(fiddleData?.data);
-    } catch (err) {
-      toast.error(err?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [fiddleId]);
-
-  // Update the query state based on fiddle data
-  useEffect(() => {
-    if (fiddle && fiddle.query) {
-      setQuery(fiddle.query);
-    }
-    if (fiddle && fiddle?.queryResult) {
-      setQueryResult(fiddle.queryResult);
-    }
-  }, [fiddle]);
+  }
 
   const handleQuery = async () => {
     try {
@@ -88,9 +86,9 @@ const RunSQL = ({ fiddleId }) => {
         query,
       });
       setQueryResult(res);
-      setQueryLoading(false);
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
+    } finally {
       setQueryLoading(false);
     }
   };
