@@ -3,7 +3,7 @@ import { executeQuery } from "@/utils/runSQL";
 import { CaretRightOutlined, CheckOutlined } from "@ant-design/icons";
 import { Editor } from "@monaco-editor/react";
 import { Button } from "antd";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const QueryEditor = ({

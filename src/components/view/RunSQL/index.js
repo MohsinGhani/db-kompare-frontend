@@ -8,7 +8,12 @@ import QueryResult from "./QueryResult";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import CommonLoader from "@/components/shared/CommonLoader";
-import { executeQuery, getSingleFiddle, getLatestFiddle } from "@/utils/runSQL";
+import {
+  executeQuery,
+  getSingleFiddle,
+  createUserSchema,
+  addFiddle,
+} from "@/utils/runSQL";
 import TopSection from "./TopSection";
 
 const RunSQL = ({ fiddleId }) => {
@@ -21,22 +26,47 @@ const RunSQL = ({ fiddleId }) => {
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
 
-  // Fetch the fiddle data
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const data = fiddleId
-          ? await getSingleFiddle(fiddleId)
-          : await getLatestFiddle();
-        setFiddle(data?.data);
-      } catch (err) {
-        toast.error(err?.message || "Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!user)
+    return (
+      <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
+        Please Login we will add for logged out user as well!
+      </p>
+    );
 
+  // Fetch the fiddle data
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      let fiddleData;
+      if (fiddleId) {
+        // If a fiddle ID is provided, fetch that specific fiddle.
+        fiddleData = await getSingleFiddle(fiddleId);
+      } else {
+        // Otherwise, try to fetch the latest fiddle for the user.
+        fiddleData = await getSingleFiddle("latest", user.id);
+
+        // If no fiddle data is found, create the user schema and add a new fiddle.
+        if (!fiddleData?.data) {
+          const schemaCreated = await createUserSchema({ userId: user?.id });
+          if (schemaCreated?.data) {
+            const payload = { ownerId: user.id };
+            const fiddleAdded = await addFiddle(payload);
+            if (fiddleAdded) {
+              fiddleData = await await getSingleFiddle("latest", user.id);
+            }
+          }
+        }
+      }
+      // Set the fiddle state with the retrieved data.
+      setFiddle(fiddleData?.data);
+    } catch (err) {
+      toast.error(err?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [fiddleId]);
 
@@ -83,8 +113,10 @@ const RunSQL = ({ fiddleId }) => {
               </div>
               <div className="h-full">
                 <DbStructureEditor
+                  fiddle={fiddle}
                   dbStructure={fiddle?.dbStructure}
                   user={user}
+                  fetchData={fetchData}
                 />
               </div>
             </div>
@@ -117,7 +149,7 @@ const RunSQL = ({ fiddleId }) => {
                 <span className="font-medium">Define Data</span>
               </div>
               <div className="h-full w-full overflow-hidden data-defination">
-                <DataDefination dataSample={fiddle?.dataSample} />
+                <DataDefination dataSample={fiddle?.dataSample} user={user} />
               </div>
             </div>
 
