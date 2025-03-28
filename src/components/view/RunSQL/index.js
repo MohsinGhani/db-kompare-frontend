@@ -27,37 +27,36 @@ const RunSQL = ({ fiddleId }) => {
   const [queryResult, setQueryResult] = useState(null);
 
   // Always call useEffect, but guard its logic with a check for `user`
-  useEffect(() => {
-    if (!user) return;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let fiddleData;
-        if (fiddleId) {
-          // If a fiddle ID is provided, fetch that specific fiddle.
-          fiddleData = await getSingleFiddle(fiddleId);
-        } else {
-          // Otherwise, try to fetch the latest fiddle for the user.
-          fiddleData = await getSingleFiddle("latest", user.id);
-          if (!fiddleData?.data) {
-            const schemaCreated = await createUserSchema({ userId: user.id });
-            if (schemaCreated?.data) {
-              const payload = { ownerId: user.id };
-              const fiddleAdded = await addFiddle(payload);
-              if (fiddleAdded) {
-                fiddleData = await getSingleFiddle("latest", user.id);
-              }
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      let fiddleData;
+      if (fiddleId) {
+        // If a fiddle ID is provided, fetch that specific fiddle.
+        fiddleData = await getSingleFiddle(fiddleId);
+      } else {
+        // Otherwise, try to fetch the latest fiddle for the user.
+        fiddleData = await getSingleFiddle("latest", user.id);
+        if (!fiddleData?.data) {
+          const schemaCreated = await createUserSchema({ userId: user.id });
+          if (schemaCreated?.data) {
+            const payload = { ownerId: user.id };
+            const fiddleAdded = await addFiddle(payload);
+            if (fiddleAdded) {
+              fiddleData = await getSingleFiddle("latest", user.id);
             }
           }
         }
-        setFiddle(fiddleData?.data);
-      } catch (err) {
-        toast.error(err?.message || "Something went wrong");
-      } finally {
-        setLoading(false);
       }
-    };
-
+      setFiddle(fiddleData?.data);
+    } catch (err) {
+      toast.error(err?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!user) return;
     fetchData();
   }, [fiddleId, user]);
 

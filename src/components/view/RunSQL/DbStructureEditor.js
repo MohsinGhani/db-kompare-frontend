@@ -136,7 +136,6 @@ const DbStructureEditor = ({ user, fiddle, fetchData }) => {
         (t) =>
           !dropTableNames.some((drop) => drop.toLowerCase() === t.toLowerCase())
       );
-      console.log("Tables after drop removal:", updatedTables);
     }
     // Add any new CREATE TABLE names that aren't already in the list.
     if (createTableNames.length) {
@@ -147,7 +146,6 @@ const DbStructureEditor = ({ user, fiddle, fetchData }) => {
           updatedTables.push(name);
         }
       });
-      console.log("Tables after create addition:", updatedTables);
     }
 
     // For merging the new queries into the backend structure, we only want the CREATE TABLE parts.
@@ -173,7 +171,6 @@ const DbStructureEditor = ({ user, fiddle, fetchData }) => {
 
     // Update the backend DB structure.
     setBackendDbStructure(mergedStructure);
-    console.log("Updated backendDbStructure:", mergedStructure);
 
     // Execute the full newQueries (which include both CREATE and DROP commands) on the backend.
     try {
@@ -189,7 +186,6 @@ const DbStructureEditor = ({ user, fiddle, fetchData }) => {
           dbStructure: mergedStructure,
           tables: updatedTables,
         };
-        console.log("payload:", payload);
         await updateFiddle(payload, fiddle?.id);
         await fetchData();
       }
