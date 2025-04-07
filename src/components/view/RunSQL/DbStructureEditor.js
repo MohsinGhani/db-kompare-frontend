@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 import { Button } from "antd";
 import { executeQuery, updateFiddle } from "@/utils/runSQL";
@@ -19,9 +19,14 @@ const DbStructureEditor = ({ user, fiddle, fetchData }) => {
   // The backend dbStructure should NOT include the initial comment.
   const initialBackendStructure = fiddle?.dbStructure || "";
 
+  useEffect(() => {
+    if (defaultEditorValue) {
+      setQuery(defaultEditorValue);
+    }
+  }, [fiddle]);
   // baseline remains the fixed comment.
   const [baseline] = useState(initialComment);
-  const [query, setQuery] = useState(defaultEditorValue);
+  const [query, setQuery] = useState("");
   const [backendDbStructure, setBackendDbStructure] = useState(
     initialBackendStructure
   );

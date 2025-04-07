@@ -15,6 +15,8 @@ import {
   addFiddle,
 } from "@/utils/runSQL";
 import TopSection from "./TopSection";
+import { Flex } from "antd";
+import FileImporter from "./FileImporter";
 
 const RunSQL = ({ fiddleId }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -91,7 +93,6 @@ const RunSQL = ({ fiddleId }) => {
       setQueryLoading(false);
     }
   };
-
   return (
     <>
       {loading ? (
@@ -138,27 +139,30 @@ const RunSQL = ({ fiddleId }) => {
             </div>
 
             {/* Data Definations */}
-            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
-              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-                <div className="bg-[#D7853E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                  2
-                </div>
-                <span className="font-medium">Define Data</span>
+            <div className="border border-[#DFE0EB] rounded-[8px]  overflow-auto  min-h-[100px]">
+              <div className="border-b border-[#DFE0EB] p-2 flex justify-between w-full gap-2 items-center">
+                <Flex gap={4} align="center">
+                  <div className="bg-[#D7853E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                    2
+                  </div>
+                  <span className="font-medium inline-block">Define Data</span>
+                </Flex>
+                <FileImporter setFiddle={setFiddle} />
               </div>
-              <div className="h-full w-full overflow-hidden data-defination">
+              <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
                 <DataDefination dataSample={fiddle?.dataSample} user={user} />
               </div>
             </div>
 
             {/* Query Result */}
-            <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px]">
+            <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto  min-h-[100px]">
               <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
                 <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
                   4
                 </div>
                 <span className="font-medium">Query Result</span>
               </div>
-              <div>
+              <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
                 <QueryResult queryResult={queryResult} />
               </div>
             </div>

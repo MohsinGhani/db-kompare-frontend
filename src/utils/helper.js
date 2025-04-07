@@ -87,6 +87,76 @@ export const stripHtml = (html) => {
   return html.replace(/<[^>]*>?/gm, "").trim();
 };
 
+export const jsonToPgsql = (jsonData, tableName = "my_table") => {
+  // Normalize JSON data to an array if it's a single object.
+  const records = Array.isArray(jsonData) ? jsonData : [jsonData];
+
+  if (records.length === 0) {
+    return "";
+  }
+
+  // Extract columns from the first record.
+  const columns = Object.keys(records[0]);
+
+  // Infer PostgreSQL data types for each column based on the first record.
+  const columnDefinitions = columns
+    .map((col) => {
+      const value = records[0][col];
+      let type;
+      if (value === null || value === undefined) {
+        type = "TEXT";
+      } else if (typeof value === "number") {
+        type = Number.isInteger(value) ? "INTEGER" : "NUMERIC";
+      } else if (typeof value === "boolean") {
+        type = "BOOLEAN";
+      } else if (typeof value === "string") {
+        type = "TEXT";
+      } else if (typeof value === "object") {
+        type = "JSONB";
+      } else {
+        type = "TEXT";
+      }
+      return `${col} ${type}`;
+    })
+    .join(",\n  ");
+
+  // Create the CREATE TABLE statement.
+  const createTableStatement = `CREATE TABLE ${tableName} (\n  ${columnDefinitions}\n);\n\n`;
+
+  // Generate INSERT statements for each record.
+  let insertStatements = "";
+  records.forEach((record) => {
+    const values = columns
+      .map((col) => {
+        let value = record[col];
+        if (value === null || value === undefined) {
+          return "NULL";
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+          return value;
+        }
+        if (typeof value === "string") {
+          // Escape single quotes in strings.
+          return `'${value.replace(/'/g, "''")}'`;
+        }
+        // For objects or arrays, convert them to a JSON string.
+        if (typeof value === "object") {
+          return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
+        }
+        return `'${value}'`;
+      })
+      .join(", ");
+
+    insertStatements += `INSERT INTO ${tableName} (${columns.join(
+      ", "
+    )}) VALUES (${values});\n`;
+  });
+
+  // Combine with a header comment.
+  const output = `-- Remove the below query to create new Tables...\n-- Don't worry, we will keep the old queries for you\n\n${createTableStatement}${insertStatements}`;
+  return output;
+};
+
 export function generateCommonMetadata({
   title,
   description,

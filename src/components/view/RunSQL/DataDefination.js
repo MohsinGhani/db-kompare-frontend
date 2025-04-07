@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 import { executeQuery } from "@/utils/runSQL";
 
 const DataDefinition = ({ dataSample, user }) => {
-  console.log("Data sample:", dataSample);
-
   // Memoize tabKeys so that the array reference remains stable unless dataSample changes.
   const tabKeys = useMemo(() => Object.keys(dataSample || {}), [dataSample]);
   const [activeTab, setActiveTab] = useState(tabKeys[0] || "");
