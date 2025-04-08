@@ -17,6 +17,7 @@ import {
 import TopSection from "./TopSection";
 import { Flex } from "antd";
 import FileImporter from "./FileImporter";
+import DownloadResult from "./DownloadResult";
 
 const RunSQL = ({ fiddleId }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -156,11 +157,14 @@ const RunSQL = ({ fiddleId }) => {
 
             {/* Query Result */}
             <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto  min-h-[100px]">
-              <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
-                <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                  4
-                </div>
-                <span className="font-medium">Query Result</span>
+              <div className="border-b border-[#DFE0EB] p-2 flex justify-between w-full gap-2 items-center">
+                <Flex gap={4} align="center">
+                  <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                    4
+                  </div>
+                  <span className="font-medium">Query Result</span>
+                </Flex>
+                <DownloadResult data={queryResult} />
               </div>
               <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
                 <QueryResult queryResult={queryResult} />

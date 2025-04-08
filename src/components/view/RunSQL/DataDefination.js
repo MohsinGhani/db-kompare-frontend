@@ -84,10 +84,10 @@ const DataDefinition = ({ dataSample, user }) => {
     });
     console.log("Rows to insert:", rowsToInsert);
 
-    if (rowsToInsert.length === 0) {
-      toast.info("No new data to insert");
-      return;
-    }
+    // if (rowsToInsert.length === 0) {
+    //   toast.info("No new data to insert");
+    //   return;
+    // }
 
     // Determine columns: union of keys in rowsToInsert, excluding 'key'.
     const columnsSet = new Set();
@@ -99,10 +99,10 @@ const DataDefinition = ({ dataSample, user }) => {
       });
     });
     const columns = Array.from(columnsSet);
-    if (columns.length === 0) {
-      toast.info("No data columns to insert");
-      return;
-    }
+    // if (columns.length === 0) {
+    //   toast.info("No data columns to insert");
+    //   return;
+    // }
 
     // Build a single INSERT query for all rows.
     const valuesClause = rowsToInsert
@@ -190,6 +190,7 @@ const DataDefinition = ({ dataSample, user }) => {
           rowClassName="editable-row"
           pagination={false}
           size="small"
+          className="data-define-table !min-w-[800px] "
           footer={() => (
             <div className="flex justify-between items-center bg-[#FCFCFF] p-2 ">
               <div

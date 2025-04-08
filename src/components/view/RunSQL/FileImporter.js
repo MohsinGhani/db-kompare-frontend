@@ -5,7 +5,7 @@ import {
   FileOutlined,
   PythonOutlined,
 } from "@ant-design/icons";
-import { jsonToPgsql } from "@/utils/helper";
+import { csvToPgsql, jsonToPgsql } from "@/utils/helper";
 
 const FileImporter = ({ setFiddle }) => {
   const fileInputRef = useRef(null);
@@ -50,6 +50,7 @@ const FileImporter = ({ setFiddle }) => {
         reader.onload = (e) => {
           try {
             const jsonData = JSON.parse(e.target.result);
+            console.log("jsonData", jsonData);
             const sql = jsonToPgsql(jsonData, tableName);
             setFiddle((pre) => ({ ...pre, dbStructure: sql }));
             console.log("Generated PGSQL:", sql);
@@ -62,8 +63,23 @@ const FileImporter = ({ setFiddle }) => {
           }
         };
         reader.readAsText(file);
+      } else if (fileType === "csv") {
+        // Read and show entire CSV file
+        const tableName = file.name.replace(/\.[^/.]+$/, "");
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const csvData = e.target.result;
+          const sql = csvToPgsql(csvData, tableName);
+          console.log("CSV file content:\n", sql);
+          // Storing CSV data in Fiddle state (adjust property name as needed)
+          setFiddle((prev) => ({ ...prev, dbStructure: sql }));
+          message.success(
+            "CSV file read successfully! Check the console for output."
+          );
+        };
+        reader.readAsText(file);
       } else {
-        // Handle other file types (e.g., CSV, Pipe) as needed.
+        // Handle other file types (e.g., Pipe) if needed.
         console.log("Selected file:", file);
       }
     }
@@ -80,6 +96,7 @@ const FileImporter = ({ setFiddle }) => {
       label: "Pipe",
       key: "2",
       icon: <PythonOutlined />,
+      disabled: true, // Disable this option for now
     },
     {
       label: "JSON",
@@ -97,7 +114,7 @@ const FileImporter = ({ setFiddle }) => {
     <>
       <Dropdown menu={menuProps} className="!max-w-max" trigger={["click"]}>
         <Button type="default">
-          <DownloadOutlined /> Import
+          <DownloadOutlined /> Import File
         </Button>
       </Dropdown>
       {/* Hidden file input */}

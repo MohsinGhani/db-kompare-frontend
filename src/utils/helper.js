@@ -157,6 +157,158 @@ export const jsonToPgsql = (jsonData, tableName = "my_table") => {
   return output;
 };
 
+export const csvToPgsql = (csvData, tableName = "my_table") => {
+  // Split CSV data into individual non-empty lines.
+  const lines = csvData.split("\n").filter((line) => line.trim() !== "");
+  if (lines.length === 0) {
+    return "";
+  }
+
+  // Use the first line as the header row.
+  const headerLine = lines[0];
+  const headers = parseCsvLine(headerLine);
+
+  // Parse remaining lines into an array of record objects.
+  const records = lines.slice(1).map((line) => {
+    const fields = parseCsvLine(line);
+    let record = {};
+    headers.forEach((header, index) => {
+      // Trim field values so we can properly check for empty strings.
+      record[header] = (fields[index] || "").trim();
+    });
+    return record;
+  });
+
+  if (records.length === 0) return "";
+
+  // Extract column names from headers.
+  const columns = headers;
+
+  // Infer PostgreSQL data types for each column using the first record.
+  // For empty strings, we default to TEXT.
+  const columnDefinitions = columns
+    .map((col) => {
+      const value = records[0][col];
+      let type;
+      if (value === null || value === undefined || value === "") {
+        type = "TEXT";
+      } else if (!isNaN(Number(value))) {
+        // Check if integer or numeric.
+        const num = Number(value);
+        type = Number.isInteger(num) ? "INTEGER" : "NUMERIC";
+      } else if (
+        value.toLowerCase() === "true" ||
+        value.toLowerCase() === "false"
+      ) {
+        type = "BOOLEAN";
+      } else {
+        type = "TEXT";
+      }
+      return `${col} ${type}`;
+    })
+    .join(",\n  ");
+
+  // Build the CREATE TABLE statement.
+  const createTableStatement = `CREATE TABLE ${tableName} (\n  ${columnDefinitions}\n);\n\n`;
+
+  // Generate INSERT statements for each record.
+  let insertStatements = "";
+  records.forEach((record) => {
+    const values = columns
+      .map((col) => {
+        let value = record[col];
+        if (value === null || value === undefined || value === "") {
+          return "NULL";
+        }
+        // If the value is numeric, return it as is.
+        if (!isNaN(Number(value))) {
+          return value;
+        }
+        // Check for boolean values.
+        if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+          return value.toLowerCase();
+        }
+        // For strings, escape single quotes.
+        return `'${value.replace(/'/g, "''")}'`;
+      })
+      .join(", ");
+
+    insertStatements += `INSERT INTO ${tableName} (${columns.join(
+      ", "
+    )}) VALUES (${values});\n`;
+  });
+
+  // Combine the CREATE TABLE statement with the INSERT statements.
+  const output = `-- Remove the below query to create new Tables...\n-- Don't worry, we will keep the old queries for you\n\n${createTableStatement}${insertStatements}`;
+  return output;
+};
+
+/**
+ * A basic CSV parser for a single line.
+ *
+ * This function supports CSV fields that are:
+ * - separated by commas,
+ * - optionally enclosed in double quotes,
+ * - and may contain escaped double quotes using a double double-quote ("" becomes a literal ").
+ *
+ * @param {string} line - A single CSV line as a string.
+ * @returns {string[]} An array of parsed field values.
+ */
+function parseCsvLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      // If already in quotes and the next char is a quote, it's an escaped quote.
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+        current += '"';
+        i++; // skip next quote
+      } else {
+        // Toggle the inQuotes flag.
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      // Field delimiter encountered outside quotes.
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+export const dataToCsv = (data) => {
+  if (!data || data.length === 0) return "";
+  const headers = Object.keys(data[0]);
+  const csvRows = [];
+  // Create header row.
+  csvRows.push(headers.map((header) => `"${header}"`).join(","));
+  // Process each row.
+  data.forEach((row) => {
+    const values = headers.map((header) => {
+      let value = row[header];
+      if (value === null || value === undefined) {
+        value = "";
+      } else {
+        value = String(value).replace(/"/g, '""');
+      }
+      return `"${value}"`;
+    });
+    csvRows.push(values.join(","));
+  });
+  return csvRows.join("\n");
+};
+
+export const dataToJson = (data) => {
+  return JSON.stringify(data, null, 2);
+};
+
 export function generateCommonMetadata({
   title,
   description,
