@@ -3,7 +3,7 @@ import React from "react";
 
 const QueryResult = ({ queryResult }) => {
   return (
-    <div className="p-2">
+    <div className="p-2 overflow-auto h-full">
       {!queryResult?.data ? (
         <div className="flex flex-col justify-center items-center h-[300px]">
           <img
@@ -22,7 +22,10 @@ const QueryResult = ({ queryResult }) => {
           )}
         </div>
       ) : (
-        <CommonDynamicTable data={queryResult?.data?.data} />
+        <CommonDynamicTable
+          className={"!min-w-[1200px] !overflow-auto"}
+          data={queryResult?.data?.data}
+        />
       )}
     </div>
   );

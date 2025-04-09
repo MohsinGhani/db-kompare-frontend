@@ -87,6 +87,279 @@ export const stripHtml = (html) => {
   return html.replace(/<[^>]*>?/gm, "").trim();
 };
 
+// Helper function to flatten an object.
+// For arrays, if the elements are objects, they are flattened with the index appended to the parent key.
+function flattenRecord(obj, prefix = "") {
+  let result = {};
+  for (const key in obj) {
+    if (!obj.hasOwnProperty(key)) continue;
+    const value = obj[key];
+    // Build the new key by concatenating the prefix and key without a delimiter.
+    const newKey = prefix + key;
+
+    if (Array.isArray(value)) {
+      // Iterate over the array items.
+      for (let i = 0; i < value.length; i++) {
+        const element = value[i];
+        if (typeof element === "object" && element !== null) {
+          // Flatten each object element with the index appended.
+          Object.assign(result, flattenRecord(element, newKey + i));
+        } else {
+          // For non-object array elements, assign directly.
+          result[newKey + i] = element;
+        }
+      }
+    } else if (typeof value === "object" && value !== null) {
+      // Recursively flatten nested objects.
+      Object.assign(result, flattenRecord(value, newKey));
+    } else {
+      // Primitive values are added directly.
+      result[newKey] = value;
+    }
+  }
+  return result;
+}
+
+export const jsonToPgsql = (jsonData, tableName = "my_table") => {
+  // Normalize JSON data to an array.
+  const records = Array.isArray(jsonData) ? jsonData : [jsonData];
+  if (records.length === 0) {
+    return "";
+  }
+
+  // Flatten each record.
+  const flatRecords = records.map((record) => flattenRecord(record));
+
+  // Create a union of all keys (columns) found in the flattened records.
+  const columnSet = new Set();
+  flatRecords.forEach((record) => {
+    Object.keys(record).forEach((key) => columnSet.add(key));
+  });
+  const columns = Array.from(columnSet);
+
+  // Infer PostgreSQL data types for each column.
+  // For strings, we compute the maximum length among all records.
+  const columnTypes = {};
+  for (const col of columns) {
+    let detectedType = null;
+    let maxLength = 0;
+    let allIntegers = true;
+    for (const record of flatRecords) {
+      if (record[col] === null || record[col] === undefined) continue;
+      const val = record[col];
+      if (typeof val === "number") {
+        if (!Number.isInteger(val)) allIntegers = false;
+        detectedType = "number";
+      } else if (typeof val === "boolean") {
+        detectedType = "boolean";
+      } else if (typeof val === "string") {
+        detectedType = "string";
+        maxLength = Math.max(maxLength, val.length);
+      } else {
+        detectedType = "string";
+        const strVal = String(val);
+        maxLength = Math.max(maxLength, strVal.length);
+      }
+    }
+
+    if (detectedType === "number") {
+      columnTypes[col] = allIntegers ? "INTEGER" : "NUMERIC";
+    } else if (detectedType === "boolean") {
+      columnTypes[col] = "BOOLEAN";
+    } else if (detectedType === "string") {
+      // Use VARCHAR with the maximum length found.
+      columnTypes[col] = maxLength > 0 ? `VARCHAR(${maxLength})` : "TEXT";
+    } else {
+      columnTypes[col] = "TEXT";
+    }
+    if (!detectedType) columnTypes[col] = "TEXT"; // Fallback if no non-null value is found.
+  }
+
+  // Build the CREATE TABLE statement.
+  const columnDefinitions = columns
+    .map((col) => `${col} ${columnTypes[col]}`)
+    .join(",\n  ");
+  const createTableStatement = `CREATE TABLE ${tableName} (\n  ${columnDefinitions}\n);\n\n`;
+
+  // Generate INSERT statements for each flattened record.
+  let insertStatements = "";
+  flatRecords.forEach((record) => {
+    const values = columns
+      .map((col) => {
+        let value = record.hasOwnProperty(col) ? record[col] : null;
+        if (value === null || value === undefined) {
+          return "NULL";
+        }
+        if (typeof value === "number" || typeof value === "boolean") {
+          return value;
+        }
+        if (typeof value === "string") {
+          // Escape single quotes by doubling them.
+          return `'${value.replace(/'/g, "''")}'`;
+        }
+        // Fallback: stringify any other type.
+        return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
+      })
+      .join(", ");
+    insertStatements += `INSERT INTO ${tableName} (${columns.join(
+      ", "
+    )}) VALUES (${values});\n`;
+  });
+
+  // Combine everything with a header comment.
+  const output = `\n${createTableStatement}${insertStatements}`;
+  return {
+    output,
+    createTableStatement,
+    insertStatements,
+  };
+};
+
+export const csvToPgsql = (csvData, tableName = "my_table") => {
+  // Split CSV data into individual non-empty lines.
+  const lines = csvData.split("\n").filter((line) => line.trim() !== "");
+  if (lines.length === 0) {
+    return "";
+  }
+
+  // Use the first line as the header row.
+  const headerLine = lines[0];
+  const headers = parseCsvLine(headerLine);
+
+  // Parse remaining lines into an array of record objects.
+  const records = lines.slice(1).map((line) => {
+    const fields = parseCsvLine(line);
+    let record = {};
+    headers.forEach((header, index) => {
+      // Trim field values so we can properly check for empty strings.
+      record[header] = (fields[index] || "").trim();
+    });
+    return record;
+  });
+
+  if (records.length === 0) return "";
+
+  // Extract column names from headers.
+  const columns = headers;
+
+  // Infer PostgreSQL data types for each column using the first record.
+  // For empty strings, we default to TEXT.
+  const columnDefinitions = columns
+    .map((col) => {
+      const value = records[0][col];
+      let type;
+      if (value === null || value === undefined || value === "") {
+        type = "TEXT";
+      } else if (!isNaN(Number(value))) {
+        // Check if integer or numeric.
+        const num = Number(value);
+        type = Number.isInteger(num) ? "INTEGER" : "NUMERIC";
+      } else if (
+        value.toLowerCase() === "true" ||
+        value.toLowerCase() === "false"
+      ) {
+        type = "BOOLEAN";
+      } else {
+        type = "TEXT";
+      }
+      return `${col} ${type}`;
+    })
+    .join(",\n  ");
+
+  // Build the CREATE TABLE statement.
+  const createTableStatement = `CREATE TABLE ${tableName} (\n  ${columnDefinitions}\n);\n\n`;
+
+  // Generate INSERT statements for each record.
+  let insertStatements = "";
+  records.forEach((record) => {
+    const values = columns
+      .map((col) => {
+        let value = record[col];
+        if (value === null || value === undefined || value === "") {
+          return "NULL";
+        }
+        // If the value is numeric, return it as is.
+        if (!isNaN(Number(value))) {
+          return value;
+        }
+        // Check for boolean values.
+        if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+          return value.toLowerCase();
+        }
+        // For strings, escape single quotes.
+        return `'${value.replace(/'/g, "''")}'`;
+      })
+      .join(", ");
+
+    insertStatements += `INSERT INTO ${tableName} (${columns.join(
+      ", "
+    )}) VALUES (${values});\n`;
+  });
+
+  // Combine the CREATE TABLE statement with the INSERT statements.
+  const output = `\n${createTableStatement}${insertStatements}`;
+  return {
+    output,
+    createTableStatement,
+    insertStatements,
+  };
+};
+
+function parseCsvLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      // If already in quotes and the next char is a quote, it's an escaped quote.
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+        current += '"';
+        i++; // skip next quote
+      } else {
+        // Toggle the inQuotes flag.
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      // Field delimiter encountered outside quotes.
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+export const dataToCsv = (data) => {
+  if (!data || data.length === 0) return "";
+  const headers = Object.keys(data[0]);
+  const csvRows = [];
+  // Create header row.
+  csvRows.push(headers.map((header) => `"${header}"`).join(","));
+  // Process each row.
+  data.forEach((row) => {
+    const values = headers.map((header) => {
+      let value = row[header];
+      if (value === null || value === undefined) {
+        value = "";
+      } else {
+        value = String(value).replace(/"/g, '""');
+      }
+      return `"${value}"`;
+    });
+    csvRows.push(values.join(","));
+  });
+  return csvRows.join("\n");
+};
+
+export const dataToJson = (data) => {
+  return JSON.stringify(data, null, 2);
+};
+
 export function generateCommonMetadata({
   title,
   description,

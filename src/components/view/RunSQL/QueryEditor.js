@@ -84,7 +84,7 @@ const QueryEditor = ({
           setQuery(value);
         }}
       />
-      <div className="border-t flex justify-between items-center px-3 ">
+      <div className="border-t flex justify-between items-center px-3 h-max py-2 ">
         <div
           className={`${
             !queryResult?.data?.length ? "invisible" : ""
@@ -98,7 +98,7 @@ const QueryEditor = ({
         </div>
         <Button
           icon={<CaretRightOutlined />}
-          className="bg-[#3E53D7] text-white px-4 py-2 rounded-md mt-2"
+          className="bg-[#3E53D7] text-white px-4 py-2 rounded-md"
           onClick={handleQuery}
           loading={queryLoading}
           disabled={queryLoading}
