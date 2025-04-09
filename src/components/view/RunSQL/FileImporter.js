@@ -52,7 +52,11 @@ const FileImporter = ({ setFiddle }) => {
             const jsonData = JSON.parse(e.target.result);
             console.log("jsonData", jsonData);
             const sql = jsonToPgsql(jsonData, tableName);
-            setFiddle((pre) => ({ ...pre, dbStructure: sql }));
+            setFiddle((pre) => ({
+              ...pre,
+              dbStructure: sql?.output,
+              createTableStatement: sql?.createTableStatement,
+            }));
             console.log("Generated PGSQL:", sql);
             message.success(
               "JSON file converted to PGSQL successfully! Check the console for output."
@@ -72,7 +76,11 @@ const FileImporter = ({ setFiddle }) => {
           const sql = csvToPgsql(csvData, tableName);
           console.log("CSV file content:\n", sql);
           // Storing CSV data in Fiddle state (adjust property name as needed)
-          setFiddle((prev) => ({ ...prev, dbStructure: sql }));
+          setFiddle((pre) => ({
+            ...pre,
+            dbStructure: sql?.output,
+            createTableStatement: sql?.createTableStatement,
+          }));
           message.success(
             "CSV file read successfully! Check the console for output."
           );

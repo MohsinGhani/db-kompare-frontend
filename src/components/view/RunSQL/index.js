@@ -30,7 +30,7 @@ const RunSQL = ({ fiddleId }) => {
   const [queryResult, setQueryResult] = useState(null);
 
   // Always call useEffect, but guard its logic with a check for `user`
-  const fetchData = async () => {
+  const fetchData = async (fiddleId = "") => {
     setLoading(true);
     try {
       let fiddleData;
@@ -60,7 +60,7 @@ const RunSQL = ({ fiddleId }) => {
   };
   useEffect(() => {
     if (!user) return;
-    fetchData();
+    fetchData(fiddleId ?? "");
   }, [fiddleId, user]);
 
   // Update the query and query result based on fiddle data
@@ -100,7 +100,7 @@ const RunSQL = ({ fiddleId }) => {
         <CommonLoader />
       ) : (
         <div className="py-20">
-          <TopSection user={user} fiddle={fiddle} />
+          <TopSection user={user} fiddle={fiddle} setFiddle={setFiddle} />
           <div className="grid grid-cols-2 grid-rows-2 gap-[5px]  box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
             {/* DB Structure Editor */}
             <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">

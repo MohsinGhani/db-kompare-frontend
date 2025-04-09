@@ -190,7 +190,7 @@ const DataDefinition = ({ dataSample, user }) => {
           rowClassName="editable-row"
           pagination={false}
           size="small"
-          className="data-define-table !min-w-[800px] "
+          className="data-define-table"
           footer={() => (
             <div className="flex justify-between items-center bg-[#FCFCFF] p-2 ">
               <div

@@ -1,6 +1,19 @@
 .runsql-container {
   .data-defination {
     .ant-table {
+      .ant-table-container {
+        overflow: auto;
+        .ant-table-tbody {
+          overflow: auto;
+          tr {
+            td {
+              input {
+                width: max-content;
+              }
+            }
+          }
+        }
+      }
       .ant-table-footer {
         padding: 0 !important;
       }
