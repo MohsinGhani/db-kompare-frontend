@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
 
-const DownloadResult = ({ data }) => {
+const ProfilingBtn = ({ data }) => {
   const dataToCsv = (data) => {
     if (!data || data.length === 0) return "";
     const headers = Object.keys(data[0]);
@@ -103,11 +103,9 @@ const DownloadResult = ({ data }) => {
 
   return (
     <Dropdown menu={menuProps} className="!max-w-max" trigger={["click"]}>
-      <Button type="default">
-        <DownloadOutlined /> Download Result
-      </Button>
+      <Button type="default">Profiling</Button>
     </Dropdown>
   );
 };
 
-export default DownloadResult;
+export default ProfilingBtn;

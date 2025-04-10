@@ -18,6 +18,7 @@ import TopSection from "./TopSection";
 import { Flex } from "antd";
 import FileImporter from "./FileImporter";
 import DownloadResult from "./DownloadResult";
+import ProfilingBtn from "./ProfilingBtn";
 
 const RunSQL = ({ fiddleId }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -97,7 +98,9 @@ const RunSQL = ({ fiddleId }) => {
   return (
     <>
       {loading ? (
-        <CommonLoader />
+        <div className="h-[80vh]">
+          <CommonLoader />
+        </div>
       ) : (
         <div className="py-20">
           <TopSection user={user} fiddle={fiddle} setFiddle={setFiddle} />
@@ -164,7 +167,10 @@ const RunSQL = ({ fiddleId }) => {
                   </div>
                   <span className="font-medium">Query Result</span>
                 </Flex>
-                <DownloadResult data={queryResult} />
+                <Flex align="center" gap={4}>
+                  <ProfilingBtn />
+                  <DownloadResult data={queryResult} />
+                </Flex>
               </div>
               <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
                 <QueryResult queryResult={queryResult} />

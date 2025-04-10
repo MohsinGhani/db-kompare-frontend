@@ -22,10 +22,7 @@ const QueryResult = ({ queryResult }) => {
           )}
         </div>
       ) : (
-        <CommonDynamicTable
-          className={"!min-w-[1200px] !overflow-auto"}
-          data={queryResult?.data?.data}
-        />
+        <CommonDynamicTable data={queryResult?.data?.data} />
       )}
     </div>
   );

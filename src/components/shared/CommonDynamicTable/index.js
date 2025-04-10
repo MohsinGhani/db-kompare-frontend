@@ -17,7 +17,7 @@ const CommonDynamicTable = ({ data, className }) => {
       dataSource={data}
       rowKey={(record, index) => index}
       pagination={false}
-      className={`h-[300px] mt-4 common-dynamic-table w-full ${className}`}
+      className={`mt-4 common-dynamic-table w-full ${className}`}
       bordered
     />
   );
