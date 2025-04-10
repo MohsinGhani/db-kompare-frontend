@@ -205,7 +205,7 @@ const DataDefinition = ({ dataSample, user }) => {
                 size="small"
                 onClick={() => handleInsert(tabKey)}
               >
-                Insert query
+                INSERT
               </Button>
             </div>
           )}
