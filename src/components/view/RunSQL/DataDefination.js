@@ -1,44 +1,54 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { Button, Input, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import CommonTable from "@/components/shared/CommonTable";
 import { toast } from "react-toastify";
 import { executeQuery } from "@/utils/runSQL";
 
-const DataDefinition = ({ dataSample, user }) => {
-  // Memoize tabKeys so that the array reference remains stable unless dataSample changes.
+const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
+  // Memoize the tab keys.
   const tabKeys = useMemo(() => Object.keys(dataSample || {}), [dataSample]);
   const [activeTab, setActiveTab] = useState(tabKeys[0] || "");
   const [dataSources, setDataSources] = useState({});
   const [counts, setCounts] = useState({});
-  // We'll store the keys of the original rows to avoid inserting duplicate rows.
+  // Loading state for each tab.
+  const [loading, setLoading] = useState({});
+
+  // Use refs to track original row keys and original row data.
   const originalKeysRef = useRef(new Set());
+  const originalRowsRef = useRef({}); // { tabKey: { key: originalRow, ... } }
 
   // Initialize data sources and counts when dataSample changes.
   useEffect(() => {
     const initialSources = {};
     const initialCounts = {};
     const origKeys = new Set();
+    const origRows = {};
+
     tabKeys.forEach((tabKey) => {
-      const data = (dataSample[tabKey] || []).map((item, index) => {
+      const rows = (dataSample[tabKey] || []).map((item, index) => {
         const key = `${tabKey}-${index}`;
         origKeys.add(key);
+        if (!origRows[tabKey]) origRows[tabKey] = {};
+        origRows[tabKey][key] = { key, ...item };
         return { key, ...item };
       });
-      initialSources[tabKey] = data;
-      initialCounts[tabKey] = data.length;
+      initialSources[tabKey] = rows;
+      initialCounts[tabKey] = rows.length;
     });
     setDataSources(initialSources);
     setCounts(initialCounts);
     originalKeysRef.current = origKeys;
+    originalRowsRef.current = origRows;
+
     if (!activeTab && tabKeys.length > 0) {
       setActiveTab(tabKeys[0]);
     }
   }, [dataSample, tabKeys, activeTab]);
 
-  // Add a new row for the given tab.
+  // Add a new row for the given tab. New rows are not part of the original data so they are editable.
   const handleAdd = (tabKey) => {
     const currentData = dataSources[tabKey] || [];
     const tabDataSample = dataSample[tabKey] || [];
@@ -53,27 +63,21 @@ const DataDefinition = ({ dataSample, user }) => {
     setCounts({ ...counts, [tabKey]: counts[tabKey] + 1 });
   };
 
-  // Save the updated row for a given tab.
+  // Save the updated row locally (only applicable for new rows).
   const handleSave = (tabKey, row) => {
-    const currentData = dataSources[tabKey] || [];
-    const newData = currentData.map((item) =>
+    const newData = (dataSources[tabKey] || []).map((item) =>
       item.key === row.key ? row : item
     );
     setDataSources({ ...dataSources, [tabKey]: newData });
   };
 
-  // Handle insert for a given tab.
-  // Only rows that are not part of the original data and have at least one non-empty value (ignoring 'key') will be inserted.
+  // Insert new rows only. Existing rows (originalKeysRef) are not inserted/updated.
   const handleInsert = async (tabKey) => {
-    console.log("Inserting data for tab:", tabKey);
+    setLoading((prev) => ({ ...prev, [tabKey]: true }));
     const currentRows = dataSources[tabKey] || [];
-
-    // Filter out rows that are completely empty (ignoring the 'key')
-    // and filter out rows that were part of the original data.
     const rowsToInsert = currentRows.filter((row) => {
-      if (originalKeysRef.current.has(row.key)) {
-        return false;
-      }
+      if (originalKeysRef.current.has(row.key)) return false;
+      // Check that the row has at least one non-empty value.
       const keys = Object.keys(row).filter((k) => k !== "key");
       return keys.some((k) => {
         const value = row[k];
@@ -82,14 +86,7 @@ const DataDefinition = ({ dataSample, user }) => {
         );
       });
     });
-    console.log("Rows to insert:", rowsToInsert);
 
-    // if (rowsToInsert.length === 0) {
-    //   toast.info("No new data to insert");
-    //   return;
-    // }
-
-    // Determine columns: union of keys in rowsToInsert, excluding 'key'.
     const columnsSet = new Set();
     rowsToInsert.forEach((row) => {
       Object.keys(row).forEach((col) => {
@@ -99,12 +96,6 @@ const DataDefinition = ({ dataSample, user }) => {
       });
     });
     const columns = Array.from(columnsSet);
-    // if (columns.length === 0) {
-    //   toast.info("No data columns to insert");
-    //   return;
-    // }
-
-    // Build a single INSERT query for all rows.
     const valuesClause = rowsToInsert
       .map((row) => {
         const vals = columns.map((col) => {
@@ -116,7 +107,6 @@ const DataDefinition = ({ dataSample, user }) => {
           ) {
             return "NULL";
           } else {
-            // Escape single quotes.
             const escaped = String(value).replace(/'/g, "''");
             return `'${escaped}'`;
           }
@@ -128,24 +118,25 @@ const DataDefinition = ({ dataSample, user }) => {
     const queryString = `INSERT INTO ${tabKey} (${columns.join(
       ", "
     )}) VALUES ${valuesClause};`;
-    console.log("Insert Query:", queryString);
     try {
       const res = await executeQuery({
         userId: user.id,
         query: queryString,
       });
       if (!res?.data) {
-        toast.error("Insert failed");
+        toast.error(res?.message?.error || "Insert failed");
       } else {
         toast.success("Data inserted successfully!");
-        // Optionally, update state or refetch data here.
+        fetchData(fiddleId); // Refresh the data after insertion.
       }
     } catch (err) {
       toast.error(err?.message || "Error inserting data");
+    } finally {
+      setLoading((prev) => ({ ...prev, [tabKey]: false }));
     }
   };
 
-  // Create dynamic tab items using the new antd Tabs API.
+  // Create dynamic tab items.
   const items = tabKeys.map((tabKey) => {
     const tabDataSample = dataSample[tabKey] || [];
     const dynamicColumnsKeys =
@@ -153,22 +144,31 @@ const DataDefinition = ({ dataSample, user }) => {
     const columns = dynamicColumnsKeys.map((key) => ({
       title: key.charAt(0) + key.slice(1),
       dataIndex: key,
-      editable: true,
-      render: (text, record) => (
-        <Input
-          defaultValue={text}
-          onBlur={(e) =>
-            handleSave(tabKey, { ...record, [key]: e.target.value })
-          }
-        />
-      ),
+      render: (text, record) => {
+        const isOriginal =
+          originalRowsRef.current[tabKey] &&
+          originalRowsRef.current[tabKey][record.key] !== undefined;
+        return isOriginal ? (
+          <span>{text}</span>
+        ) : (
+          <Input
+            defaultValue={text}
+            onBlur={(e) =>
+              handleSave(tabKey, { ...record, [key]: e.target.value })
+            }
+          />
+        );
+      },
     }));
 
     const editableColumns = columns.map((col) => ({
       ...col,
       onCell: (record) => ({
         record,
-        editable: col.editable,
+        editable: !(
+          originalRowsRef.current[tabKey] &&
+          originalRowsRef.current[tabKey][record.key] !== undefined
+        ),
       }),
     }));
 
@@ -191,24 +191,31 @@ const DataDefinition = ({ dataSample, user }) => {
           pagination={false}
           size="small"
           className="data-define-table"
-          footer={() => (
-            <div className="flex justify-between items-center bg-[#FCFCFF] p-2 ">
-              <div
-                className="cursor-pointer text-primary"
-                onClick={() => handleAdd(tabKey)}
-              >
-                <PlusOutlined /> New row
+          footer={() => {
+            // Determine if any new row exists (i.e. a row not in originalKeysRef).
+            const newRowsExist = (dataSources[tabKey] || []).some(
+              (row) => !originalKeysRef.current.has(row.key)
+            );
+            return (
+              <div className="flex justify-between items-center bg-[#FCFCFF] p-2">
+                <div
+                  className="cursor-pointer text-primary"
+                  onClick={() => handleAdd(tabKey)}
+                >
+                  <PlusOutlined /> New row
+                </div>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  size="small"
+                  onClick={() => handleInsert(tabKey)}
+                  disabled={loading[tabKey] || !newRowsExist}
+                >
+                  {loading[tabKey] ? "Inserting..." : "INSERT"}
+                </Button>
               </div>
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                size="small"
-                onClick={() => handleInsert(tabKey)}
-              >
-                INSERT
-              </Button>
-            </div>
-          )}
+            );
+          }}
         />
       ),
     };
@@ -218,10 +225,10 @@ const DataDefinition = ({ dataSample, user }) => {
     <div className="p-2 overflow-auto h-full">
       <Tabs
         type="card"
-        animated
         activeKey={activeTab}
         onChange={setActiveTab}
         items={items}
+        tabBarGutter={5}
       />
     </div>
   );
