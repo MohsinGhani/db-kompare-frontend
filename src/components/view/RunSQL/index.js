@@ -15,7 +15,7 @@ import {
   addFiddle,
 } from "@/utils/runSQL";
 import TopSection from "./TopSection";
-import { Flex } from "antd";
+import { Flex, Spin } from "antd";
 import FileImporter from "./FileImporter";
 import DownloadResult from "./DownloadResult";
 import ProfilingBtn from "./ProfilingBtn";
@@ -97,12 +97,13 @@ const RunSQL = ({ fiddleId }) => {
   };
   return (
     <>
-      {loading ? (
+      {/* {loading ? (
         <div className="h-[80vh]">
           <CommonLoader />
         </div>
-      ) : (
-        <div className="py-20">
+      ) : ( */}
+      <div className="py-20">
+        <Spin className="!h-[80vh]" spinning={loading}>
           <TopSection user={user} fiddle={fiddle} setFiddle={setFiddle} />
           <div className="grid grid-cols-2 grid-rows-2 gap-[5px]  box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
             {/* DB Structure Editor */}
@@ -138,6 +139,7 @@ const RunSQL = ({ fiddleId }) => {
                   setQuery={setQuery}
                   queryResult={queryResult?.data}
                   queryLoading={queryLoading}
+                  tables={fiddle?.tables}
                 />
               </div>
             </div>
@@ -154,7 +156,12 @@ const RunSQL = ({ fiddleId }) => {
                 <FileImporter setFiddle={setFiddle} />
               </div>
               <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
-                <DataDefination dataSample={fiddle?.dataSample} user={user} />
+                <DataDefination
+                  dataSample={fiddle?.dataSample}
+                  user={user}
+                  fetchData={fetchData}
+                  fiddleId={fiddle?.id}
+                />
               </div>
             </div>
 
@@ -177,8 +184,10 @@ const RunSQL = ({ fiddleId }) => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </Spin>
+      </div>
+
+      {/* )} */}
     </>
   );
 };
