@@ -91,6 +91,7 @@ const RunSQL = () => {
         query,
       });
       setQueryResult(res);
+      setFiddle((pre) => ({ ...pre, query, queryResult: res }));
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
     } finally {
@@ -98,7 +99,6 @@ const RunSQL = () => {
     }
   };
 
-  console.log(fiddle);
   return (
     <div className="py-20">
       <Spin className="!h-[80vh]" spinning={loading}>
