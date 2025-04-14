@@ -121,7 +121,7 @@ export const jsonToPgsql = (jsonData, tableName = "my_table") => {
   const columnTypes = {};
   for (const col of columns) {
     let detectedType = null;
-    let maxLength = 100;
+    let maxLength = 0;
     let allIntegers = true;
     for (const record of flatRecords) {
       if (record[col] === null || record[col] === undefined) continue;
@@ -133,9 +133,11 @@ export const jsonToPgsql = (jsonData, tableName = "my_table") => {
         detectedType = "boolean";
       } else if (typeof val === "string") {
         detectedType = "string";
+        maxLength = Math.max(maxLength, val.length);
       } else {
         detectedType = "string";
         const strVal = String(val);
+        maxLength = Math.max(maxLength, strVal.length);
       }
     }
     if (detectedType === "number") {
@@ -143,7 +145,10 @@ export const jsonToPgsql = (jsonData, tableName = "my_table") => {
     } else if (detectedType === "boolean") {
       columnTypes[col] = "BOOLEAN";
     } else if (detectedType === "string") {
-      columnTypes[col] = maxLength > 0 ? `VARCHAR(${maxLength})` : "TEXT";
+      columnTypes[col] =
+        maxLength > 0
+          ? `VARCHAR(${maxLength > 100 ? maxLength : 100})`
+          : "TEXT";
     } else {
       columnTypes[col] = "TEXT";
     }
