@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AlignLeftOutlined,
   EllipsisOutlined,
@@ -16,14 +16,17 @@ import { toast } from "react-toastify";
 import CommonLoader from "@/components/shared/CommonLoader";
 dayjs.extend(relativeTime);
 
-const TopSection = ({ user, fiddle, setFiddle }) => {
+const TopSection = ({ user, fiddle, fetchData }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [fiddleName, setFiddleName] = useState("");
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [fiddles, setFiddles] = useState([]);
 
   // Replace with the actual logged in userId or use props/context
-
+  useEffect(() => {
+    setFiddleName(fiddle?.name || "");
+  }, [fiddle]);
   const openDrawer = async () => {
     setDrawerVisible(true);
     setLoading(true);
@@ -45,10 +48,11 @@ const TopSection = ({ user, fiddle, setFiddle }) => {
     setSaveLoading(true);
     const payload = {
       ...fiddle,
-      name: fiddle.name,
+      name: fiddleName,
     };
     try {
       await updateFiddle(payload, fiddle?.id);
+      await fetchData(fiddle?.id);
       toast.success("Fiddle saved successfully!");
     } catch (error) {
       toast.error("Error saving fiddle", error);
@@ -67,10 +71,8 @@ const TopSection = ({ user, fiddle, setFiddle }) => {
         <Input
           placeholder="Fiddle Name"
           size="large"
-          value={fiddle?.name}
-          onChange={(e) =>
-            setFiddle((pre) => ({ ...pre, name: e.target.value }))
-          }
+          value={fiddleName}
+          onChange={(e) => setFiddleName(e.target.value)}
         />
       </div>
       <Button

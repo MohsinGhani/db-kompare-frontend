@@ -185,7 +185,7 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
             },
           }}
           bordered
-          dataSource={dataSources[tabKey]}
+          dataSource={dataSources[tabKey]?.slice(1) || []}
           columns={editableColumns}
           rowClassName="editable-row"
           pagination={false}

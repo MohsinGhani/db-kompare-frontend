@@ -1,36 +1,41 @@
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import { Button } from "antd";
 import { CaretRightOutlined, CheckOutlined } from "@ant-design/icons";
 
 const QueryEditor = ({
-  query,
-  handleQuery,
-  setQuery,
+  query, // Parent query (fiddle query) passed in initially
+  handleQuery, // Callback to run the query
   queryResult,
   queryLoading,
-  tables,
+  tables, // (Optional) table suggestions if needed
 }) => {
+  // Manage the query locally; initial value is the parent's query.
+  const [localQuery, setLocalQuery] = useState(query);
+
+  // If the parent query changes (e.g. when the fiddle is fetched/refreshed),
+  // update the local state.
+  useEffect(() => {
+    setLocalQuery(query);
+  }, [query]);
+
   const editorRef = useRef(null);
-  // Reference to store the registered provider so it won't be re-registered repeatedly.
+  // Reference for autocompletion provider; used if you need table suggestions.
   const providerRef = useRef(null);
-  // A ref to keep the current table suggestions updated.
+  // Ref for table suggestions (if needed).
   const tableSuggestionsRef = useRef([]);
 
-  // Whenever the tables prop changes, update the tableSuggestionsRef.
+  // (Optional) If you wish to update table suggestions when the tables prop changes.
   useEffect(() => {
-    // Here we use 2 as a fallback for the Field constant.
-    // If you have access to monaco.languages.CompletionItemKind.Field, you can use that value.
     tableSuggestionsRef.current = (tables || []).map((table) => ({
       label: table,
-      kind: 2,
+      kind: 2, // Fallback for monaco.languages.CompletionItemKind.Field
       insertText: table,
     }));
   }, [tables]);
 
   const handleEditorWillMount = (monaco) => {
-    // Register the completion provider only once.
     providerRef.current = monaco.languages.registerCompletionItemProvider(
       "pgsql",
       {
@@ -64,13 +69,13 @@ const QueryEditor = ({
             },
           ];
 
-          // Combine keyword suggestions with current table suggestions.
+          // Merge any table suggestions if available.
           const allSuggestions = [
             ...keywordSuggestions,
             ...tableSuggestionsRef.current,
           ];
 
-          // Create a unique suggestion array (based on label and insertText).
+          // Remove duplicate suggestions.
           const uniqueSuggestions = allSuggestions.filter(
             (suggestion, index, self) =>
               index ===
@@ -91,22 +96,33 @@ const QueryEditor = ({
     editorRef.current = editor;
   };
 
+  // Update local query state as the editor changes.
+  const handleEditorChange = (value) => {
+    if (value !== undefined) {
+      setLocalQuery(value);
+    }
+  };
+
+  // When the "Run query" button is clicked, trigger handleQuery with the current localQuery.
+  const onRunQuery = () => {
+    handleQuery(localQuery);
+  };
+
   return (
     <div className="w-full h-[78%]">
       <Editor
         height="100%"
         language="pgsql"
-        defaultValue={query}
-        value={query}
-        beforeMount={handleEditorWillMount} // Provider is registered here (once)
-        onMount={handleEditorDidMount} // Save reference to editor if needed
+        value={localQuery}
+        onChange={handleEditorChange}
+        beforeMount={handleEditorWillMount}
+        onMount={handleEditorDidMount}
         options={{
           fontSize: 14,
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           automaticLayout: true,
         }}
-        onChange={(value) => setQuery(value)}
       />
       <div className="border-t flex justify-between items-center px-3 h-max py-2">
         <div
@@ -123,7 +139,7 @@ const QueryEditor = ({
         <Button
           icon={<CaretRightOutlined />}
           className="bg-[#3E53D7] text-white px-4 py-2 rounded-md"
-          onClick={handleQuery}
+          onClick={onRunQuery}
           loading={queryLoading}
           disabled={queryLoading}
         >
