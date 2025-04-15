@@ -7,7 +7,6 @@ import DataDefination from "./DataDefination";
 import QueryResult from "./QueryResult";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import CommonLoader from "@/components/shared/CommonLoader";
 import {
   executeQuery,
   getSingleFiddle,
@@ -26,24 +25,30 @@ const RunSQL = () => {
   const { id: fiddleId } = useParams();
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
+
+  // State for the entire fiddle and for the DB structure query (plus any auxiliary data)
   const [fiddle, setFiddle] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [query, setQuery] = useState("");
+  const [dbStructureQuery, setdbStructureQuery] = useState({
+    dbStructure: "",
+    createTableStatement: "",
+  });
   const [queryLoading, setQueryLoading] = useState(false);
   const [queryResult, setQueryResult] = useState(null);
 
-  // Always call useEffect, but guard its logic with a check for `user`
+  // Fetch fiddle data from the server.
   const fetchData = async (fiddleId = "") => {
     setLoading(true);
     try {
       let fiddleData;
+      // When fiddleId is provided, include the user id as the second argument.
       if (fiddleId) {
-        // If a fiddle ID is provided, fetch that specific fiddle.
-        fiddleData = await getSingleFiddle(fiddleId);
+        fiddleData = await getSingleFiddle(fiddleId, user.id);
       } else {
-        // Otherwise, try to fetch the latest fiddle for the user.
+        // Get the "latest" fiddle for the user.
         fiddleData = await getSingleFiddle("latest", user.id);
         if (!fiddleData?.data) {
+          // If no fiddle is found, create a user schema and add a fiddle.
           const schemaCreated = await createUserSchema({ userId: user.id });
           if (schemaCreated?.data) {
             const payload = { ownerId: user.id };
@@ -61,28 +66,25 @@ const RunSQL = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    if (!user) return;
-    fetchData(fiddleId ?? "");
+    if (user?.id) fetchData(fiddleId ?? "");
   }, [fiddleId, user]);
 
-  // Update the query and query result based on fiddle data
+  // When fiddle is updated, update query result and backend structure state.
   useEffect(() => {
     if (fiddle) {
-      if (fiddle.query) setQuery(fiddle.query);
       if (fiddle.queryResult) setQueryResult(fiddle.queryResult);
+      if (fiddle?.dbStructure) {
+        setdbStructureQuery((prev) => ({
+          ...prev,
+          dbStructure: fiddle.dbStructure,
+        }));
+      }
     }
   }, [fiddle]);
 
-  // Render a placeholder if there's no user
-  if (!user) {
-    return (
-      <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
-        Please Login we will add for logged out user as well!
-      </p>
-    );
-  }
-
+  // Execute a given query.
   const handleQuery = async (query) => {
     try {
       setQueryLoading(true);
@@ -91,7 +93,7 @@ const RunSQL = () => {
         query,
       });
       setQueryResult(res);
-      setFiddle((pre) => ({ ...pre, query, queryResult: res }));
+      setFiddle((prev) => ({ ...prev, query, queryResult: res }));
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
     } finally {
@@ -99,11 +101,24 @@ const RunSQL = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
+        Please Login we will add for logged out user as well!
+      </p>
+    );
+  }
+
   return (
     <div className="py-20">
-      <Spin className="!h-[80vh]" spinning={loading}>
-        <TopSection user={user} fiddle={fiddle} setFiddle={setFiddle} />
-        <div className="grid grid-cols-2 grid-rows-2 gap-[5px]  box-border 2xl:px-20 lg:pl-6 px-3 runsql-container ">
+      <Spin className="max-h-[80vh]" spinning={loading}>
+        <TopSection
+          user={user}
+          fiddle={fiddle}
+          setFiddle={setFiddle}
+          fetchData={fetchData}
+        />
+        <div className="grid grid-cols-2 grid-rows-2 gap-[5px] box-border 2xl:px-20 lg:pl-6 px-3 runsql-container">
           {/* DB Structure Editor */}
           <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
             <div className="border-b border-[#DFE0EB] p-2 flex gap-2 items-center">
@@ -113,12 +128,15 @@ const RunSQL = () => {
               <span className="font-medium">Define Database Structure</span>
             </div>
             <div className="h-full">
-              <DbStructureEditor
-                fiddle={fiddle}
-                dbStructure={fiddle?.dbStructure}
-                user={user}
-                fetchData={fetchData}
-              />
+              {fiddle?.dbStructure && (
+                <DbStructureEditor
+                  fiddle={fiddle}
+                  user={user}
+                  fetchData={fetchData}
+                  dbStructureQuery={dbStructureQuery}
+                  setdbStructureQuery={setdbStructureQuery}
+                />
+              )}
             </div>
           </div>
 
@@ -132,18 +150,17 @@ const RunSQL = () => {
             </div>
             <div className="h-full overflow-hidden">
               <QueryEditor
-                query={query}
+                query={fiddle?.query || ""}
                 handleQuery={handleQuery}
-                setQuery={setQuery}
                 queryResult={queryResult?.data}
                 queryLoading={queryLoading}
-                // tables={fiddle?.tables}
+                tables={fiddle?.tables}
               />
             </div>
           </div>
 
-          {/* Data Definations */}
-          <div className="border border-[#DFE0EB] rounded-[8px]  overflow-auto  min-h-[100px]">
+          {/* Data Definitions */}
+          <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto min-h-[100px]">
             <div className="border-b border-[#DFE0EB] p-2 flex justify-between w-full gap-2 items-center">
               <Flex gap={4} align="center">
                 <div className="bg-[#D7853E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
@@ -151,12 +168,15 @@ const RunSQL = () => {
                 </div>
                 <span className="font-medium inline-block">
                   Define Data{" "}
-                  <Tooltip title="You can insert data from CSV or JSON file and also add manually rows by clicking add rows and insert button">
+                  <Tooltip title="Insert data from CSV/JSON or add rows manually">
                     <InfoCircleOutlined size="small" className="text-sm" />
                   </Tooltip>
                 </span>
               </Flex>
-              <FileImporter setFiddle={setFiddle} />
+              <FileImporter
+                fiddle={fiddle}
+                setdbStructureQuery={setdbStructureQuery}
+              />
             </div>
             <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
               <DataDefination
@@ -169,7 +189,7 @@ const RunSQL = () => {
           </div>
 
           {/* Query Result */}
-          <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto  min-h-[100px]">
+          <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto min-h-[100px]">
             <div className="border-b border-[#DFE0EB] p-2 flex justify-between w-full gap-2 items-center">
               <Flex gap={4} align="center">
                 <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">

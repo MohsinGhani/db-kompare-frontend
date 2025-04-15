@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import CommonLoader from "@/components/shared/CommonLoader";
 dayjs.extend(relativeTime);
 
-const TopSection = ({ user, fiddle }) => {
+const TopSection = ({ user, fiddle, fetchData }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [fiddleName, setFiddleName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,6 +52,7 @@ const TopSection = ({ user, fiddle }) => {
     };
     try {
       await updateFiddle(payload, fiddle?.id);
+      await fetchData(fiddle?.id);
       toast.success("Fiddle saved successfully!");
     } catch (error) {
       toast.error("Error saving fiddle", error);

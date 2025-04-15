@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState } from "react";
 import { Button, Dropdown, message } from "antd";
 import {
@@ -12,23 +14,23 @@ import {
   sanitizeIdentifier,
 } from "./helper";
 
-const FileImporter = ({ setFiddle }) => {
+const FileImporter = ({ fiddle, setdbStructureQuery }) => {
   const fileInputRef = useRef(null);
   const [fileType, setFileType] = useState("");
 
-  // Handle dropdown menu item click to set file type and trigger file selection.
+  // Configure file selection based on dropdown choice.
   const handleMenuClick = (e) => {
     let accept;
     switch (e.key) {
-      case "1": // CSV
+      case "1":
         accept = ".csv";
         setFileType("csv");
         break;
-      case "2": // Pipe (adjust as needed)
+      case "2":
         accept = ".psv";
         setFileType("pipe");
         break;
-      case "3": // JSON
+      case "3":
         accept = ".json";
         setFileType("json");
         break;
@@ -38,22 +40,20 @@ const FileImporter = ({ setFiddle }) => {
     }
     if (fileInputRef.current) {
       fileInputRef.current.accept = accept;
-      // Reset the file input to allow re-selection of the same file.
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ""; // Reset file input to allow re-selection.
       fileInputRef.current.click();
     }
   };
 
-  // Handle file selection.
+  // Handle file upload and merge the content.
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Derive and sanitize the table name from the file name.
+    // Derive and sanitize table name from the file name.
     const tableNameRaw = file.name.replace(/\.[^/.]+$/, "");
     const tableName = sanitizeIdentifier(tableNameRaw);
 
-    // Mapping fileType values to conversion functions.
     const conversionFunctions = {
       json: (data, tableName) => {
         const jsonData = JSON.parse(data);
@@ -63,39 +63,32 @@ const FileImporter = ({ setFiddle }) => {
       pipe: (data, tableName) => pipeToPgsql(data, tableName),
     };
 
-    // Check if the selected file type is supported.
     if (!conversionFunctions[fileType]) {
-      console.log("Unsupported file type:", fileType);
+      console.error("Unsupported file type:", fileType);
       message.error("Unsupported file type.");
       return;
     }
 
-    // Create a new FileReader to read the file.
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const fileData = e.target.result;
         const sql = conversionFunctions[fileType](fileData, tableName);
+        const newQuery = sql?.output?.trim() || "";
 
-        setFiddle((prev) => ({
+        // Update the editor's state with the merged query and save any auxiliary statement.
+        setdbStructureQuery((prev) => ({
           ...prev,
-          dbStructure: sql?.output,
-          createTableStatement: sql?.createTableStatement,
+          dbStructure: newQuery,
         }));
 
-        console.log("Generated PGSQL:", sql);
-
-        // Provide a customized success message.
         let successMsg;
         if (fileType === "json") {
-          successMsg =
-            "JSON file converted to PGSQL successfully! Check the console for output.";
+          successMsg = "JSON file imported and merged successfully!";
         } else if (fileType === "csv") {
-          successMsg =
-            "CSV file converted to PGSQL successfully! Check the console for output.";
+          successMsg = "CSV file imported and merged successfully!";
         } else if (fileType === "pipe") {
-          successMsg =
-            "Pipe-delimited file converted to PGSQL successfully! Check the console for output.";
+          successMsg = "Pipe-delimited file imported and merged successfully!";
         }
         message.success(successMsg);
       } catch (err) {
@@ -104,27 +97,13 @@ const FileImporter = ({ setFiddle }) => {
       }
     };
 
-    // Read the file using UTF-8 encoding.
     reader.readAsText(file, "UTF-8");
   };
 
-  // Dropdown items.
   const items = [
-    {
-      label: "CSV",
-      key: "1",
-      icon: <FileOutlined />,
-    },
-    {
-      label: "Pipe",
-      key: "2",
-      icon: <PythonOutlined />,
-    },
-    {
-      label: "JSON",
-      key: "3",
-      icon: <FileOutlined />,
-    },
+    { label: "CSV", key: "1", icon: <FileOutlined /> },
+    { label: "Pipe", key: "2", icon: <PythonOutlined /> },
+    { label: "JSON", key: "3", icon: <FileOutlined /> },
   ];
 
   const menuProps = {
