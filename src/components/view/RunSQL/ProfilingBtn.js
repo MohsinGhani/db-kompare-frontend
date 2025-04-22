@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Dropdown, message } from "antd";
 import {
   DownloadOutlined,
@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { downloadProfiling } from "@/utils/runSQL";
 
 const ProfilingBtn = ({ data }) => {
+  const [loading, setLoading] = useState(false);
   const dataToCsv = (data) => {
     if (!data || data.length === 0) return "";
     const headers = Object.keys(data[0]);
@@ -105,20 +106,29 @@ const ProfilingBtn = ({ data }) => {
 
   const handleProfilingClick = async () => {
     try {
+      setLoading(true);
       const html = await downloadProfiling(data?.data?.data || []);
       // make a Blob and a temporary URL
       const blob = new Blob([html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       // open in a new tab
       window.open(url, "_blank");
+      setLoading(false);
     } catch (error) {
       toast.error("Error while profiling the query.");
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <Button onClick={handleProfilingClick}>Profiling</Button>
+      <Button
+        loading={loading}
+        disabled={loading}
+        onClick={handleProfilingClick}
+      >
+        Profiling
+      </Button>
     </>
   );
 };
