@@ -115,3 +115,20 @@ export async function addFiddle(payload) {
     throw error; // or handle error gracefully
   }
 }
+export async function downloadProfiling(payload) {
+  try {
+    const response = await fetch(
+      `https://3j4c24ofsipic54dve7benz6lq0dtmsu.lambda-url.eu-west-1.on.aws`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.text();
+    return data;
+  } catch (error) {
+    console.error("Error running query:", error);
+    throw error; // or handle error gracefully
+  }
+}

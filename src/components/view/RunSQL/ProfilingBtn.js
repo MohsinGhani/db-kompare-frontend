@@ -6,6 +6,8 @@ import {
   PythonOutlined,
 } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
+import { toast } from "react-toastify";
+import { downloadProfiling } from "@/utils/runSQL";
 
 const ProfilingBtn = ({ data }) => {
   const dataToCsv = (data) => {
@@ -101,10 +103,23 @@ const ProfilingBtn = ({ data }) => {
     onClick: handleMenuClick,
   };
 
+  const handleProfilingClick = async () => {
+    try {
+      const html = await downloadProfiling(data?.data?.data || []);
+      // make a Blob and a temporary URL
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      // open in a new tab
+      window.open(url, "_blank");
+    } catch (error) {
+      toast.error("Error while profiling the query.");
+    }
+  };
+
   return (
-    <Dropdown menu={menuProps} className="!max-w-max" trigger={["click"]}>
-      <Button type="default">Profiling</Button>
-    </Dropdown>
+    <>
+      <Button onClick={handleProfilingClick}>Profiling</Button>
+    </>
   );
 };
 

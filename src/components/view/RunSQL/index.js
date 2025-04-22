@@ -198,7 +198,7 @@ const RunSQL = () => {
                 <span className="font-medium">Query Result</span>
               </Flex>
               <Flex align="center" gap={4}>
-                <ProfilingBtn />
+                <ProfilingBtn data={queryResult} />
                 <DownloadResult data={queryResult} />
               </Flex>
             </div>
