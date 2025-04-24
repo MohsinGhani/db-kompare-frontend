@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import { Button, Dropdown, message } from "antd";
-import {
-  DownloadOutlined,
-  FileOutlined,
-  PythonOutlined,
-} from "@ant-design/icons";
+import { FileOutlined, PythonOutlined } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
-import { toast } from "react-toastify";
-import { downloadProfiling } from "@/utils/runSQL";
+import { uploadData } from "aws-amplify/storage";
+import { ulid } from "ulid";
 
 const ProfilingBtn = ({ data }) => {
   const [loading, setLoading] = useState(false);
@@ -104,29 +100,31 @@ const ProfilingBtn = ({ data }) => {
     onClick: handleMenuClick,
   };
 
-  const handleProfilingClick = async () => {
+  const uploadToS3 = async () => {
     try {
       setLoading(true);
-      const html = await downloadProfiling(data?.data?.data || []);
-      // make a Blob and a temporary URL
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      // open in a new tab
-      window.open(url, "_blank");
+      // 1) Make a unique key under "input/"
+      const key = `INPUT/${ulid()}.json`;
+      // 2) Serialize your array
+      const payload = JSON.stringify(data?.data?.data || []);
+
+      // 3) Upload
+      uploadData({
+        path: key,
+        data: payload,
+        options: {
+          contentType: "application/json",
+        },
+      });
       setLoading(false);
-    } catch (error) {
-      toast.error("Error while profiling the query.");
+    } catch (err) {
+      console.error(err);
       setLoading(false);
     }
   };
-
   return (
     <>
-      <Button
-        loading={loading}
-        disabled={loading}
-        onClick={handleProfilingClick}
-      >
+      <Button loading={loading} disabled={loading} onClick={uploadToS3}>
         Profiling
       </Button>
     </>
