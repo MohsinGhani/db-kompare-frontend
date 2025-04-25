@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { Button, Dropdown, message } from "antd";
-import {
-  DownloadOutlined,
-  FileOutlined,
-  PythonOutlined,
-} from "@ant-design/icons";
+import { FileOutlined, PythonOutlined } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
+import { uploadData } from "aws-amplify/storage";
+import { ulid } from "ulid";
 import { toast } from "react-toastify";
-import { downloadProfiling } from "@/utils/runSQL";
 
-const ProfilingBtn = ({ data }) => {
+const ProfilingBtn = ({ data, user, fiddleId }) => {
   const [loading, setLoading] = useState(false);
+
   const dataToCsv = (data) => {
     if (!data || data.length === 0) return "";
     const headers = Object.keys(data[0]);
@@ -104,32 +102,37 @@ const ProfilingBtn = ({ data }) => {
     onClick: handleMenuClick,
   };
 
-  const handleProfilingClick = async () => {
+  const uploadToS3 = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const html = await downloadProfiling(data?.data?.data || []);
-      // make a Blob and a temporary URL
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      // open in a new tab
-      window.open(url, "_blank");
+      // 1) Make a unique key under "INPUT/"
+      const key = `INPUT/${user?.id}/${fiddleId}/${ulid()}.json`;
+
+      // 2) Serialize your array
+      const payload = JSON.stringify(data?.data?.data || []);
+
+      // 3) Upload — *don’t* comment this out, and *await* it
+      await uploadData({
+        path: key,
+        data: payload,
+        options: { contentType: "application/json" },
+      });
+
+      // only clear loading once the upload finishes
       setLoading(false);
-    } catch (error) {
-      toast.error("Error while profiling the query.");
+      toast.success(
+        "Your profiling report has started successfully. You can check the status in the profile settings."
+      );
+    } catch (err) {
+      console.error(err);
       setLoading(false);
     }
   };
-
+  console.log("loading", loading);
   return (
-    <>
-      <Button
-        loading={loading}
-        disabled={loading}
-        onClick={handleProfilingClick}
-      >
-        Profiling
-      </Button>
-    </>
+    <Button loading={loading} disabled={loading} onClick={uploadToS3}>
+      {loading ? "Loading..." : "Profiling"}
+    </Button>
   );
 };
 

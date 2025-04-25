@@ -6,10 +6,13 @@ import React, { useState } from "react";
 import Blog from "../Blog";
 import UserProfileForm from "./userProfileForm";
 import { BlogType } from "@/utils/const";
+import ProfilingReport from "./ProfilingReport";
+import { useSelector } from "react-redux";
 
 export default function UserProfile() {
   const [activeKey, setActiveKey] = useState("1");
-
+  const { userDetails } = useSelector((state) => state.auth);
+  const user = userDetails?.data?.data;
   const onChange = (key) => {
     setActiveKey(key);
   };
@@ -43,6 +46,11 @@ export default function UserProfile() {
           secondText=" Edit and manage your blogs"
         />
       ),
+    },
+    {
+      key: "4",
+      label: "Profile Reports",
+      children: <ProfilingReport user={user} />,
     },
   ];
 
