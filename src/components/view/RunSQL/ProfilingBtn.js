@@ -4,9 +4,11 @@ import { FileOutlined, PythonOutlined } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
 import { uploadData } from "aws-amplify/storage";
 import { ulid } from "ulid";
+import { toast } from "react-toastify";
 
-const ProfilingBtn = ({ data }) => {
+const ProfilingBtn = ({ data, user, fiddleId }) => {
   const [loading, setLoading] = useState(false);
+
   const dataToCsv = (data) => {
     if (!data || data.length === 0) return "";
     const headers = Object.keys(data[0]);
@@ -101,33 +103,36 @@ const ProfilingBtn = ({ data }) => {
   };
 
   const uploadToS3 = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // 1) Make a unique key under "input/"
-      const key = `INPUT/${ulid()}.json`;
+      // 1) Make a unique key under "INPUT/"
+      const key = `INPUT/${user?.id}/${fiddleId}/${ulid()}.json`;
+
       // 2) Serialize your array
       const payload = JSON.stringify(data?.data?.data || []);
 
-      // 3) Upload
-      uploadData({
+      // 3) Upload — *don’t* comment this out, and *await* it
+      await uploadData({
         path: key,
         data: payload,
-        options: {
-          contentType: "application/json",
-        },
+        options: { contentType: "application/json" },
       });
+
+      // only clear loading once the upload finishes
       setLoading(false);
+      toast.success(
+        "Your profiling report has started successfully. You can check the status in the profile settings."
+      );
     } catch (err) {
       console.error(err);
       setLoading(false);
     }
   };
+  console.log("loading", loading);
   return (
-    <>
-      <Button loading={loading} disabled={loading} onClick={uploadToS3}>
-        Profiling
-      </Button>
-    </>
+    <Button loading={loading} disabled={loading} onClick={uploadToS3}>
+      {loading ? "Loading..." : "Profiling"}
+    </Button>
   );
 };
 
