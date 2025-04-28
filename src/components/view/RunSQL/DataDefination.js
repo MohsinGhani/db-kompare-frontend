@@ -188,7 +188,7 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
           dataSource={dataSources[tabKey]?.slice(1) || []}
           columns={editableColumns}
           rowClassName="editable-row"
-          pagination={false}
+          pagination
           size="small"
           className="data-define-table"
           footer={() => {

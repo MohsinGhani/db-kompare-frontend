@@ -7,12 +7,14 @@ import {
   FileOutlined,
   PythonOutlined,
 } from "@ant-design/icons";
-import { uploadData } from "aws-amplify/storage";
-import { csvToPgsql, sanitizeIdentifier } from "./helper";
-import { ulid } from "ulid";
-import { executeQuery } from "@/utils/runSQL";
+import {
+  csvToPgsql,
+  jsonToPgsql,
+  pipeToPgsql,
+  sanitizeIdentifier,
+} from "./helper";
 
-const FileImporter = ({ fiddle, setdbStructureQuery, user }) => {
+const FileImporter = ({ fiddle, setdbStructureQuery }) => {
   const fileInputRef = useRef(null);
   const [fileType, setFileType] = useState("");
 
@@ -43,57 +45,59 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user }) => {
     }
   };
 
-  // Handle file upload to S3 via Amplify Storage
-  const handleFileChange = async (event) => {
+  // Handle file upload and merge the content.
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     // Derive and sanitize table name from the file name.
     const tableNameRaw = file.name.replace(/\.[^/.]+$/, "");
     const tableName = sanitizeIdentifier(tableNameRaw);
-    const id = ulid(); // Generate a unique ID for the file
-    // Build a unique S3 key preserving extension
-    const fileExtension = file.name.split(".").pop();
-    const key = `TEMP/${id}.${fileExtension}`;
 
-    try {
-      message.loading({ content: "Uploading file to S3...", key: "upload" });
+    const conversionFunctions = {
+      json: (data, tableName) => {
+        const jsonData = JSON.parse(data);
+        return jsonToPgsql(jsonData, tableName);
+      },
+      csv: (data, tableName) => csvToPgsql(data, tableName),
+      pipe: (data, tableName) => pipeToPgsql(data, tableName),
+    };
 
-      const result = await uploadData({
-        path: key,
-        data: file,
-        options: { contentType: file.type },
-      })
-        .result.then((res) => {
-          const resp = executeQuery({
-            userId: user.id,
-            url_KEY: id,
-            // url_KEY: `${process.env.NEXT_PUBLIC_BUCKET_URL}/${key}`,
-            fileType,
-            tableName,
-            fileExtension,
-          });
-          console.log("File uploaded successfully:", {
-            userId: user.id,
-            url_KEY: id,
-            // url_KEY: `${process.env.NEXT_PUBLIC_BUCKET_URL}/${key}`,
-            fileType,
-            tableName,
-            fileExtension,
-          });
-        })
-        .catch((err) => {
-          console.error("Error uploading file:", err);
-          message.error("Error uploading file to S3.");
-          throw err; // Rethrow the error to be caught in the outer catch block
-        });
-
-      // You can now pass result.key or result to your Lambda / API
-      console.log("S3 upload result:", result);
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      message.error("Error uploading file to S3.");
+    if (!conversionFunctions[fileType]) {
+      console.error("Unsupported file type:", fileType);
+      message.error("Unsupported file type.");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const fileData = e.target.result;
+        const sql = conversionFunctions[fileType](fileData, tableName);
+        const newQuery = sql?.output?.trim() || "";
+
+        // Update the editor's state with the merged query and save any auxiliary statement.
+        setdbStructureQuery((prev) => ({
+          ...prev,
+          dbStructure: newQuery,
+        }));
+
+        let successMsg;
+        if (fileType === "json") {
+          successMsg = "JSON file imported and merged successfully!";
+        } else if (fileType === "csv") {
+          successMsg = "CSV file imported and merged successfully!";
+        } else if (fileType === "pipe") {
+          successMsg = "Pipe-delimited file imported and merged successfully!";
+        }
+        message.success(successMsg);
+      } catch (err) {
+        console.error("Error processing file:", err);
+        message.error("Error processing file.");
+      }
+    };
+
+    reader.readAsText(file, "UTF-8");
   };
 
   const items = [

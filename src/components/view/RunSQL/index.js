@@ -174,6 +174,7 @@ const RunSQL = () => {
                 </span>
               </Flex>
               <FileImporter
+                user={user}
                 fiddle={fiddle}
                 setdbStructureQuery={setdbStructureQuery}
               />
