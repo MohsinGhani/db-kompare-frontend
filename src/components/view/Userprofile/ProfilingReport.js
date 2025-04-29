@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Table, Tag } from "antd";
+import React, { useEffect, useState, useCallback } from "react";
+import { Table, Tag, Button, Space } from "antd";
 import Link from "next/link";
 
 // Define the columns for the Ant Design Table
@@ -74,36 +74,61 @@ const columns = [
     title: "Completed At",
     dataIndex: "completedAt",
     key: "completedAt",
-    render: (ts) => new Date(ts).toLocaleString(),
+    render: (ts) =><p>
+       {ts ? new Date(ts).toLocaleString():"---"}
+    </p>,
   },
 ];
 
 const ProfilingReport = ({ user }) => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user?.id) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL_1}/profiling?userId=${user.id}`,
-            {
-              headers: {
-                "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
-              },
-            }
-          );
-          const result = await response.json();
-          setData(result.data || []);
-        } catch (error) {
-          console.error("Error fetching profiling report:", error);
+  // Fetch data function, memoized
+  const fetchData = useCallback(async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL_1}/profiling?userId=${user.id}`,
+        {
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_Y_API_KEY,
+          },
         }
-      };
-      fetchData();
+      );
+      const result = await response.json();
+      // Sort by createdAt descending
+      const sorted = (result.data || []).sort(
+        (a, b) => b.createdAt - a.createdAt
+      );
+      setData(sorted);
+    } catch (error) {
+      console.error("Error fetching profiling report:", error);
+    } finally {
+      setLoading(false);
     }
   }, [user?.id]);
 
-  return <Table columns={columns} dataSource={data} rowKey="id" bordered />;
+  // Initial load
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return (
+    <Space direction="vertical" style={{ width: "100%" }}>
+      <Button onClick={fetchData} loading={loading} type="primary" >
+        Refresh Reports
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        bordered
+        loading={loading}
+      />
+    </Space>
+  );
 };
 
 export default ProfilingReport;

@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { Button, Input, Tabs } from "antd";
+import { Alert, Button, Input, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import CommonTable from "@/components/shared/CommonTable";
 import { toast } from "react-toastify";
 import { executeQuery } from "@/utils/runSQL";
+import Marquee from "react-fast-marquee";
 
 const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
   // Memoize the tab keys.
@@ -188,7 +189,7 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
           dataSource={dataSources[tabKey]?.slice(1) || []}
           columns={editableColumns}
           rowClassName="editable-row"
-          pagination={false}
+          pagination
           size="small"
           className="data-define-table"
           footer={() => {
@@ -223,6 +224,20 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
 
   return (
     <div className="p-2 overflow-auto h-full">
+      {/* <div className="mb-2">
+
+      <Alert
+      message={
+        <Marquee pauseOnHover gradient={false}>
+         In the table view, only up to 500 records are displayed for large datasets. However, when you generate a profile report, the analysis covers the entire table. Profiling is available only for tables that were created by uploading a file.
+        </Marquee>
+      }
+      type="info"
+      showIcon
+      banner
+      />
+      </div> */}
+      <p className="text-sm mb-3"><b>Note:</b> In the table view, only up to 500 records are displayed for large datasets. However, when you generate a profile report, the analysis covers the entire table. Profiling is available only for tables that were created by uploading a file.</p>
       <Tabs
         type="card"
         activeKey={activeTab}

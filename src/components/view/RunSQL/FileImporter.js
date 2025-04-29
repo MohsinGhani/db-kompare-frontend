@@ -2,21 +2,16 @@
 
 import React, { useRef, useState } from "react";
 import { Button, Dropdown, message } from "antd";
-import {
-  DownloadOutlined,
-  FileOutlined,
-  PythonOutlined,
-} from "@ant-design/icons";
-import {
-  csvToPgsql,
-  jsonToPgsql,
-  pipeToPgsql,
-  sanitizeIdentifier,
-} from "./helper";
+import { DownloadOutlined, FileOutlined, PythonOutlined } from "@ant-design/icons";
+import { uploadData } from "aws-amplify/storage";
+import { csvToPgsql, sanitizeIdentifier } from "./helper";
+import { ulid } from "ulid";
+import { executeQuery, updateFiddle } from "@/utils/runSQL";
 
-const FileImporter = ({ fiddle, setdbStructureQuery }) => {
+const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
   const fileInputRef = useRef(null);
   const [fileType, setFileType] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Configure file selection based on dropdown choice.
   const handleMenuClick = (e) => {
@@ -40,85 +35,94 @@ const FileImporter = ({ fiddle, setdbStructureQuery }) => {
     }
     if (fileInputRef.current) {
       fileInputRef.current.accept = accept;
-      fileInputRef.current.value = ""; // Reset file input to allow re-selection.
+      fileInputRef.current.value = "";
       fileInputRef.current.click();
     }
   };
 
-  // Handle file upload and merge the content.
-  const handleFileChange = (event) => {
+  // Handle file upload to S3 via Amplify Storage
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Derive and sanitize table name from the file name.
+    setLoading(true);
+    // Derive and sanitize table name from the file name
     const tableNameRaw = file.name.replace(/\.[^/.]+$/, "");
     const tableName = sanitizeIdentifier(tableNameRaw);
+    const id = ulid();
 
-    const conversionFunctions = {
-      json: (data, tableName) => {
-        const jsonData = JSON.parse(data);
-        return jsonToPgsql(jsonData, tableName);
-      },
-      csv: (data, tableName) => csvToPgsql(data, tableName),
-      pipe: (data, tableName) => pipeToPgsql(data, tableName),
-    };
+    // Build a unique S3 key preserving extension
+    const fileExtension = file.name.split('.').pop();
+    const key = `TEMP/${id}.${fileExtension}`;
 
-    if (!conversionFunctions[fileType]) {
-      console.error("Unsupported file type:", fileType);
-      message.error("Unsupported file type.");
-      return;
-    }
+    try {
+      message.loading({ content: "Uploading file to S3...", key: "upload" });
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const fileData = e.target.result;
-        const sql = conversionFunctions[fileType](fileData, tableName);
-        const newQuery = sql?.output?.trim() || "";
+      // Upload to S3
+      const { result: uploadPromise } = await uploadData({
+        path: key,
+        data: file,
+        options: { contentType: file.type }
+      });
+      const uploadResult = await uploadPromise;
 
-        // Update the editor's state with the merged query and save any auxiliary statement.
-        setdbStructureQuery((prev) => ({
-          ...prev,
-          dbStructure: newQuery,
-        }));
+      // Trigger backend processing
+      const resp = await executeQuery({
+        userId: user.id,
+        url_KEY: id,
+        fileType,
+        tableName,
+        fileExtension
+      });
 
-        let successMsg;
-        if (fileType === "json") {
-          successMsg = "JSON file imported and merged successfully!";
-        } else if (fileType === "csv") {
-          successMsg = "CSV file imported and merged successfully!";
-        } else if (fileType === "pipe") {
-          successMsg = "Pipe-delimited file imported and merged successfully!";
-        }
-        message.success(successMsg);
-      } catch (err) {
-        console.error("Error processing file:", err);
-        message.error("Error processing file.");
+      // Update fiddle if backend returned data
+      if (resp?.data) {
+        await updateFiddle(
+          {
+            ...fiddle,
+            tables: [
+              ...(fiddle?.tables || []),
+              {
+                name: tableName,
+                fileName: tableNameRaw,
+                url_KEY: id,
+                createdAt: new Date().getTime(),
+                fileExtension
+              }
+            ]
+          },
+          fiddle?.id
+        );
+        await fetchData(fiddle?.id);
       }
-    };
 
-    reader.readAsText(file, "UTF-8");
+      message.success({ content: "File uploaded and processed successfully!", key: "upload" });
+    } catch (error) {
+      console.error("Error processing file:", error);
+      message.error({ content: "Error uploading file to S3.", key: "upload" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const items = [
     { label: "CSV", key: "1", icon: <FileOutlined /> },
     { label: "Pipe", key: "2", icon: <PythonOutlined /> },
-    { label: "JSON", key: "3", icon: <FileOutlined /> },
+    { label: "JSON", key: "3", icon: <FileOutlined /> }
   ];
 
   const menuProps = {
     items,
-    onClick: handleMenuClick,
+    onClick: handleMenuClick
   };
 
   return (
     <>
-      <Dropdown menu={menuProps} className="!max-w-max" trigger={["click"]}>
-        <Button type="default">
+      <Dropdown menu={menuProps} trigger={["click"]}>
+        <Button type="default" loading={loading} disabled={loading}>
           <DownloadOutlined /> Import File
         </Button>
       </Dropdown>
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"

@@ -1,34 +1,55 @@
+// helpers.js
+
 // ==============================
 // CONVERT TABLE NAME TO SNAKE CASE
 // ==============================
 export const sanitizeIdentifier = (identifier) => {
-  let sanitized = identifier.replace(/[\.\-]/g, "_");
-  if (/^\d/.test(sanitized)) {
+  let sanitized = identifier.toLowerCase();
+  sanitized = sanitized.replace(/[^a-z0-9_]/g, "_");
+  sanitized = sanitized.replace(/_+/g, "_");
+  sanitized = sanitized.replace(/^_+|_+$/g, "");
+  if (/^[0-9]/.test(sanitized)) {
     sanitized = "_" + sanitized;
+  }
+  if (sanitized === "") {
+    sanitized = "table";
   }
   return sanitized;
 };
 
 // ==============================
-// PARSE CSV LINE
+// FETCH-IF-URL UTILITY
 // ==============================
-function parseCsvLine(line) {
+async function fetchIfUrl(dataOrUrl, asJson = false) {
+  if (typeof dataOrUrl === "string" && /^https?:\/\//.test(dataOrUrl)) {
+    const res = await fetch(dataOrUrl);
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch ${dataOrUrl}: ${res.status} ${res.statusText}`
+      );
+    }
+    return asJson ? res.json() : res.text();
+  }
+  return dataOrUrl;
+}
+
+// ==============================
+// PARSE DELIMITED LINE (CSV/PSV)
+// ==============================
+function parseDelimitedLine(line, delimiter) {
   const result = [];
   let current = "";
   let inQuotes = false;
-
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-
     if (char === '"') {
-      // If within quotes and the next char is also a quote, that's an escaped quote.
       if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
         current += '"';
-        i++; // Skip next quote.
+        i++;
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (char === "," && !inQuotes) {
+    } else if (char === delimiter && !inQuotes) {
       result.push(current);
       current = "";
     } else {
@@ -40,336 +61,156 @@ function parseCsvLine(line) {
 }
 
 // ==============================
-// PARSE PIPELINE
-// ==============================
-function parsePipeLine(line) {
-  const result = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-
-    if (char === '"') {
-      // If we're inside quotes and the next char is a quote, treat it as an escaped quote.
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        current += '"';
-        i++; // Skip the next quote.
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === "|" && !inQuotes) {
-      // Field delimiter encountered outside quotes.
-      result.push(current);
-      current = "";
-    } else {
-      current += char;
-    }
-  }
-  result.push(current);
-  return result;
-}
-
-// ==============================
-// FLATTEN RECORD
+// FLATTEN RECORD (for JSON)
 // ==============================
 function flattenRecord(obj, prefix = "") {
   let result = {};
   for (const key in obj) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
-
     const sanitizedKey = sanitizeIdentifier(key);
     const newKey = prefix + sanitizedKey;
-    const value = obj[key];
-
-    if (Array.isArray(value)) {
-      value.forEach((element, index) => {
-        if (typeof element === "object" && element !== null) {
-          Object.assign(result, flattenRecord(element, newKey + index));
+    const val = obj[key];
+    if (Array.isArray(val)) {
+      val.forEach((el, idx) => {
+        if (el && typeof el === "object") {
+          Object.assign(result, flattenRecord(el, `${newKey}${idx}_`));
         } else {
-          result[newKey + index] = element;
+          result[`${newKey}${idx}`] = el;
         }
       });
-    } else if (typeof value === "object" && value !== null) {
-      Object.assign(result, flattenRecord(value, newKey));
+    } else if (val && typeof val === "object") {
+      Object.assign(result, flattenRecord(val, `${newKey}_`));
     } else {
-      result[newKey] = value;
+      result[newKey] = val;
     }
   }
   return result;
 }
 
 // ==============================
-// JSON to PGSQL Conversion
+// BUILD PGSQL STATEMENTS
 // ==============================
-export const jsonToPgsql = (jsonData, tableName = "my_table") => {
-  // Normalize data.
-  const records = Array.isArray(jsonData) ? jsonData : [jsonData];
-  if (records.length === 0) return "";
+function buildPgSql(tableName, records) {
+  if (!records.length) return { output: "" };
 
-  // Flatten each record.
-  const flatRecords = records.map((record) => flattenRecord(record));
+  const tbl = sanitizeIdentifier(tableName).toLowerCase();
+  const colSet = new Set();
+  records.forEach((rec) => Object.keys(rec).forEach((k) => colSet.add(k)));
+  const columns = Array.from(colSet);
 
-  // Create union of all column names.
-  const columnSet = new Set();
-  flatRecords.forEach((record) => {
-    Object.keys(record).forEach((key) => columnSet.add(key));
-  });
-  const columns = Array.from(columnSet);
-
-  // Infer PostgreSQL data types for each column.
+  // infer types
   const columnTypes = {};
-  for (const col of columns) {
-    let detectedType = null;
-    let maxLength = 0;
-    let allIntegers = true;
-    for (const record of flatRecords) {
-      if (record[col] === null || record[col] === undefined) continue;
-      const val = record[col];
-      if (typeof val === "number") {
-        if (!Number.isInteger(val)) allIntegers = false;
-        detectedType = "number";
-      } else if (typeof val === "boolean") {
-        detectedType = "boolean";
-      } else if (typeof val === "string") {
-        detectedType = "string";
-        maxLength = Math.max(maxLength, val.length);
+  columns.forEach((col) => {
+    let detected = null,
+      maxLen = 0,
+      allInt = true,
+      allBool = true;
+    records.forEach((rec) => {
+      const v = rec[col];
+      if (v == null) return;
+      if (typeof v === "boolean") {
+        detected = "boolean";
+      } else if (typeof v === "number") {
+        detected = "number";
+        if (!Number.isInteger(v)) allInt = false;
       } else {
-        detectedType = "string";
-        const strVal = String(val);
-        maxLength = Math.max(maxLength, strVal.length);
+        detected = "string";
+        const s = String(v);
+        maxLen = Math.max(maxLen, s.length);
+        if (!["true", "false"].includes(s.toLowerCase())) allBool = false;
       }
-    }
-    if (detectedType === "number") {
-      columnTypes[col] = allIntegers ? "INTEGER" : "NUMERIC";
-    } else if (detectedType === "boolean") {
+    });
+    if (detected === "boolean" && allBool) {
       columnTypes[col] = "BOOLEAN";
-    } else if (detectedType === "string") {
-      columnTypes[col] =
-        maxLength > 0
-          ? `VARCHAR(${maxLength > 100 ? maxLength : 100})`
-          : "TEXT";
+    } else if (detected === "number") {
+      columnTypes[col] = allInt ? "INTEGER" : "NUMERIC";
+    } else if (detected === "string") {
+      if (maxLen > 0) {
+        const len = Math.max(maxLen, 100);
+        columnTypes[col] = `VARCHAR(${len})`;
+      } else {
+        columnTypes[col] = "TEXT";
+      }
     } else {
       columnTypes[col] = "TEXT";
     }
-    // Fallback in case no non-null values were found.
-    if (!detectedType) columnTypes[col] = "TEXT";
-  }
-
-  const sanitizedTableName = tableName.toLowerCase();
-  const columnDefinitions = columns
-    .map((col) => `${col} ${columnTypes[col]}`)
-    .join(",\n  ");
-  const createTableStatement = `CREATE TABLE ${sanitizedTableName} (\n  ${columnDefinitions}\n);\n\n`;
-
-  let insertStatements = "";
-  flatRecords.forEach((record) => {
-    const values = columns
-      .map((col) => {
-        let value = record.hasOwnProperty(col) ? record[col] : null;
-        if (value === null || value === undefined) return "NULL";
-        if (typeof value === "number" || typeof value === "boolean")
-          return value;
-        if (typeof value === "string") return `'${value.replace(/'/g, "''")}'`;
-        return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
-      })
-      .join(", ");
-    insertStatements += `INSERT INTO ${sanitizedTableName} (${columns.join(
-      ", "
-    )}) VALUES (${values});\n`;
   });
 
-  const output = `\n${createTableStatement}${insertStatements}`;
+  // CREATE TABLE
+  const createTableStatement =
+    `CREATE TABLE ${tbl} (\n  ` +
+    columns.map((c) => `${c} ${columnTypes[c]}`).join(",\n  ") +
+    `\n);\n\n`;
+
+  // INSERT statements
+  let insertStatements = "";
+  records.forEach((rec) => {
+    const vals = columns
+      .map((col) => {
+        const v = rec[col];
+        if (v == null || v === "") return "NULL";
+        if (typeof v === "boolean") return v;
+        if (typeof v === "number") return v;
+        const s = String(v);
+        if (["true", "false"].includes(s.toLowerCase())) return s.toLowerCase();
+        return `'${s.replace(/'/g, "''")}'`;
+      })
+      .join(", ");
+    insertStatements += `INSERT INTO ${tbl} (${columns.join(
+      ", "
+    )}) VALUES (${vals});\n`;
+  });
+
   return {
-    output,
+    output: createTableStatement + insertStatements,
     createTableStatement,
     insertStatements,
   };
-};
+}
 
 // ==============================
-// PIPE to PGSQL Conversion
+// JSON to PGSQL Conversion
 // ==============================
-export const pipeToPgsql = (pipeData, tableName = "my_table") => {
-  // Sanitize the table name.
-  tableName = sanitizeIdentifier(tableName);
+export async function jsonToPgsql(input, tableName = "my_table") {
+  // if URL, fetch JSON; else assume object/array
+  const jsonData = await fetchIfUrl(input, true);
+  const raw = Array.isArray(jsonData) ? jsonData : [jsonData];
+  const records = raw.map((o) => flattenRecord(o));
+  return buildPgSql(tableName, records);
+}
 
-  // Split the data into non-empty lines.
-  const lines = pipeData.split("\n").filter((line) => line.trim() !== "");
-  if (lines.length === 0) return "";
+// ==============================
+// DELIMITED to PGSQL Conversion
+// ==============================
+export async function delimitedToPgsql(
+  input,
+  tableName = "my_table",
+  delimiter = ","
+) {
+  // if URL, fetch text; else assume raw CSV/PSV string
+  const rawData = await fetchIfUrl(input, false);
+  const lines = String(rawData)
+    .split("\n")
+    .filter((l) => l.trim() !== "");
+  if (!lines.length) return { output: "" };
 
-  // The first line is the header row.
-  const headerLine = lines[0];
-  // Parse and sanitize header values.
-  const headers = parsePipeLine(headerLine).map(sanitizeIdentifier);
-
-  // Parse the rest of the lines into record objects.
-  const records = lines.slice(1).map((line) => {
-    const fields = parsePipeLine(line);
-    let record = {};
-    headers.forEach((header, index) => {
-      record[header] = (fields[index] || "").trim();
+  const headers = parseDelimitedLine(lines.shift(), delimiter).map(
+    sanitizeIdentifier
+  );
+  const records = lines.map((line) => {
+    const fields = parseDelimitedLine(line, delimiter);
+    const rec = {};
+    headers.forEach((h, i) => {
+      rec[h] = fields[i] !== undefined ? fields[i].trim() : null;
     });
-    return record;
-  });
-  if (records.length === 0) return "";
-
-  const columns = headers;
-
-  // Infer data types for each column.
-  const columnDefinitions = columns
-    .map((col) => {
-      let allNumeric = true;
-      let allInteger = true;
-      let allBoolean = true;
-      for (const record of records) {
-        const value = record[col];
-        if (value === null || value === undefined || value === "") continue;
-        if (isNaN(Number(value))) {
-          allNumeric = false;
-          allInteger = false;
-        } else {
-          const num = Number(value);
-          if (!Number.isInteger(num)) {
-            allInteger = false;
-          }
-        }
-        const lower = value.toLowerCase();
-        if (lower !== "true" && lower !== "false") {
-          allBoolean = false;
-        }
-      }
-      let type;
-      if (allBoolean) {
-        type = "BOOLEAN";
-      } else if (allNumeric) {
-        type = allInteger ? "INTEGER" : "NUMERIC";
-      } else {
-        type = "TEXT";
-      }
-      return `${col} ${type}`;
-    })
-    .join(",\n  ");
-
-  const sanitizedTableName = tableName.toLowerCase();
-  const createTableStatement = `CREATE TABLE ${sanitizedTableName} (\n  ${columnDefinitions}\n);\n\n`;
-
-  let insertStatements = "";
-  records.forEach((record) => {
-    const values = columns
-      .map((col) => {
-        let value = record[col];
-        if (value === null || value === undefined || value === "")
-          return "NULL";
-        if (!isNaN(Number(value)) && value.trim() !== "") return value;
-        const lower = value.toLowerCase();
-        if (lower === "true" || lower === "false") return lower;
-        return `'${value.replace(/'/g, "''")}'`;
-      })
-      .join(", ");
-    insertStatements += `INSERT INTO ${sanitizedTableName} (${columns.join(
-      ", "
-    )}) VALUES (${values});\n`;
+    return rec;
   });
 
-  const output = `\n${createTableStatement}${insertStatements}`;
-  return {
-    output,
-    createTableStatement,
-    insertStatements,
-  };
-};
+  return buildPgSql(tableName, records);
+}
 
-// ==============================
-// CSV to PGSQL Conversion
-// ==============================
-export const csvToPgsql = (csvData, tableName = "my_table") => {
-  // Sanitize table name.
-  tableName = sanitizeIdentifier(tableName);
-
-  // Split CSV data into non-empty lines.
-  const lines = csvData.split("\n").filter((line) => line.trim() !== "");
-  if (lines.length === 0) return "";
-
-  // Parse header row and sanitize each header.
-  const headerLine = lines[0];
-  const headers = parseCsvLine(headerLine).map(sanitizeIdentifier);
-
-  // Parse remaining lines into record objects.
-  const records = lines.slice(1).map((line) => {
-    const fields = parseCsvLine(line);
-    const record = {};
-    headers.forEach((header, index) => {
-      record[header] = (fields[index] || "").trim();
-    });
-    return record;
-  });
-  if (records.length === 0) return "";
-
-  const columns = headers;
-
-  // Infer data types for each column by scanning all records.
-  const columnDefinitions = columns
-    .map((col) => {
-      let allNumeric = true;
-      let allInteger = true;
-      let allBoolean = true;
-      for (const record of records) {
-        const value = record[col];
-        if (value === null || value === undefined || value === "") continue;
-        if (isNaN(Number(value))) {
-          allNumeric = false;
-          allInteger = false;
-        } else {
-          const num = Number(value);
-          if (!Number.isInteger(num)) {
-            allInteger = false;
-          }
-        }
-        const lower = value.toLowerCase();
-        if (lower !== "true" && lower !== "false") {
-          allBoolean = false;
-        }
-      }
-      let type;
-      if (allBoolean) {
-        type = "BOOLEAN";
-      } else if (allNumeric) {
-        type = allInteger ? "INTEGER" : "NUMERIC";
-      } else {
-        type = "TEXT";
-      }
-      return `${col} ${type}`;
-    })
-    .join(",\n  ");
-
-  // Build CREATE TABLE statement.
-  const sanitizedTableName = tableName?.toLowerCase();
-  const createTableStatement = `CREATE TABLE ${sanitizedTableName} (\n  ${columnDefinitions}\n);\n\n`;
-
-  // Generate INSERT statements.
-  let insertStatements = "";
-  records.forEach((record) => {
-    const values = columns
-      .map((col) => {
-        let value = record[col];
-        if (value === null || value === undefined || value === "")
-          return "NULL";
-        if (!isNaN(Number(value)) && value.trim() !== "") return value;
-        const lower = value.toLowerCase();
-        if (lower === "true" || lower === "false") return lower;
-        return `'${value.replace(/'/g, "''")}'`;
-      })
-      .join(", ");
-    insertStatements += `INSERT INTO ${sanitizedTableName} (${columns.join(
-      ", "
-    )}) VALUES (${values});\n`;
-  });
-
-  const output = `\n${createTableStatement}${insertStatements}`;
-  return {
-    output,
-    createTableStatement,
-    insertStatements,
-  };
-};
+// convenience wrappers
+export const csvToPgsql = (dataOrUrl, tableName) =>
+  delimitedToPgsql(dataOrUrl, tableName, ",");
+export const pipeToPgsql = (dataOrUrl, tableName) =>
+  delimitedToPgsql(dataOrUrl, tableName, "|");
