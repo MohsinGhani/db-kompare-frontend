@@ -2,19 +2,16 @@
 
 import React, { useRef, useState } from "react";
 import { Button, Dropdown, message } from "antd";
-import {
-  DownloadOutlined,
-  FileOutlined,
-  PythonOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined, FileOutlined, PythonOutlined } from "@ant-design/icons";
 import { uploadData } from "aws-amplify/storage";
 import { csvToPgsql, sanitizeIdentifier } from "./helper";
 import { ulid } from "ulid";
-import { executeQuery } from "@/utils/runSQL";
+import { executeQuery, updateFiddle } from "@/utils/runSQL";
 
-const FileImporter = ({ fiddle, setdbStructureQuery, user }) => {
+const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
   const fileInputRef = useRef(null);
   const [fileType, setFileType] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Configure file selection based on dropdown choice.
   const handleMenuClick = (e) => {
@@ -38,7 +35,7 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user }) => {
     }
     if (fileInputRef.current) {
       fileInputRef.current.accept = accept;
-      fileInputRef.current.value = ""; // Reset file input to allow re-selection.
+      fileInputRef.current.value = "";
       fileInputRef.current.click();
     }
   };
@@ -48,73 +45,84 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user }) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Derive and sanitize table name from the file name.
+    setLoading(true);
+    // Derive and sanitize table name from the file name
     const tableNameRaw = file.name.replace(/\.[^/.]+$/, "");
     const tableName = sanitizeIdentifier(tableNameRaw);
-    const id = ulid(); // Generate a unique ID for the file
+    const id = ulid();
+
     // Build a unique S3 key preserving extension
-    const fileExtension = file.name.split(".").pop();
+    const fileExtension = file.name.split('.').pop();
     const key = `TEMP/${id}.${fileExtension}`;
 
     try {
       message.loading({ content: "Uploading file to S3...", key: "upload" });
 
-      const result = await uploadData({
+      // Upload to S3
+      const { result: uploadPromise } = await uploadData({
         path: key,
         data: file,
-        options: { contentType: file.type },
-      })
-        .result.then((res) => {
-          const resp = executeQuery({
-            userId: user.id,
-            url_KEY: id,
-            // url_KEY: `${process.env.NEXT_PUBLIC_BUCKET_URL}/${key}`,
-            fileType,
-            tableName,
-            fileExtension,
-          });
-          console.log("File uploaded successfully:", {
-            userId: user.id,
-            url_KEY: id,
-            // url_KEY: `${process.env.NEXT_PUBLIC_BUCKET_URL}/${key}`,
-            fileType,
-            tableName,
-            fileExtension,
-          });
-        })
-        .catch((err) => {
-          console.error("Error uploading file:", err);
-          message.error("Error uploading file to S3.");
-          throw err; // Rethrow the error to be caught in the outer catch block
-        });
+        options: { contentType: file.type }
+      });
+      const uploadResult = await uploadPromise;
 
-      // You can now pass result.key or result to your Lambda / API
-      console.log("S3 upload result:", result);
-    } catch (err) {
-      console.error("Error uploading file:", err);
-      message.error("Error uploading file to S3.");
+      // Trigger backend processing
+      const resp = await executeQuery({
+        userId: user.id,
+        url_KEY: id,
+        fileType,
+        tableName,
+        fileExtension
+      });
+
+      // Update fiddle if backend returned data
+      if (resp?.data) {
+        await updateFiddle(
+          {
+            ...fiddle,
+            tables: [
+              ...(fiddle?.tables || []),
+              {
+                name: tableName,
+                fileName: tableNameRaw,
+                url_KEY: id,
+                createdAt: new Date().getTime(),
+                fileExtension
+              }
+            ]
+          },
+          fiddle?.id
+        );
+        await fetchData(fiddle?.id);
+      }
+
+      message.success({ content: "File uploaded and processed successfully!", key: "upload" });
+    } catch (error) {
+      console.error("Error processing file:", error);
+      message.error({ content: "Error uploading file to S3.", key: "upload" });
+    } finally {
+      setLoading(false);
     }
   };
 
   const items = [
     { label: "CSV", key: "1", icon: <FileOutlined /> },
     { label: "Pipe", key: "2", icon: <PythonOutlined /> },
-    { label: "JSON", key: "3", icon: <FileOutlined /> },
+    { label: "JSON", key: "3", icon: <FileOutlined /> }
   ];
 
   const menuProps = {
     items,
-    onClick: handleMenuClick,
+    onClick: handleMenuClick
   };
 
   return (
     <>
-      <Dropdown menu={menuProps} className="!max-w-max" trigger={["click"]}>
-        <Button type="default">
+      <Dropdown menu={menuProps} trigger={["click"]}>
+        <Button type="default" loading={loading} disabled={loading}>
           <DownloadOutlined /> Import File
         </Button>
       </Dropdown>
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"

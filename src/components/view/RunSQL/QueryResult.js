@@ -22,7 +22,7 @@ const QueryResult = ({ queryResult }) => {
           )}
         </div>
       ) : (
-        <CommonDynamicTable data={queryResult?.data?.data} />
+        <CommonDynamicTable data={queryResult?.data?.data} pagination />
       )}
     </div>
   );

@@ -139,11 +139,13 @@ const DbStructureEditor = ({
       const dropTableNames = extractDropTableNames(newQueries);
       const createTableNames = extractCreateTableNames(newQueries);
       let updatedTables = [...tables];
+
+
       if (dropTableNames.length) {
         updatedTables = updatedTables.filter(
           (table) =>
             !dropTableNames.some(
-              (drop) => drop.toLowerCase() === table.toLowerCase()
+              (drop) => drop.toLowerCase() === table?.name?.toLowerCase()
             )
         );
       }
@@ -151,10 +153,13 @@ const DbStructureEditor = ({
         createTableNames.forEach((tableName) => {
           if (
             !updatedTables.some(
-              (table) => table.toLowerCase() === tableName.toLowerCase()
+              (table) => table?.name.toLowerCase() === tableName.toLowerCase()
             )
           ) {
-            updatedTables.push(tableName);
+            updatedTables.push({
+              name: tableName,
+              createdAt: new Date().getTime(),
+            });
           }
         });
       }
@@ -169,12 +174,13 @@ const DbStructureEditor = ({
       });
 
       setBackendDbStructure(mergedStructure);
+
       const payload = {
         ...fiddle,
         dbStructure: mergedStructure,
         tables: updatedTables,
       };
-      await updateFiddle(payload, fiddle?.id);
+      // await updateFiddle(payload, fiddle?.id);
       await fetchData(fiddle?.id);
       setTables(updatedTables);
       setError("");

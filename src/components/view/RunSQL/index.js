@@ -20,6 +20,7 @@ import DownloadResult from "./DownloadResult";
 import ProfilingBtn from "./ProfilingBtn";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
+import ProfilingWithFile from "./ProfilingWithFile";
 
 const RunSQL = () => {
   const { id: fiddleId } = useParams();
@@ -173,11 +174,19 @@ const RunSQL = () => {
                   </Tooltip>
                 </span>
               </Flex>
-              <FileImporter
-                user={user}
-                fiddle={fiddle}
-                setdbStructureQuery={setdbStructureQuery}
-              />
+              <Flex align="center" gap={4}>
+                <FileImporter
+                  user={user}
+                  fiddle={fiddle}
+                  setdbStructureQuery={setdbStructureQuery}
+                  fetchData={fetchData}
+                />
+                <ProfilingWithFile
+                  tables={fiddle?.tables}
+                  user={user}
+                  fiddleId={fiddle?.id}
+                />
+              </Flex>
             </div>
             <div className="h-full w-full max-h-[400px] overflow-hidden data-defination">
               <DataDefination
