@@ -2,7 +2,11 @@
 
 import React, { useRef, useState } from "react";
 import { Button, Dropdown, message } from "antd";
-import { DownloadOutlined, FileOutlined, PythonOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  FileOutlined,
+  PythonOutlined,
+} from "@ant-design/icons";
 import { uploadData } from "aws-amplify/storage";
 import { csvToPgsql, sanitizeIdentifier } from "./helper";
 import { ulid } from "ulid";
@@ -52,7 +56,7 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
     const id = ulid();
 
     // Build a unique S3 key preserving extension
-    const fileExtension = file.name.split('.').pop();
+    const fileExtension = file.name.split(".").pop();
     const key = `TEMP/${id}.${fileExtension}`;
 
     try {
@@ -62,7 +66,15 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
       const { result: uploadPromise } = await uploadData({
         path: key,
         data: file,
-        options: { contentType: file.type }
+        options: {
+          contentType: file.type,
+          onProgress: ({ transferredBytes, totalBytes }) => {
+            const pct = totalBytes
+              ? Math.round((transferredBytes / totalBytes) * 100)
+              : 0;
+            console.log(`Upload is ${pct}% done.`);
+          },
+        },
       });
       const uploadResult = await uploadPromise;
 
@@ -72,7 +84,7 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
         url_KEY: id,
         fileType,
         tableName,
-        fileExtension
+        fileExtension,
       });
 
       // Update fiddle if backend returned data
@@ -87,19 +99,22 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
                 fileName: tableNameRaw,
                 url_KEY: id,
                 createdAt: new Date().getTime(),
-                fileExtension
-              }
-            ]
+                fileExtension,
+              },
+            ],
           },
           fiddle?.id
         );
         await fetchData(fiddle?.id);
       }
 
-      message.success({ content: "File uploaded and processed successfully!", key: "upload" });
+      message.success({
+        content: "File uploaded and processed successfully!",
+        key: "upload",
+      });
     } catch (error) {
       console.error("Error processing file:", error);
-      message.error({ content: "Error uploading file to S3.", key: "upload" });
+      message.error({ content: error?.message, key: "upload" });
     } finally {
       setLoading(false);
     }
@@ -108,12 +123,12 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
   const items = [
     { label: "CSV", key: "1", icon: <FileOutlined /> },
     { label: "Pipe", key: "2", icon: <PythonOutlined /> },
-    { label: "JSON", key: "3", icon: <FileOutlined /> }
+    { label: "JSON", key: "3", icon: <FileOutlined /> },
   ];
 
   const menuProps = {
     items,
-    onClick: handleMenuClick
+    onClick: handleMenuClick,
   };
 
   return (
