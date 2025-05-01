@@ -2,20 +2,31 @@
 
 import CommonTypography from "@/components/shared/Typography";
 import { Tabs } from "antd";
-import React, { useState } from "react";
+import React from "react";
 import Blog from "../Blog";
 import UserProfileForm from "./userProfileForm";
 import { BlogType } from "@/utils/const";
 import ProfilingReport from "./ProfilingReport";
 import { useSelector } from "react-redux";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export default function UserProfile() {
-  const [activeKey, setActiveKey] = useState("1");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // 1) derive the activeKey from the `tab` query, defaulting to "1"
+  const activeKey = searchParams.get("tab") || "1";
+
+  // 2) when the tab changes, update the URL with the new `tab` param
+  const onChange = (key) => {
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    params.set("tab", key);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
-  const onChange = (key) => {
-    setActiveKey(key);
-  };
 
   const items = [
     {

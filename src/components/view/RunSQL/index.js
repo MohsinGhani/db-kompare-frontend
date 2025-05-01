@@ -21,6 +21,7 @@ import ProfilingBtn from "./ProfilingBtn";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
 import ProfilingWithFile from "./ProfilingWithFile";
+import Link from "next/link";
 
 const RunSQL = () => {
   const { id: fiddleId } = useParams();
@@ -201,11 +202,20 @@ const RunSQL = () => {
           {/* Query Result */}
           <div className="border border-[#DFE0EB] rounded-[8px] overflow-auto min-h-[100px]">
             <div className="border-b border-[#DFE0EB] p-2 flex justify-between w-full gap-2 items-center">
-              <Flex gap={4} align="center">
-                <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
-                  4
-                </div>
-                <span className="font-medium">Query Result</span>
+              <Flex gap={8} align="center">
+                <Flex gap={4} align="center">
+                  <div className="bg-[#67D73E] rounded-full p-2 text-white h-8 w-8 flex items-center justify-center">
+                    4
+                  </div>
+                  <span className="font-medium">Query Result</span>
+                </Flex>
+                <Link
+                  href={`/user-profile?tab=4`}
+                  target="_blank"
+                  className="text-primary hover:text-primary underline"
+                >
+                  See all profiling
+                </Link>
               </Flex>
               <Flex align="center" gap={4}>
                 <ProfilingBtn

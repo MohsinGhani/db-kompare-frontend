@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Button, Dropdown, message } from "antd";
+import { Button, Dropdown, message, Modal } from "antd";
 import {
   DownloadOutlined,
   FileOutlined,
   PythonOutlined,
 } from "@ant-design/icons";
-import { uploadData } from "aws-amplify/storage";
+import { copy, uploadData } from "aws-amplify/storage";
 import { csvToPgsql, sanitizeIdentifier } from "./helper";
 import { ulid } from "ulid";
 import { executeQuery, updateFiddle } from "@/utils/runSQL";
+import { toast } from "react-toastify";
 
 const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
   const fileInputRef = useRef(null);
@@ -44,77 +45,102 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
     }
   };
 
-  // Handle file upload to S3 via Amplify Storage
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     setLoading(true);
-    // Derive and sanitize table name from the file name
     const tableNameRaw = file.name.replace(/\.[^/.]+$/, "");
     const tableName = sanitizeIdentifier(tableNameRaw);
     const id = ulid();
-
-    // Build a unique S3 key preserving extension
-    const fileExtension = file.name.split(".").pop();
-    const key = `TEMP/${id}.${fileExtension}`;
+    const fileExt = file.name.split(".").pop();
+    const tempKey = `TEMP/${id}.${fileExt}`;
 
     try {
-      message.loading({ content: "Uploading file to S3...", key: "upload" });
+      toast.loading({ content: "Uploading file to S3...", key: "upload" });
 
-      // Upload to S3
+      // 1) Upload to TEMP/
       const { result: uploadPromise } = await uploadData({
-        path: key,
+        path: tempKey,
         data: file,
-        options: {
-          contentType: file.type,
-          onProgress: ({ transferredBytes, totalBytes }) => {
-            const pct = totalBytes
-              ? Math.round((transferredBytes / totalBytes) * 100)
-              : 0;
-            console.log(`Upload is ${pct}% done.`);
-          },
-        },
+        options: { contentType: file.type, onProgress: () => {} },
       });
-      const uploadResult = await uploadPromise;
+      await uploadPromise;
 
-      // Trigger backend processing
+      // 2) Kick off your backend import into PG
       const resp = await executeQuery({
         userId: user.id,
         url_KEY: id,
         fileType,
         tableName,
-        fileExtension,
+        fileExtension: fileExt,
       });
 
-      // Update fiddle if backend returned data
-      if (resp?.data) {
-        await updateFiddle(
-          {
-            ...fiddle,
-            tables: [
-              ...(fiddle?.tables || []),
-              {
-                name: tableName,
-                fileName: tableNameRaw,
-                url_KEY: id,
-                createdAt: new Date().getTime(),
-                fileExtension,
-              },
-            ],
-          },
-          fiddle?.id
-        );
-        await fetchData(fiddle?.id);
+      // 3) If import errored
+      if (!resp?.data) {
+        const errorMessage = resp?.message || "Unknown error";
+        if (errorMessage.includes("already exists")) {
+          toast.error(
+            "A table with that name already exists. Please rename your file or choose a different table name."
+          );
+        } else {
+          toast.error(`Processing failed: ${errorMessage}`);
+        }
+        return;
       }
 
-      message.success({
+      // 4) Success – ask if they want to profile now
+      Modal.confirm({
+        title: `"${tableNameRaw}" has been created!`,
+        content: `Do you want to run profiling on this table now?`,
+        okText: "Yes, profile it",
+        cancelText: "No thanks",
+        centered: true,
+        onOk: async () => {
+          // Copy from TEMP/... → INPUT/{userId}/{fiddleId}/...
+          const destinationKey = `INPUT/${user.id}/${fiddle?.id}/${id}.${fileExt}`;
+
+          setLoading(true);
+          try {
+            await copy({
+              source: { path: tempKey },
+              destination: { path: destinationKey },
+            });
+            toast.success("Profiling started!");
+          } catch (err) {
+            console.error("Error copying file for profiling:", err);
+            toast.error("Failed to copy file for profiling.");
+          } finally {
+            setLoading(false);
+          }
+        },
+      });
+
+      await updateFiddle(
+        {
+          ...fiddle,
+          tables: [
+            ...(fiddle?.tables || []),
+            {
+              name: tableName,
+              fileName: tableNameRaw,
+              url_KEY: id,
+              createdAt: Date.now(),
+              fileExtension: fileExt,
+            },
+          ],
+        },
+        fiddle?.id
+      );
+      await fetchData(fiddle?.id);
+
+      toast.success({
         content: "File uploaded and processed successfully!",
         key: "upload",
       });
     } catch (error) {
-      console.error("Error processing file:", error);
-      message.error({ content: error?.message, key: "upload" });
+      console.error("Unexpected error:", error);
+      toast.error(error.message || "Unknown error", { key: "upload" });
     } finally {
       setLoading(false);
     }

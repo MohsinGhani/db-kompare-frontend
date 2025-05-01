@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Button, Dropdown, Tag } from "antd";
 import { toast } from "react-toastify";
-import { uploadData, downloadData } from "aws-amplify/storage";
+import { uploadData, downloadData, copy } from "aws-amplify/storage";
 
-const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+const TWO_DAYS_MS = 1 * 24 * 60 * 60 * 1000;
 
 const ProfilingWithFile = ({ tables, user, fiddleId }) => {
   const [loading, setLoading] = useState(false);
@@ -36,24 +36,18 @@ const ProfilingWithFile = ({ tables, user, fiddleId }) => {
       return;
     }
 
-    // Derive extension and S3 paths
-    const extension = table.fileExtension || table.fileName.split('.')?.pop();
+    // Build your keys exactly as you would for download/upload
+    const extension = table.fileExtension || table.fileName.split(".").pop();
     const sourceKey = `TEMP/${key}.${extension}`;
     const destinationKey = `INPUT/${user.id}/${fiddleId}/${key}.${extension}`;
 
     setLoading(true);
     try {
-      // Download binary data using Amplify Gen2 Storage
-      const { body, contentType } = await downloadData({ path: sourceKey }).result;
-
-      // Re-upload to new path
-      await uploadData({
-        path: destinationKey,
-        data: body,
-        options: { contentType },
-      }).result;
-
-      toast.success(`Profiling started for complete table.`);
+      const response = await copy({
+        source: { path: sourceKey },
+        destination: { path: destinationKey },
+      });
+      toast.success(`Profiling started!`);
     } catch (error) {
       console.error("Error copying file for profiling:", error);
       toast.error("Failed to copy file for profiling.");
@@ -65,7 +59,11 @@ const ProfilingWithFile = ({ tables, user, fiddleId }) => {
   const menuProps = { items, onClick: handleClick };
 
   return (
-    <Dropdown menu={menuProps} trigger={["click"]}>
+    <Dropdown
+      overlayClassName="!max-h-36 "
+      menu={menuProps}
+      trigger={["click"]}
+    >
       <Button type="default" loading={loading} disabled={loading}>
         {loading ? "Processing..." : "Complete Table Profiling"}
       </Button>
