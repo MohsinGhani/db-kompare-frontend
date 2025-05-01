@@ -103,6 +103,10 @@ const ProfilingBtn = ({ data, user, fiddleId }) => {
   };
 
   const uploadToS3 = async () => {
+    if (!data?.data?.data) {
+      toast.error("No data available to upload.");
+      return;
+    }
     setLoading(true);
     try {
       // 1) Make a unique key under "INPUT/"
@@ -128,7 +132,6 @@ const ProfilingBtn = ({ data, user, fiddleId }) => {
       setLoading(false);
     }
   };
-  console.log("loading", loading);
   return (
     <Button loading={loading} disabled={loading} onClick={uploadToS3}>
       {loading ? "Loading..." : "Profiling"}
