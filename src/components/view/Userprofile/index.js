@@ -15,10 +15,10 @@ export default function UserProfile() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 1) derive the activeKey from the `tab` query, defaulting to "1"
+  // derive the activeKey from the `tab` query, defaulting to "1"
   const activeKey = searchParams.get("tab") || "1";
 
-  // 2) when the tab changes, update the URL with the new `tab` param
+  // update URL when the tab changes
   const onChange = (key) => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
     params.set("tab", key);
@@ -28,51 +28,58 @@ export default function UserProfile() {
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
 
-  const items = [
-    {
-      key: "1",
+  const tabConfig = {
+    1: {
       label: "Profile",
-      children: <UserProfileForm />,
+      subtitle: "Edit and manage your profile",
+      content: <UserProfileForm />,
     },
-    {
-      key: "2",
+    2: {
       label: "My Blogs",
-      children: (
+      subtitle: "Create, edit, and manage your blogs",
+      content: (
         <Blog
           type={BlogType.BLOG}
           addroute="add-blog"
           text="Blogs"
           buttonText="Add Blog"
-          secondText=" Edit and manage your blogs"
+          secondText="Edit and manage your blogs"
         />
       ),
     },
-    {
-      key: "3",
+    3: {
       label: "Saved Blogs",
-      children: (
+      subtitle: "View and manage your saved blogs",
+      content: (
         <Blog
           type={BlogType.SAVED_BLOG}
           addroute="add-blog"
-          secondText=" Edit and manage your blogs"
+          secondText="Edit and manage your blogs"
         />
       ),
     },
-    {
-      key: "4",
+    4: {
       label: "Profile Reports",
-      children: <ProfilingReport user={user} />,
+      subtitle: "View and analyze your profiling reports",
+      content: <ProfilingReport user={user} />,
     },
-  ];
+  };
+
+  const currentTab = tabConfig[activeKey] || tabConfig["1"];
+
+  // Build the items array for Tabs
+  const items = Object.entries(tabConfig).map(([key, { label, content }]) => ({
+    key,
+    label,
+    children: content,
+  }));
 
   return (
     <div className="container pt-32 min-h-[560px]">
       <div className="flex flex-col mb-5">
-        <CommonTypography type="title">
-          {activeKey === "1" ? "Profile" : "Blog"}
-        </CommonTypography>
+        <CommonTypography type="title">{currentTab.label}</CommonTypography>
         <CommonTypography classes="text-[#565758] text-base">
-          Edit and manage your {activeKey === "1" ? "Profile" : "Blog"}
+          {currentTab.subtitle}
         </CommonTypography>
       </div>
       <Tabs activeKey={activeKey} items={items} onChange={onChange} />

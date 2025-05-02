@@ -17,7 +17,7 @@ const ProfilingWithFile = ({ tables, user, fiddleId }) => {
     const label = (
       <span>
         {table.fileName || table.name}
-        {recent && <span className="!text-xs text-red-700 !ml-2">New</span>}
+        {recent && <span className="!text-xs text-red-700 !ml-2">New*</span>}
       </span>
     );
 
