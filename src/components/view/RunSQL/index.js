@@ -22,6 +22,7 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
 import ProfilingWithFile from "./ProfilingWithFile";
 import Link from "next/link";
+import SampleFileList from "./SampleFileList";
 
 const RunSQL = () => {
   const { id: fiddleId } = useParams();
@@ -176,6 +177,7 @@ const RunSQL = () => {
                 </span>
               </Flex>
               <Flex align="center" gap={4}>
+                <SampleFileList user={user}/>
                 <FileImporter
                   user={user}
                   fiddle={fiddle}
