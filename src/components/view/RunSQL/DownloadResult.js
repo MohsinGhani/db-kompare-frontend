@@ -6,6 +6,7 @@ import {
   PythonOutlined,
 } from "@ant-design/icons";
 import { dataToPipe } from "@/utils/helper";
+import { toast } from "react-toastify";
 
 const DownloadResult = ({ data }) => {
   const dataToCsv = (data) => {
@@ -46,7 +47,7 @@ const DownloadResult = ({ data }) => {
 
   const handleMenuClick = (e) => {
     if (!data?.data?.data) {
-      message.error("No data available to download.");
+      toast.error("No data available to download.");
       return;
     }
 
@@ -55,21 +56,21 @@ const DownloadResult = ({ data }) => {
         // CSV download.
         const csvContent = dataToCsv(data?.data?.data || []);
         downloadFile(csvContent, "query_result.csv", "text/csv");
-        message.success("CSV file downloaded!");
+        toast.success("CSV file downloaded!");
         break;
       }
       case "2": {
         // PSV download.
         const psvContent = dataToPipe(data?.data?.data || []);
         downloadFile(psvContent, "query_result.psv", "text/plain");
-        message.success("PSV file downloaded!");
+        toast.success("PSV file downloaded!");
         break;
       }
       case "3": {
         // JSON download.
         const jsonContent = dataToJson(data?.data?.data || []);
         downloadFile(jsonContent, "query_result.json", "application/json");
-        message.success("JSON file downloaded!");
+        toast.success("JSON file downloaded!");
         break;
       }
       default:

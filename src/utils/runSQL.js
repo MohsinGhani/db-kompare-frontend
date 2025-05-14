@@ -1,3 +1,5 @@
+// const X_API_KEY = "d41d8cd98f00b204e9800998ecf8427e";
+// const API_BASE_URL_3 = "http://localhost:4000/dev";
 const X_API_KEY = process.env.NEXT_PUBLIC_Z_API_KEY;
 const API_BASE_URL_3 = process.env.NEXT_PUBLIC_API_BASE_URL_3;
 
@@ -22,23 +24,26 @@ export async function getUserFiddles(payload) {
   }
 }
 export async function getSingleFiddle(payload, userId) {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL_3}/get-fiddle/${payload}?userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": X_API_KEY,
-        },
-      }
-    );
+  // 1️⃣ construct a URL object
+  const url = new URL(`${API_BASE_URL_3}/get-fiddle/${payload}`);
 
-    const data = await response.json();
-    return data;
+  // 2️⃣ conditionally add search param
+  if (userId) {
+    url.searchParams.set("userId", userId);
+  }
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": X_API_KEY,
+      },
+    });
+    return await response.json();
   } catch (error) {
     console.error("Error running query:", error);
-    throw error; // or handle error gracefully
+    throw error;
   }
 }
 

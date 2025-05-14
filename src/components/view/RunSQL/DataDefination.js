@@ -121,11 +121,11 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
     )}) VALUES ${valuesClause};`;
     try {
       const res = await executeQuery({
-        userId: user.id,
+        userId: user?.id,
         query: queryString,
       });
       if (!res?.data) {
-        toast.error(res?.message?.error || "Insert failed");
+        toast.error(res?.message || "Insert failed");
       } else {
         toast.success("Data inserted successfully!");
         fetchData(fiddleId); // Refresh the data after insertion.
@@ -237,7 +237,12 @@ const DataDefinition = ({ dataSample, user, fetchData, fiddleId }) => {
       banner
       />
       </div> */}
-      <p className="text-sm mb-3"><b>Note:</b> In the table view, only up to 500 records are displayed for large datasets. However, when you generate a profile report, the analysis covers the entire table. Profiling is available only for tables that were created by uploading a file.</p>
+      <p className="text-sm mb-3">
+        <b>Note:</b> In the table view, only up to 500 records are displayed for
+        large datasets. However, when you generate a profile report, the
+        analysis covers the entire table. Profiling is available only for tables
+        that were created by uploading a file.
+      </p>
       <Tabs
         type="card"
         activeKey={activeTab}

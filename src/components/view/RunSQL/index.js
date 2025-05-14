@@ -14,7 +14,7 @@ import {
   addFiddle,
 } from "@/utils/runSQL";
 import TopSection from "./TopSection";
-import { Flex, Spin, Tooltip } from "antd";
+import { Alert, Flex, Spin, Tooltip } from "antd";
 import FileImporter from "./FileImporter";
 import DownloadResult from "./DownloadResult";
 import ProfilingBtn from "./ProfilingBtn";
@@ -23,11 +23,12 @@ import { useParams } from "next/navigation";
 import ProfilingWithFile from "./ProfilingWithFile";
 import Link from "next/link";
 import SampleFileList from "./SampleFileList";
+import Marquee from "react-fast-marquee";
 
 const RunSQL = () => {
   const { id: fiddleId } = useParams();
   const { userDetails } = useSelector((state) => state.auth);
-  const user = userDetails?.data?.data;
+  const user = userDetails?.data?.data || null;
 
   // State for the entire fiddle and for the DB structure query (plus any auxiliary data)
   const [fiddle, setFiddle] = useState(null);
@@ -45,23 +46,30 @@ const RunSQL = () => {
     try {
       let fiddleData;
       // When fiddleId is provided, include the user id as the second argument.
-      if (fiddleId) {
-        fiddleData = await getSingleFiddle(fiddleId, user.id);
-      } else {
-        // Get the "latest" fiddle for the user.
-        fiddleData = await getSingleFiddle("latest", user.id);
-        if (!fiddleData?.data) {
-          // If no fiddle is found, create a user schema and add a fiddle.
-          const schemaCreated = await createUserSchema({ userId: user.id });
-          if (schemaCreated?.data) {
-            const payload = { ownerId: user.id };
-            const fiddleAdded = await addFiddle(payload);
-            if (fiddleAdded) {
-              fiddleData = await getSingleFiddle("latest", user.id);
+      if (user) {
+        if (fiddleId) {
+          fiddleData = await getSingleFiddle(fiddleId, user.id);
+        } else {
+          // Get the "latest" fiddle for the user.
+          fiddleData = await getSingleFiddle("latest", user.id);
+          if (!fiddleData?.data) {
+            // If no fiddle is found, create a user schema and add a fiddle.
+            const schemaCreated = await createUserSchema({ userId: user.id });
+            if (schemaCreated?.data) {
+              const payload = { ownerId: user.id };
+              const fiddleAdded = await addFiddle(payload);
+              if (fiddleAdded) {
+                fiddleData = await getSingleFiddle("latest", user.id);
+              }
             }
           }
         }
+      } else {
+        fiddleData = await getSingleFiddle(
+          "cd809ddc-453e-449b-b796-a92440af2f15"
+        );
       }
+
       setFiddle(fiddleData?.data);
     } catch (err) {
       toast.error(err?.message || "Something went wrong");
@@ -71,7 +79,7 @@ const RunSQL = () => {
   };
 
   useEffect(() => {
-    if (user?.id) fetchData(fiddleId ?? "");
+    fetchData(fiddleId ?? "");
   }, [fiddleId, user]);
 
   // When fiddle is updated, update query result and backend structure state.
@@ -92,7 +100,7 @@ const RunSQL = () => {
     try {
       setQueryLoading(true);
       const res = await executeQuery({
-        userId: user.id,
+        userId: user?.id,
         query,
       });
       setQueryResult(res);
@@ -104,13 +112,13 @@ const RunSQL = () => {
     }
   };
 
-  if (!user) {
-    return (
-      <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
-        Please Login we will add for logged out user as well!
-      </p>
-    );
-  }
+  // if (!user) {
+  //   return (
+  //     <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
+  //       Please Login we will add for logged out user as well!
+  //     </p>
+  //   );
+  // }
 
   return (
     <div className="py-20">
@@ -121,6 +129,14 @@ const RunSQL = () => {
           setFiddle={setFiddle}
           fetchData={fetchData}
         />
+        {!user && (
+          <div className="2xl:px-20 lg:pl-6 px-3 my-4 ">
+            <Alert
+              message="We will recommend you to login to save your work and access it later. You will get many features. It's totally free!"
+              showIcon
+            />
+          </div>
+        )}
         <div className="grid grid-cols-2 grid-rows-2 gap-[5px] box-border 2xl:px-20 lg:pl-6 px-3 runsql-container">
           {/* DB Structure Editor */}
           <div className="border border-[#DFE0EB] rounded-[8px] min-h-[100px] overflow-hidden">
@@ -177,7 +193,7 @@ const RunSQL = () => {
                 </span>
               </Flex>
               <Flex align="center" gap={4}>
-                <SampleFileList user={user}/>
+                <SampleFileList />
                 <FileImporter
                   user={user}
                   fiddle={fiddle}
@@ -211,13 +227,15 @@ const RunSQL = () => {
                   </div>
                   <span className="font-medium">Query Result</span>
                 </Flex>
-                <Link
-                  href={`/user-profile?tab=4`}
-                  target="_blank"
-                  className="text-primary hover:text-primary underline"
-                >
-                  See all profiling
-                </Link>
+                {user && (
+                  <Link
+                    href={`/user-profile?tab=4`}
+                    target="_blank"
+                    className="text-primary hover:text-primary underline"
+                  >
+                    See all your profiling results
+                  </Link>
+                )}
               </Flex>
               <Flex align="center" gap={4}>
                 <ProfilingBtn

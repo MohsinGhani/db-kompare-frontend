@@ -30,6 +30,15 @@ const ProfilingWithFile = ({ tables, user, fiddleId }) => {
   });
 
   const handleClick = async ({ key, item }) => {
+    if (!user) {
+      toast("😀 Please login first, It's totally free!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+      return;
+    }
+
     const { table } = item.props;
     if (!table?.fileName) {
       toast.error("No file available to profile.");

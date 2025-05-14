@@ -128,10 +128,10 @@ const DbStructureEditor = ({
       );
     }
     try {
-      const res = await executeQuery({ userId: user.id, query: newQueries });
+      const res = await executeQuery({ userId: user?.id, query: newQueries });
       if (!res?.data) {
-        setError(res?.message?.error || "Failed to run query");
-        toast.error(res?.message?.error || "Failed to run query");
+        setError(res?.message || "Failed to run query");
+        toast.error(res?.message || "Failed to run query");
         return;
       }
 
@@ -139,7 +139,6 @@ const DbStructureEditor = ({
       const dropTableNames = extractDropTableNames(newQueries);
       const createTableNames = extractCreateTableNames(newQueries);
       let updatedTables = [...tables];
-
 
       if (dropTableNames.length) {
         updatedTables = updatedTables.filter(
