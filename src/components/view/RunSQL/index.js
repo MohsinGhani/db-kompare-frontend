@@ -23,11 +23,11 @@ import { useParams } from "next/navigation";
 import ProfilingWithFile from "./ProfilingWithFile";
 import Link from "next/link";
 import SampleFileList from "./SampleFileList";
-import Marquee from "react-fast-marquee";
+import CommonLoader from "@/components/shared/CommonLoader";
 
 const RunSQL = () => {
   const { id: fiddleId } = useParams();
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails,isUserLoading } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data || null;
 
   // State for the entire fiddle and for the DB structure query (plus any auxiliary data)
@@ -46,7 +46,7 @@ const RunSQL = () => {
     try {
       let fiddleData;
       // When fiddleId is provided, include the user id as the second argument.
-      if (user) {
+      if (user && !isUserLoading) {
         if (fiddleId) {
           fiddleData = await getSingleFiddle(fiddleId, user.id);
         } else {
@@ -112,17 +112,10 @@ const RunSQL = () => {
     }
   };
 
-  // if (!user) {
-  //   return (
-  //     <p className="py-20 min-h-[70vh] flex items-center justify-center text-center">
-  //       Please Login we will add for logged out user as well!
-  //     </p>
-  //   );
-  // }
 
   return (
     <div className="py-20">
-      <Spin className="max-h-[80vh]" spinning={loading}>
+      <Spin className="max-h-[80vh]" spinning={loading || isUserLoading}>
         <TopSection
           user={user}
           fiddle={fiddle}
@@ -193,7 +186,7 @@ const RunSQL = () => {
                 </span>
               </Flex>
               <Flex align="center" gap={4}>
-                <SampleFileList />
+                <SampleFileList user={user} />
                 <FileImporter
                   user={user}
                   fiddle={fiddle}

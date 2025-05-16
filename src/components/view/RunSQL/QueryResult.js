@@ -12,12 +12,12 @@ const QueryResult = ({ queryResult }) => {
             className="h-32"
             draggable={false}
           />
-          {!queryResult?.message?.error && (
+          {!queryResult?.message && (
             <p className="font-medium">Opps! no query result.</p>
           )}
-          {queryResult?.message?.error && (
+          {queryResult?.message && (
             <p className="text-white p-2  w-3/5 text-center bg-red-500 ">
-              Error: {queryResult?.message?.error}
+              Error: {queryResult?.message}
             </p>
           )}
         </div>

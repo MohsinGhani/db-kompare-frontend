@@ -8,6 +8,7 @@ import {
 } from "aws-amplify/storage";
 import CommonTable from "@/components/shared/CommonTable";
 import { DownloadOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 // Helper to format bytes into human-readable strings
 function formatBytes(bytes, decimals = 2) {
@@ -192,7 +193,17 @@ const SampleFilesModal = ({ user }) => {
 
   return (
     <>
-      <Button type="primary" onClick={() => setVisible(true)}>
+      <Button type="primary" onClick={() => {
+         if (!user) {
+              toast("😀 Please login first, It's totally free!", {
+                position: "top-right",
+                autoClose: 5000,
+                theme: "light",
+              });
+              return;
+            }
+        setVisible(true)
+        }}>
         Sample Files
       </Button>
       <Modal

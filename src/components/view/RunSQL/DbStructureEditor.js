@@ -56,6 +56,7 @@ const DbStructureEditor = ({
 
   const [error, setError] = useState(null);
   const [tables, setTables] = useState(fiddle?.tables || []);
+  const [queryLoading, setQueryLoading] = useState(false);
   const editorRef = useRef(null);
 
   // Configure Monaco editor autocompletion for common PGSQL keywords.
@@ -110,6 +111,7 @@ const DbStructureEditor = ({
 
   const handleQuery = async () => {
     const newQueries = getNewQueries();
+    setQueryLoading(true);
     if (!newQueries) {
       toast.error("No new queries found.");
       return;
@@ -132,6 +134,8 @@ const DbStructureEditor = ({
       if (!res?.data) {
         setError(res?.message || "Failed to run query");
         toast.error(res?.message || "Failed to run query");
+        setQueryLoading(false);
+
         return;
       }
 
@@ -179,12 +183,15 @@ const DbStructureEditor = ({
         dbStructure: mergedStructure,
         tables: updatedTables,
       };
-      // await updateFiddle(payload, fiddle?.id);
+      await updateFiddle(payload, fiddle?.id);
       await fetchData(fiddle?.id);
       setTables(updatedTables);
       setError("");
+      setQueryLoading(false);
+
       toast.success("Query executed successfully!");
     } catch (err) {
+      setQueryLoading(false);
       setError(err?.message || "Error executing query");
       toast.error(err?.message || "Error executing query");
     }
@@ -213,6 +220,7 @@ const DbStructureEditor = ({
         <Button
           onClick={handleQuery}
           className="bg-[#3E53D7] text-white px-4 py-2 rounded-md"
+          loading={queryLoading}
         >
           Run query
         </Button>
