@@ -20,6 +20,15 @@ const FileImporter = ({ fiddle, setdbStructureQuery, user, fetchData }) => {
 
   // Configure file selection based on dropdown choice.
   const handleMenuClick = (e) => {
+    if (!user) {
+      toast("😀 Please login first, It's totally free!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+      return;
+    }
+
     let accept;
     switch (e.key) {
       case "1":

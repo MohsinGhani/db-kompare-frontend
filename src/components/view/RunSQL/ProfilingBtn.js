@@ -103,6 +103,15 @@ const ProfilingBtn = ({ data, user, fiddleId }) => {
   };
 
   const uploadToS3 = async () => {
+    if (!user) {
+      toast("😀 Please login first, It's totally free!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+      return;
+    }
+
     if (!data?.data?.data) {
       toast.error("No data available to upload.");
       return;

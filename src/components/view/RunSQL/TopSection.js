@@ -27,10 +27,15 @@ const TopSection = ({ user, fiddle, fetchData }) => {
   useEffect(() => {
     setFiddleName(fiddle?.name || "");
   }, [fiddle]);
+
   const openDrawer = async () => {
     setDrawerVisible(true);
     setLoading(true);
     try {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       const fiddlesData = await getUserFiddles(user?.id);
       setFiddles(fiddlesData?.data);
       setLoading(false);
@@ -45,6 +50,15 @@ const TopSection = ({ user, fiddle, fetchData }) => {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      toast("😀 Please login first, It's totally free!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+      return;
+    }
+
     setSaveLoading(true);
     const payload = {
       ...fiddle,
@@ -62,7 +76,7 @@ const TopSection = ({ user, fiddle, fetchData }) => {
   };
 
   return (
-    <div className="bg-[#FFF6F1] w-full 2xl:px-20 lg:pl-6 px-3 h-16 mb-8 flex justify-between items-center ">
+    <div className="bg-[#FFF6F1] w-full 2xl:px-20 lg:pl-6 px-3 h-16 mb-4 flex justify-between items-center ">
       <AlignLeftOutlined
         className="text-2xl cursor-pointer text-gray-600"
         onClick={openDrawer}
@@ -73,6 +87,7 @@ const TopSection = ({ user, fiddle, fetchData }) => {
           size="large"
           value={fiddleName}
           onChange={(e) => setFiddleName(e.target.value)}
+          disabled={!user}
         />
       </div>
       <Button
@@ -107,7 +122,17 @@ const FiddleDrawer = ({
   setFiddles,
 }) => {
   const [fiddleAddLoading, setFiddleAddLoading] = useState(false);
+
   const handleAddFiddle = async () => {
+    if (!user) {
+      toast("😀 Please login first, It's totally free!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+      return;
+    }
+
     setFiddleAddLoading(true);
     try {
       const payload = { ownerId: user?.id };
