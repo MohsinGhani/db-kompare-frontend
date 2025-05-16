@@ -1,0 +1,16 @@
+.admin-layout {
+  .ant-layout-sider .ant-menu {
+    background: #fff !important;
+    .ant-menu-item {
+      padding: 0 20px;
+      width: 80%;
+      margin: 10px auto;
+      font-weight: 400;
+      color: #53545c;
+    }
+    .ant-menu-item-selected {
+      background: #3e53d7;
+      color: #fff;
+    }
+  }
+}

@@ -23,6 +23,11 @@ export const setAccessTokenFromLocalStorage = () => {
   }
 };
 
+
+export const isAdminRoute = (pathname) => {
+  return pathname.startsWith("/admin");
+}
+
 export const RemoveAccessTokenFormCookies = () => {
   Cookies.remove("accessToken");
 };

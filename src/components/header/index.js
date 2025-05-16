@@ -13,6 +13,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetails, setUserDetails } from "@/redux/slices/authSlice";
 import { Button, Dropdown, Menu } from "antd";
+import { isAdminRoute } from "@/utils/helper";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -102,6 +103,8 @@ export default function Navbar() {
   }, [isOpen]);
 
   const items = categoriesItems;
+
+  if(isAdminRoute(path)) return null;
 
   return (
     <div
