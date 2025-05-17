@@ -5,22 +5,24 @@ import { Menu } from "antd";
 import { usePathname } from "next/navigation";
 import CommonTypography from "@/components/shared/Typography";
 import Image from "next/image";
-import { DashOutlined, FolderAddFilled, SettingFilled, SmallDashOutlined } from "@ant-design/icons";
-
+import {
+  DashOutlined,
+  FolderAddFilled,
+  SettingFilled,
+  SmallDashOutlined,
+} from "@ant-design/icons";
 
 const menuItems = [
-
   {
     key: "/admin/quiz",
     label: "Quiz",
-    icon: <FolderAddFilled/>,
+    icon: <FolderAddFilled />,
   },
   {
     key: "/admin/settings",
     label: "Settings",
-    icon: <SettingFilled/>,
+    icon: <SettingFilled />,
   },
-
 ];
 
 const AdminSidebar = ({ user, setUser }) => {
@@ -28,7 +30,7 @@ const AdminSidebar = ({ user, setUser }) => {
 
   return (
     <Menu mode="inline" className="!h-full bg-gray-50">
-      <div className="flex items-center gap-2 my-4 mb-8 justify-center ">
+      <div className="flex items-center gap-2 my-4 mb-8 justify-center logo">
         <Image
           src={"/assets/icons/logo.gif"}
           alt="DB Logo"

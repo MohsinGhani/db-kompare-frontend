@@ -13,4 +13,10 @@
       color: #fff;
     }
   }
+
+  .ant-layout-sider-collapsed {
+    .logo {
+      display: none;
+    }
+  }
 }
