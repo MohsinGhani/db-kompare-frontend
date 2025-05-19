@@ -29,7 +29,7 @@ const AdminSidebar = ({ user, setUser }) => {
   const pathname = usePathname();
 
   return (
-    <Menu mode="inline" className="!h-full bg-gray-50">
+    <>
       <div className="flex items-center gap-2 my-4 mb-8 justify-center logo">
         <Image
           src={"/assets/icons/logo.gif"}
@@ -42,12 +42,8 @@ const AdminSidebar = ({ user, setUser }) => {
           DB Kompare
         </CommonTypography>
       </div>
-      {menuItems.map((item) => (
-        <Menu.Item key={item.key} icon={item.icon}>
-          {item.label}
-        </Menu.Item>
-      ))}
-    </Menu>
+      <Menu items={menuItems} mode="vertical" className="!h-full bg-gray-50" />
+    </>
   );
 };
 

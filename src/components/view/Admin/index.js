@@ -16,7 +16,7 @@ const AdminLayout = ({ children }) => {
           collapsible
           breakpoint="lg"
           collapsedWidth="80"
-          className="!min-h-screen !overflow-auto !bg-white"
+          className=" !bg-white"
           trigger={null}
         >
           <AdminSidebar />
