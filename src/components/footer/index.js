@@ -1,13 +1,14 @@
 "use client";
 
+import { isAdminRoute } from "@/utils/helper";
+import dayjs from "dayjs";
+import Link from "next/link";
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
 import CommonTypography from "../shared/Typography";
+import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { Navlinks } from "@/utils/const";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { isAdminRoute } from "@/utils/helper";
 
 const socialLinks = [
   { href: "/assets/icons/facebook.svg", alt: "Facebook", link: "" },
@@ -24,8 +25,13 @@ export default function Footer() {
   const pathname = usePathname();
 
   const isEditorScreen = pathname.startsWith("/questions");
+  const isQuizDetailScreen = pathname.startsWith("/quizzes/");
 
-  if (isEditorScreen || isAdminRoute(pathname) ) return null;
+  if (isEditorScreen || isAdminRoute(pathname) || isQuizDetailScreen)
+    return null;
+
+  const contactEmail = "cooltech814@gmail.com";
+
   return (
     <div className="relative md:h-80 h-96 bg-custom-gradient px-10 flex flex-col justify-center items-center">
       <div className="flex items-center gap-1 justify-center">
@@ -59,6 +65,14 @@ export default function Footer() {
               </button>
             </li>
           ))}
+          <li>
+            <a
+              href={`mailto:${contactEmail}`}
+              className="text-[#535353] hover:font-semibold cursor-pointer"
+            >
+              Contact Us
+            </a>
+          </li>
         </ul>
 
         <div className="flex gap-8">
@@ -77,7 +91,7 @@ export default function Footer() {
       </div>
 
       <p className="text-[#535353] text-sm text-center mt-4">
-        Non-Copyrighted © 2024 Upload by DB Kompare
+        Non-Copyrighted © {dayjs().year()} Upload by DB Kompare
       </p>
     </div>
   );

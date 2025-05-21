@@ -1,17 +1,24 @@
 import React from "react";
-import { Layout } from "antd";
+import { Avatar, Layout } from "antd";
+import { useSelector } from "react-redux";
 
 const { Header } = Layout;
 
-const AdminHeader = ({ user, setUser }) => {
+const AdminHeader = () => {
+  const userDetails = useSelector((state) => state.auth.userDetails);
+  const user = userDetails?.data?.data;
   return (
-    <Header className="flex items-center justify-between   !p-2 !px-8 border-b !shadow-xl !h-auto">
-      <img
-        src="/assets/logo.png"
-        alt="logo"
-        className="h-16 w-auto object-contain"
-      />
-PP
+    <Header className="shadow-sm !bg-white leading-4 flex items-center justify-between">
+      <div className=" flex items-center gap-2 w-full justify-end">
+        <Avatar
+          size={"large"}
+          src="https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+        />
+        <div className="flex flex-col">
+          <p className="font-semibold">{user?.name}</p>
+          <p>{user?.email}</p>
+        </div>
+      </div>
     </Header>
   );
 };

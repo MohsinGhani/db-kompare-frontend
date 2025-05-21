@@ -3,6 +3,7 @@
 import React from "react";
 import { Button, Layout } from "antd";
 import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 
 const { Content, Sider, Header } = Layout;
 
@@ -16,7 +17,7 @@ const AdminLayout = ({ children }) => {
           collapsible
           breakpoint="lg"
           collapsedWidth="80"
-          className=" !bg-white"
+          className=" !bg-white !min-h-screen"
           trigger={null}
         >
           <AdminSidebar />
@@ -24,7 +25,7 @@ const AdminLayout = ({ children }) => {
 
         {/* Main Content */}
         <Layout className="!bg-white ">
-          <Header className="shadow-sm bg-white"></Header>
+          <AdminHeader />
           <Content className="!p-6">{children}</Content>
         </Layout>
       </Layout>

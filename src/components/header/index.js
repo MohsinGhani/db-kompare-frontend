@@ -25,6 +25,8 @@ export default function Navbar() {
   const isDbComparisonPage =
     path?.startsWith("/db-comparison") ||
     path?.startsWith("/db-comparisons/list");
+  const isQuizDetailScreen = path.startsWith("/quizzes/");
+
   const authRoutes = [
     "/signin",
     "/signup",
@@ -103,8 +105,7 @@ export default function Navbar() {
   }, [isOpen]);
 
   const items = categoriesItems;
-
-  if(isAdminRoute(path)) return null;
+  if (isAdminRoute(path) || isQuizDetailScreen) return null;
 
   return (
     <div

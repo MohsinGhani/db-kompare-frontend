@@ -12,6 +12,7 @@ import {
   message,
   Spin,
   Modal,
+  DatePicker,
 } from "antd";
 import {
   InboxOutlined,
@@ -19,15 +20,22 @@ import {
   MinusCircleOutlined,
 } from "@ant-design/icons";
 import AdminLayout from "../..";
-import { LESSON_CATEGORY, TOPICS_CATEGORIES } from "@/utils/const";
+import {
+  LESSON_CATEGORY,
+  rankingOptions,
+  TOPICS_CATEGORIES,
+} from "@/utils/const";
 import { ulid } from "ulid";
 import { _putFileToS3, _removeFileFromS3 } from "@/utils/s3Services";
 import { createQuiz, fetchQuizById, updateQuiz } from "@/utils/quizUtil";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import dayjs from "dayjs";
+import CommonLoader from "@/components/shared/CommonLoader";
 
 const { Dragger } = Upload;
 const { TextArea } = Input;
+const { RangePicker } = DatePicker;
 
 const normFile = (e) => e?.fileList;
 const getBase64 = (file) =>
@@ -58,13 +66,17 @@ const ManageQuiz = () => {
       fetchQuizById(id)
         .then((res) => {
           const quiz = res.data;
-          // Initialize form with existing values and existing image fileList
+          // Convert startDate and endDate strings to dayjs objects if present
+          const startDate = quiz.startDate ? dayjs(quiz.startDate) : null;
+          const endDate = quiz.endDate ? dayjs(quiz.endDate) : null;
+
           form.setFieldsValue({
             name: quiz.name,
             passingPerc: quiz.passingPerc,
             category: quiz.category,
             difficulty: quiz.difficulty,
             description: quiz.description,
+            validDateRange: startDate && endDate ? [startDate, endDate] : [],
             questions: quiz.questions.map((q) => ({
               question: q.question,
               id: q.id,
@@ -72,7 +84,7 @@ const ManageQuiz = () => {
                 ? [
                     {
                       uid: q.image,
-                      name: q.image,
+                      name: "Uploaded Image",
                       status: "done",
                       url: `${S3_BASE_URL}/QUIZZES/${q.image}`,
                     },
@@ -80,6 +92,7 @@ const ManageQuiz = () => {
                 : [],
               options: q.options,
               explanation: q.explanation,
+              image: q.image,
             })),
           });
         })
@@ -93,7 +106,6 @@ const ManageQuiz = () => {
   const handleCancel = () => setPreviewVisible(false);
 
   const handlePreview = async (file) => {
-    console.log("file", file);
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
     }
@@ -108,42 +120,42 @@ const ManageQuiz = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      // Process questions with images and other data
       const questionsWithImages = await Promise.all(
         values.questions.map(async (q) => {
-          console.log("q", q);
-          // Use existing qid or generate new
           const qid = q.id || ulid();
           let imageKey = null;
+
           if (q.file?.[0]?.originFileObj) {
             const fileObj = q.file[0].originFileObj;
             const ext =
               fileObj.name.split(".").pop().toLowerCase() ||
               fileObj.type.split("/")[1];
-            const key = `QUIZZES/${qid}.${ext}`;
+            const newKey = `QUIZZES/${qid}.${ext}`;
+            const oldKey = q?.image ? `QUIZZES/${q.image}` : null;
 
-            // Check if the file already exists in S3
-            if (key !== q.image) {
-              // Remove old image if it exists
-              await _removeFileFromS3(q.file[0].url);
-              // Upload new image
-              await _putFileToS3(key, fileObj, 200 * 1024, fileObj.type);
-            } else {
-              await _putFileToS3(key, fileObj, 200 * 1024, fileObj.type);
+            if (id && oldKey && oldKey !== newKey) {
+              try {
+                await _removeFileFromS3(oldKey);
+                console.log("Old image removed successfully:", oldKey);
+              } catch (err) {
+                console.error("Failed to remove old image:", oldKey, err);
+              }
             }
 
+            await _putFileToS3(newKey, fileObj, 200 * 1024, fileObj.type);
             imageKey = `${qid}.${ext}`;
           } else if (q.file?.[0]?.url) {
             imageKey = q.file[0].url.split("/").pop();
           }
+
           const correctCount = q.options.filter((o) => o.isCorrect).length;
-          const options = q.options.map((opt) => {
-            const oid = opt.oid || ulid();
-            return {
-              id: oid,
-              text: opt.text,
-              isCorrect: opt.isCorrect || false,
-            };
-          });
+          const options = q.options.map((opt) => ({
+            id: opt.oid || ulid(),
+            text: opt.text,
+            isCorrect: opt.isCorrect || false,
+          }));
+
           return {
             id: qid,
             question: q.question,
@@ -155,6 +167,10 @@ const ManageQuiz = () => {
           };
         })
       );
+
+      // Extract startDate and endDate from RangePicker
+      const [startDate, endDate] = values.validDateRange || [];
+
       const payload = {
         name: values.name,
         passingPerc: values.passingPerc,
@@ -164,7 +180,11 @@ const ManageQuiz = () => {
         questions: questionsWithImages,
         totalQuestions: questionsWithImages.length,
         createdBy: user?.id,
+        startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
+        endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
       };
+
+      console.log("Payload to be sent:", payload);
       if (id) {
         await updateQuiz(id, payload);
         message.success("Quiz updated successfully");
@@ -172,9 +192,10 @@ const ManageQuiz = () => {
         await createQuiz(payload);
         message.success("Quiz created successfully");
       }
-      router.push("/admin/quiz");
+
+      // router.push("/admin/quiz");
     } catch (error) {
-      console.error(error);
+      console.error("Error saving quiz:", error);
       message.error("Error saving quiz");
     } finally {
       setLoading(false);
@@ -182,7 +203,11 @@ const ManageQuiz = () => {
   };
 
   if (loading) {
-    return <Spin tip="Loading..." style={{ marginTop: 100 }} />;
+    return (
+      <div className="h-screen">
+        <CommonLoader />
+      </div>
+    );
   }
 
   return (
@@ -221,14 +246,32 @@ const ManageQuiz = () => {
               />
             </Form.Item>
             <Form.Item
+              name="validDateRange"
+              label="Valid Date Range"
+              rules={[
+                {
+                  type: "array",
+                  required: true,
+                  message: "Please select valid date range",
+                },
+              ]}
+            >
+              <RangePicker
+                disabledDate={(current) => {
+                  // Disable all days before today
+                  return current && current < dayjs().startOf("day");
+                }}
+              />
+            </Form.Item>
+            <Form.Item
               name="category"
               label="Category"
               rules={[{ required: true, message: "Please select a category" }]}
             >
               <Select placeholder="Please select a category">
-                {Object.values(TOPICS_CATEGORIES).map((cat) => (
-                  <Select.Option key={cat} value={cat}>
-                    {cat}
+                {rankingOptions.slice(1).map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
                   </Select.Option>
                 ))}
               </Select>
@@ -386,6 +429,7 @@ const ManageQuiz = () => {
           </Form.Item>
         </Form>
       </div>
+
       <Modal
         visible={previewVisible}
         title={previewTitle}

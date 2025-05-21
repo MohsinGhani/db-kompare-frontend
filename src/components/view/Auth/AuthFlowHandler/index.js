@@ -5,6 +5,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useSelector } from "react-redux";
 import { Image } from "antd";
 import { handleFetchAuthSession } from "@/utils/authServices";
+import { isAdmin } from "@/utils/helper";
 
 const getHash = () =>
   typeof window !== "undefined" ? window.location.hash : undefined;
@@ -31,13 +32,17 @@ const AuthFlowHandler = () => {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
   useEffect(() => {
     setLoader(true);
     if (!userDetails && !has_auth_error) {
       authFlowHandler();
     } else if (userDetails && !has_auth_error) {
-      router.replace("/");
+      if (isAdmin(userDetails?.data?.data?.role)) {
+        console.log("Admin user");
+        router.replace("/admin/quiz");
+      } else {
+        router.replace("/");
+      }
     }
   }, [userDetails]);
 
