@@ -13,6 +13,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetails, setUserDetails } from "@/redux/slices/authSlice";
 import { Button, Dropdown, Menu } from "antd";
+import { isAdminRoute } from "@/utils/helper";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -24,6 +25,8 @@ export default function Navbar() {
   const isDbComparisonPage =
     path?.startsWith("/db-comparison") ||
     path?.startsWith("/db-comparisons/list");
+  const isQuizDetailScreen = path.startsWith("/quizzes/");
+
   const authRoutes = [
     "/signin",
     "/signup",
@@ -102,6 +105,7 @@ export default function Navbar() {
   }, [isOpen]);
 
   const items = categoriesItems;
+  if (isAdminRoute(path) || isQuizDetailScreen) return null;
 
   return (
     <div
@@ -149,9 +153,9 @@ export default function Navbar() {
                 className={`py-2 px-5 ${
                   path === link.href ||
                   (isDbComparisonPage && link.href === "/db-comparison")
-                    ? "font-semibold text-black"
-                    : "text-black"
-                } hover:font-semibold`}
+                    ? "font-semibold text-primary"
+                    : "text-black font-normal "
+                }  hover:text-primary`}
               >
                 {link.label}
               </button>
