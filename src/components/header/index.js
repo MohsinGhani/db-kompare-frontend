@@ -153,9 +153,9 @@ export default function Navbar() {
                 className={`py-2 px-5 ${
                   path === link.href ||
                   (isDbComparisonPage && link.href === "/db-comparison")
-                    ? "font-semibold text-black"
-                    : "text-black"
-                } hover:font-semibold`}
+                    ? "font-semibold text-primary"
+                    : "text-black font-normal "
+                }  hover:text-primary`}
               >
                 {link.label}
               </button>

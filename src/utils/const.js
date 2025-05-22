@@ -7,6 +7,7 @@ export const Navlinks = [
   { href: "#", label: "API" },
   { href: "/questions", label: "Practice SQL" },
   { href: "/run", label: "Run SQL" },
+  { href: "/certifications", label: "Certifications" },
 ];
 
 export const DropdownOptions = [
