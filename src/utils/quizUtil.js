@@ -24,6 +24,18 @@ export const createQuiz = async (quizData) => {
     body: JSON.stringify(quizData),
   });
 };
+// Create a new quiz submission
+export const createQuizSubmission = async (quizData) => {
+  const url = `${API_BASE_URL}/create-quiz-submission`;
+  return fetchAPI(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify(quizData),
+  });
+};
 
 // Fetch all quizzes (optionally filtered by status)
 export const fetchQuizzes = async (queryParams = {}) => {
@@ -42,6 +54,16 @@ export const fetchQuizzes = async (queryParams = {}) => {
 // Fetch a single quiz by ID
 export const fetchQuizById = async (id) => {
   const url = `${API_BASE_URL}/quiz/${id}`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+// Fetch a single quiz by ID
+export const fetchQuizSubmissionById = async (id) => {
+  const url = `${API_BASE_URL}/quiz-submission/${id}`;
   return fetchAPI(url, {
     method: "GET",
     headers: {
