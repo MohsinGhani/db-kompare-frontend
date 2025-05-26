@@ -1,3 +1,5 @@
+// const X_API_KEY = "d41d8cd98f00b204e9800998ecf8427e";
+// const API_BASE_URL = "http://localhost:4000/dev" ;
 const X_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 

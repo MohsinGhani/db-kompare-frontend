@@ -147,7 +147,7 @@ export const dataToJson = (data) => {
 export function generateCommonMetadata({
   title,
   description,
-  imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/db-kompare-banner.jpg",
+  imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg",
   siteName = "DB Kompare",
   type = "website",
 }) {

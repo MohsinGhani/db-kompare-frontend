@@ -1,9 +1,15 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button, Card, Divider, Progress, Tag } from "antd";
-import { CheckCircleOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Progress, Row, Tag } from "antd";
+import {
+  CheckCircleOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import { fetchQuizSubmissionById } from "@/utils/quizUtil";
+import CommonLoader from "@/components/shared/CommonLoader";
+import Link from "next/link";
 
 const QuizResult = () => {
   const router = useRouter();
@@ -33,24 +39,31 @@ const QuizResult = () => {
     }
   };
 
+
+  
+
   // Function to determine if a question was answered correctly
   const isQuestionCorrect = (questionId) => {
     if (!result || !result.quizDetails?.questions) return false;
-    
-    const question = result.quizDetails.questions.find(q => q.id === questionId);
-    const userAnswer = result.answers.find(a => a.questionId === questionId);
-    
+
+    const question = result.quizDetails.questions.find(
+      (q) => q.id === questionId
+    );
+    const userAnswer = result.answers.find((a) => a.questionId === questionId);
+
     if (!question || !userAnswer) return false;
 
     const correctOptionIds = question.options
-      .filter(opt => opt.isCorrect)
-      .map(opt => opt.id);
+      .filter((opt) => opt.isCorrect)
+      .map((opt) => opt.id);
 
     // For multiple answer questions
     if (question.isMultipleAnswer) {
       return (
         userAnswer.selectedOptionIds.length === correctOptionIds.length &&
-        userAnswer.selectedOptionIds.every(id => correctOptionIds.includes(id))
+        userAnswer.selectedOptionIds.every((id) =>
+          correctOptionIds.includes(id)
+        )
       );
     }
     // For single answer questions
@@ -61,18 +74,19 @@ const QuizResult = () => {
   };
 
   const isPassed = result?.status === "PASSED";
+  const certificateUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/CERTIFICATES/${result?.certificateId}-${result?.userId}-${result?.id}.pdf`;
 
-  if (loading) return <div>Loading results...</div>;
+  if (loading) return <div className="min-h-screen"><CommonLoader/></div>;
   if (!result) return <div>Results not found</div>;
 
   return (
     <div className="py-8 min-h-screen container">
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-2xl font-semibold mb-3">Quiz Results</h1>
-        <Progress 
-          type="circle" 
-          percent={result?.percentageScore} 
-          strokeColor={isPassed ? '#52c41a' : '#f5222d'}
+        <Progress
+          type="circle"
+          percent={result?.percentageScore}
+          strokeColor={isPassed ? "#52c41a" : "#f5222d"}
         />
 
         <p className="text-lg font-semibold mt-2">
@@ -100,7 +114,11 @@ const QuizResult = () => {
           </div>
         </div>
         {isPassed ? (
-          <Button type="primary" className="!h-12">Get Certificate</Button>
+          <Link href={certificateUrl} target="_blank">
+          <Button type="primary" className="!h-12">
+            Get Certificate
+          </Button>
+          </Link>
         ) : (
           <p>Better Luck next time</p>
         )}
@@ -108,70 +126,42 @@ const QuizResult = () => {
 
       <p className="font-semibold text-base my-5">Attempted questions:</p>
 
-      {result.answers.map((answer) => {
-        const question = result.quizDetails?.questions?.find(q => q.id === answer.questionId);
-        if (!question) return null;
-        
-        const isCorrect = isQuestionCorrect(question.id);
-        const correctOptions = question.options.filter(opt => opt.isCorrect);
-        const userSelectedOptions = answer.selectedOptionIds.map(id => 
-          question.options.find(opt => opt.id === id)
-        ).filter(Boolean);
+      <Row gutter={[16, 16]} className="mb-8">
+        {result.answers.map((answer) => {
+          const question = result.quizDetails?.questions?.find(
+            (q) => q.id === answer.questionId
+          );
+          if (!question) return null;
+          const isCorrect = isQuestionCorrect(question.id);
+          return (
+            <Col xs={24} md={12}>
+              <div
+                key={question.id}
+                className={`mb-4 p-3 ${
+                  isCorrect
+                    ? "border-green-500 bg-[#F0FFF6]"
+                    : "border-red-500 bg-[#FFF3F1]"
+                } rounded-md border`}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">
+                    Q: {question.question}
+                  </h3>
+                </div>
 
-        return (
-          <Card
-            key={question.id}
-            className={`mb-4 ${isCorrect ? 'border-green-500' : 'border-red-500'}`}
-            style={{ borderLeft: `4px solid ${isCorrect ? '#52c41a' : '#f5222d'}` }}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Q: {question.question}</h3>
-              {isCorrect ? (
-                <Tag icon={<CheckOutlined />} color="success">Correct</Tag>
-              ) : (
-                <Tag icon={<CloseOutlined />} color="error">Incorrect</Tag>
-              )}
-            </div>
+                <Divider className="my-3" />
 
-            <Divider className="my-3" />
-
-            <div className="mb-3">
-              <h4 className="font-medium">Your Answer:</h4>
-              {userSelectedOptions.length > 0 ? (
-                <ul className="list-disc pl-5">
-                  {userSelectedOptions.map(option => (
-                    <li key={option.id} className={option.isCorrect ? 'text-green-600' : 'text-red-600'}>
-                      {option.text}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No answer selected</p>
-              )}
-            </div>
-
-            {!isCorrect && (
-              <div className="mt-2">
-                <h4 className="font-medium">Correct Answer:</h4>
-                <ul className="list-disc pl-5">
-                  {correctOptions.map(option => (
-                    <li key={option.id} className="text-green-600">
-                      {option.text}
-                    </li>
-                  ))}
-                </ul>
+                {question.explanation && (
+                  <div className="">
+                    <h4 className="font-medium">Explanation:</h4>
+                    <p>{question.explanation}</p>
+                  </div>
+                )}
               </div>
-            )}
-
-            {question.explanation && (
-              <div className="mt-3 p-3 bg-gray-50 rounded">
-                <h4 className="font-medium">Explanation:</h4>
-                <p>{question.explanation}</p>
-              </div>
-            )}
-          </Card>
-        );
-      })}
+            </Col>
+          );
+        })}
+      </Row>
     </div>
   );
 };
