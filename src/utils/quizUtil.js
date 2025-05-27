@@ -97,3 +97,30 @@ export const deleteQuiz = async (id) => {
     },
   });
 };
+
+
+
+// Fetch a single certificate by ID
+export const fetchCertificateById = async (id) => {
+  const url = `${API_BASE_URL}/certificate/${id}`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+
+// Fetch all certificates (optionally filtered by query parameters)
+export const fetchCertificates = async (queryParams = {}) => {
+  const queryString = new URLSearchParams(queryParams).toString();
+  const url = `${API_BASE_URL}/get-certificates${
+    queryString ? `?${queryString}` : ""
+  }`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};

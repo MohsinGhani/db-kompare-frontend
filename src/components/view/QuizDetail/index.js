@@ -9,11 +9,10 @@ import {
   LockOutlined,
 } from "@ant-design/icons";
 import { Button, Progress, Radio, Checkbox } from "antd";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useRouter } from "nextjs-toploader/app";
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 const QuizDetail = () => {
@@ -111,13 +110,11 @@ const QuizDetail = () => {
    * Save the current question's answer into userAnswers array
    */
   const saveAnswer = () => {
-  const updated = userAnswers.filter((a) => a.questionId !== question.id);
-  updated.push({ questionId: question.id, selected: selectedOptionIds });
-  setUserAnswers(updated);
-  return updated; // Return the updated answers
-};
-
-
+    const updated = userAnswers.filter((a) => a.questionId !== question.id);
+    updated.push({ questionId: question.id, selected: selectedOptionIds });
+    setUserAnswers(updated);
+    return updated; // Return the updated answers
+  };
 
   /**
    * Move to the next question or finish quiz
@@ -160,21 +157,21 @@ const QuizDetail = () => {
   };
 
   const submitQuiz = async () => {
-     const updatedAnswers = saveAnswer(); // Get the updated answers
-  
-  const payload = {
-    quizId,
-    userId: user?.id,
-    answers: updatedAnswers.map(({ questionId, selected }) => ({
-      questionId,
-      selectedOptionIds: selected,
-    })),
-  };
+    const updatedAnswers = saveAnswer(); // Get the updated answers
+
+    const payload = {
+      quizId,
+      userId: user?.id,
+      answers: updatedAnswers.map(({ questionId, selected }) => ({
+        questionId,
+        selectedOptionIds: selected,
+      })),
+    };
     try {
       // Replace this with your real API endpoint
       const response = await createQuizSubmission(payload);
       if (response?.data) {
-        router.push(`/quizzes/result/${response.data.submissionId}`);
+        router.replace(`/quizzes/result/${response.data.submissionId}`);
       }
       localStorage.removeItem(storageKey);
       toast.success("Quiz completed! See your results below.");

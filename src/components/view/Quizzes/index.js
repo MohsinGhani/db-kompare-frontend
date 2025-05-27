@@ -15,7 +15,11 @@ const Quizzes = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchQuizzes({ status: "ACTIVE" })
+    const params = {
+      status: "ACTIVE",
+      ...(user ? { userId: user.id } : {}),
+    };
+    fetchQuizzes(params)
       .then((res) => {
         setQuizzes(res.data || []);
       })
@@ -23,7 +27,7 @@ const Quizzes = () => {
         // Optional: handle error notification
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
   // Compute remaining time text
   const getRemaining = (startDate, endDate) => {
@@ -44,14 +48,22 @@ const Quizzes = () => {
     // Check if the user is logged in
     if (!user) {
       toast.error("Please log in to start the quiz.");
-      console.log("User details:", user,quizId);
+      console.log("User details:", user, quizId);
       return;
-    }else{
-
+    } else {
       // Redirect to quiz page
       router.push(`/quizzes/${quizId}`);
     }
   };
+
+  if(quizzes.length === 0 && !loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[600px]">
+        <h2 className="text-2xl font-bold mb-4">No Quizzes Available</h2>
+        <p className="text-gray-600">Please check back later.</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -72,6 +84,7 @@ const Quizzes = () => {
                 passingPerc,
                 endDate,
                 startDate,
+                taken,
               } = quiz;
 
               // Difficulty color
@@ -122,23 +135,21 @@ const Quizzes = () => {
                           </span>
                         </p>
                       </div>
-                      <Button
-                        type="primary"
-                        disabled={
-                          dayjs().isAfter(dayjs(endDate)) ||
-                          dayjs().isBefore(dayjs(startDate))
-                        }
-                        onClick={() => handleStartQuiz(id)}
-                        className="mt-6 bg-primary hover:!bg-primary text-white hover:!text-white h font-semibold !py-2 rounded-lg transition-colors duration-200"
-                      >
-                        Start Quiz
-                      </Button>
-                      {/* <button
-                         onClick={() => router.push(`/quizzes/${id}`)}
-                         className="mt-6 bg-orange-500 hover:!bg-orange-600 text-white hover:!text-white h font-semibold !py-2 rounded-lg transition-colors duration-200"
-                       >
-                         Start Quiz
-                       </button> */}
+                      {taken ? (
+                        <p className="text-red-600 font-bold text-2xl text-center">Already Attempted !!</p>
+                      ) : (
+                        <Button
+                          type="primary"
+                          disabled={
+                            dayjs().isAfter(dayjs(endDate)) ||
+                            dayjs().isBefore(dayjs(startDate))
+                          }
+                          onClick={() => handleStartQuiz(id)}
+                          className="mt-6 bg-primary hover:!bg-primary text-white hover:!text-white h font-semibold !py-2 rounded-lg transition-colors duration-200"
+                        >
+                          Start Quiz
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Col>

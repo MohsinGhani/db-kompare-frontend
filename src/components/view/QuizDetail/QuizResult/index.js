@@ -39,9 +39,6 @@ const QuizResult = () => {
     }
   };
 
-
-  
-
   // Function to determine if a question was answered correctly
   const isQuestionCorrect = (questionId) => {
     if (!result || !result.quizDetails?.questions) return false;
@@ -76,7 +73,12 @@ const QuizResult = () => {
   const isPassed = result?.status === "PASSED";
   const certificateUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/CERTIFICATES/${result?.certificateId}-${result?.userId}-${result?.id}.pdf`;
 
-  if (loading) return <div className="min-h-screen"><CommonLoader/></div>;
+  if (loading)
+    return (
+      <div className="min-h-screen">
+        <CommonLoader />
+      </div>
+    );
   if (!result) return <div>Results not found</div>;
 
   return (
@@ -85,7 +87,7 @@ const QuizResult = () => {
         <h1 className="text-2xl font-semibold mb-3">Quiz Results</h1>
         <Progress
           type="circle"
-          percent={result?.percentageScore}
+          percent={result?.percentageScore?.toFixed(2) || 0}
           strokeColor={isPassed ? "#52c41a" : "#f5222d"}
         />
 
@@ -115,9 +117,9 @@ const QuizResult = () => {
         </div>
         {isPassed ? (
           <Link href={certificateUrl} target="_blank">
-          <Button type="primary" className="!h-12">
-            Get Certificate
-          </Button>
+            <Button type="primary" className="!h-12">
+              Get Certificate
+            </Button>
           </Link>
         ) : (
           <p>Better Luck next time</p>
@@ -151,12 +153,14 @@ const QuizResult = () => {
 
                 <Divider className="my-3" />
 
-                {question.explanation && (
-                  <div className="">
-                    <h4 className="font-medium">Explanation:</h4>
-                    <p>{question.explanation}</p>
-                  </div>
-                )}
+                <div className="">
+                  <h4 className="font-medium">Explanation:</h4>
+                  <p>
+                    {question.explanation
+                      ? question.explanation
+                      : "No Explanation"}
+                  </p>
+                </div>
               </div>
             </Col>
           );
