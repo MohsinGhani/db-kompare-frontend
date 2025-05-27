@@ -40,7 +40,7 @@ const DBChart = ({ previousDays, isRankingType }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // If both dates are selected, check that the range is not more than 30 days.
+      // If both dates are selected, check that the range is not more than 60 days.
       if (selectedDate[0] && selectedDate[1]) {
         const daysDiff = selectedDate[1].diff(selectedDate[0], "day");
         if (daysDiff > 60) {

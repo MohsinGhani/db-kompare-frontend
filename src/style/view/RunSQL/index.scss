@@ -1,0 +1,23 @@
+.runsql-container {
+  .data-defination,
+  .common-dynamic-table {
+    .ant-table {
+      .ant-table-container {
+        overflow: auto;
+        .ant-table-tbody {
+          overflow: auto;
+          tr {
+            td {
+              input {
+                width: max-content;
+              }
+            }
+          }
+        }
+      }
+      .ant-table-footer {
+        padding: 0 !important;
+      }
+    }
+  }
+}

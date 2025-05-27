@@ -14,6 +14,8 @@ const CommonInput = ({
   size = "large",
   placeholder,
   disabled,
+  prefix,
+  suffix,
   ...rest
 }) => {
   return (
@@ -33,6 +35,8 @@ const CommonInput = ({
             placeholder={placeholder}
             allowClear={false}
             {...inputProps}
+            prefix={prefix}
+            suffix={suffix}
           />
         ) : (
           <Input
@@ -42,6 +46,8 @@ const CommonInput = ({
             allowClear={false}
             {...inputProps}
             disabled={disabled}
+            prefix={prefix}
+            suffix={suffix}
           />
         )}
       </Form.Item>

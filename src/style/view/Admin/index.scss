@@ -1,0 +1,25 @@
+.admin-layout {
+  .ant-layout-sider {
+    border-right: 1px solid #e8e8e8 !important;
+    .ant-menu {
+      background: #fff !important;
+      border-inline-end: none;
+      .ant-menu-item {
+        padding: 0 20px;
+        width: 80%;
+        margin: 10px auto;
+        font-weight: 400;
+        color: #53545c;
+      }
+      .ant-menu-item-selected {
+        background: #3e53d7;
+        color: #fff;
+      }
+    }
+  }
+  .ant-layout-sider-collapsed {
+    .logo {
+      display: none;
+    }
+  }
+}

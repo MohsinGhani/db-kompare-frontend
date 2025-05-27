@@ -5,6 +5,9 @@ export const Navlinks = [
   { href: "/our-blogs", label: "Blogs" },
   { href: "https://dataeli5.substack.com/", label: "DB Internals" },
   { href: "#", label: "API" },
+  { href: "/questions", label: "Practice SQL" },
+  { href: "/run", label: "Run SQL" },
+  { href: "/certifications", label: "Certifications" },
 ];
 
 export const DropdownOptions = [
@@ -101,6 +104,50 @@ export const rankingOptions = [
   { value: ["Columnar", "Wide column store"], label: "Columnar DB" },
   { value: "Navigational DBMS", label: "Hierarchial DB" },
 ];
+export const RESOURCE_TYPE = {
+  GITHUB: "GITHUB",
+  STACKOVERFLOW: "STACKOVERFLOW",
+  GOOGLE: "GOOGLE",
+  BING: "BING",
+  ALL: "ALL",
+};
+
+export const LESSON_CATEGORY = {
+  BASIC: "BASIC",
+  INTERMEDIATE: "INTERMEDIATE",
+  HARD: "HARD",
+};
+export const QUESTION_STATUS = {
+  SOLVED: "Solved",
+  ERROR: "Error",
+  NOT_STARTED: "Not Started",
+  IN_PROGRESS: "In Progress",
+};
+
+export const TOPICS_CATEGORIES = {
+  SQL: "SQL",
+  PGSQL: "PGSQL",
+  MYSQL: "MYSQL",
+  ORACLE: "ORACLE",
+  MSSQL: "MSSQL",
+  OTHER: "OTHER",
+};
+
+export const SUPPORTED_RUNTIME = {
+  POSTGRES: "POSTGRES",
+  MYSQL: "MYSQL",
+};
+
+export const DIFFICULTY = {
+  EASY: "EASY",
+  MEDIUM: "MEDIUM",
+  HARD: "HARD",
+};
+
+export const QUESTION_TYPE = {
+  INTERVIEW: "INTERVIEW",
+  LESSON: "LESSON",
+};
 
 export const core_features = [
   "Scalability",

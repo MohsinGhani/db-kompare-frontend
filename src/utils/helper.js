@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
-import { METRICES_TYPE } from "./const";
+import { METRICES_TYPE, UserRole } from "./const";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(customParseFormat);
@@ -21,6 +21,13 @@ export const setAccessTokenFromLocalStorage = () => {
   if (accessToken) {
     Cookies.set("accessToken", accessToken, { expires, secure: true });
   }
+};
+
+export const isAdminRoute = (pathname) => {
+  return pathname.startsWith("/admin");
+};
+export const isAdmin = (role) => {
+  return role === UserRole.ADMIN;
 };
 
 export const RemoveAccessTokenFormCookies = () => {
@@ -87,10 +94,60 @@ export const stripHtml = (html) => {
   return html.replace(/<[^>]*>?/gm, "").trim();
 };
 
+export const dataToCsv = (data) => {
+  if (!data || data.length === 0) return "";
+  const headers = Object.keys(data[0]);
+  const csvRows = [];
+  // Create header row.
+  csvRows.push(headers.map((header) => `"${header}"`).join(","));
+  // Process each row.
+  data.forEach((row) => {
+    const values = headers.map((header) => {
+      let value = row[header];
+      if (value === null || value === undefined) {
+        value = "";
+      } else {
+        value = String(value).replace(/"/g, '""');
+      }
+      return `"${value}"`;
+    });
+    csvRows.push(values.join(","));
+  });
+  return csvRows.join("\n");
+};
+export const dataToPipe = (data) => {
+  if (!data || data.length === 0) return "";
+  const headers = Object.keys(data[0]);
+  const psvRows = [];
+
+  // Create header row using pipes as the delimiter.
+  psvRows.push(headers.map((header) => `"${header}"`).join("|"));
+
+  // Process each row.
+  data.forEach((row) => {
+    const values = headers.map((header) => {
+      let value = row[header];
+      if (value === null || value === undefined) {
+        value = "";
+      } else {
+        // Escape double quotes by doubling them.
+        value = String(value).replace(/"/g, '""');
+      }
+      return `"${value}"`;
+    });
+    psvRows.push(values.join("|"));
+  });
+  return psvRows.join("\n");
+};
+
+export const dataToJson = (data) => {
+  return JSON.stringify(data, null, 2);
+};
+
 export function generateCommonMetadata({
   title,
   description,
-  imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/db-kompare-banner.jpg",
+  imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg",
   siteName = "DB Kompare",
   type = "website",
 }) {

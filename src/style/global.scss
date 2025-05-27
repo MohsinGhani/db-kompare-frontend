@@ -1,3 +1,9 @@
 @import "./common/index.scss";
-@import "./view/index.scss"
+@import "./view/index.scss";
 
+.gutter {
+  background-color: #ddd; /* Makes the gutter visible */
+  background-clip: padding-box;
+  cursor: col-resize; /* Matches the prop */
+  z-index: 1; /* Ensure it sits above other elements if needed */
+}
