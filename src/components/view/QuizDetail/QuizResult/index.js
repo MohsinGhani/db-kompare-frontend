@@ -136,9 +136,8 @@ const QuizResult = () => {
           if (!question) return null;
           const isCorrect = isQuestionCorrect(question.id);
           return (
-            <Col xs={24} md={12}>
+            <Col key={question.id} xs={24} md={12}>
               <div
-                key={question.id}
                 className={`mb-4 p-3 ${
                   isCorrect
                     ? "border-green-500 bg-[#F0FFF6]"

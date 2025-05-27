@@ -103,7 +103,7 @@ const CertificateVerification = () => {
                        Grade Achieved: {certificate?.metaData?.score}%
                     </p>
                     <p className="text-sm font-normal text-gray-700">
-                      <span className="font-semibold text-base text-orange-500">{user?.name}'s</span> account is verified. DB Kompare certifies
+                      <span className="font-semibold text-base text-orange-500">{user?.name} </span> account is verified. DB Kompare certifies
                       their successful completion of <span className="text-green-500 font-semibold">{quiz?.name}</span>.
                     </p>
                   </div>
