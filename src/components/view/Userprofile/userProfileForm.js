@@ -78,8 +78,8 @@ const UserProfileForm = () => {
           items={items}
           defaultActiveKey={["1", "2", "3"]}
           expandIconPosition="end"
-          className=" border-none custom-collapse bg-white mt-2"
-        ></Collapse>
+          className=" border-none custom-collapse  mt-2"
+        />
       </div>
     </div>
   );

@@ -2,23 +2,23 @@
 
 // Importing necessary components and libraries
 import CommonLoader from "@/components/shared/CommonLoader";
-import { fetchQuizById } from "@/utils/quizUtil";
+import { createQuizSubmission, fetchQuizById } from "@/utils/quizUtil";
 import {
   ArrowLeftOutlined,
   InfoCircleOutlined,
   LockOutlined,
 } from "@ant-design/icons";
 import { Button, Progress, Radio, Checkbox } from "antd";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 const QuizDetail = () => {
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
-
+  const router = useRouter();
   // Local state
   const [quizData, setQuizData] = useState(null); // Stores fetched quiz data
   const [loading, setLoading] = useState(false); // Indicates loading state
@@ -26,13 +26,10 @@ const QuizDetail = () => {
   const [currentIndex, setCurrentIndex] = useState(0); // Index of current question
   const [userAnswers, setUserAnswers] = useState([]); // Array of saved answers
   const [selectedOptionIds, setSelectedOptionIds] = useState([]); // Currently selected options
+  const userDetails = useSelector((state) => state.auth.userDetails);
+  const user = userDetails?.data?.data;
 
-  // Retrieve userId from localStorage or fallback to 'guest'
-  const userId =
-    typeof window !== "undefined"
-      ? localStorage.getItem("userId") || "guest"
-      : "guest";
-  const storageKey = `quiz-${quizId}-user-${userId}`; // Key for saving to localStorage
+  const storageKey = `quiz-${quizId}-user-${user?.id}`; // Key for saving to localStorage
 
   // Fetch quiz data and restore saved progress on mount
   useEffect(() => {
@@ -116,6 +113,7 @@ const QuizDetail = () => {
     const updated = userAnswers.filter((a) => a.questionId !== question.id);
     updated.push({ questionId: question.id, selected: selectedOptionIds });
     setUserAnswers(updated);
+    return updated; // Return the updated answers
   };
 
   /**
@@ -137,17 +135,7 @@ const QuizDetail = () => {
 
       setSelectedOptionIds(nextAns?.selected || []);
     } else {
-      // Final submission logic
-      saveAnswer();
-      console.log(
-        "All answers:",
-        userAnswers.concat([
-          { questionId: question.id, selected: selectedOptionIds },
-        ])
-      );
-      localStorage.removeItem(storageKey);
-      toast.success("Quiz completed! Ready for scoring.");
-      // TODO: navigate to results or scoring page
+      submitQuiz();
     }
   };
 
@@ -165,6 +153,30 @@ const QuizDetail = () => {
         (a) => a.questionId === quizData.questions[prevIdx].id
       );
       setSelectedOptionIds(prevAns?.selected || []);
+    }
+  };
+
+  const submitQuiz = async () => {
+    const updatedAnswers = saveAnswer(); // Get the updated answers
+
+    const payload = {
+      quizId,
+      userId: user?.id,
+      answers: updatedAnswers.map(({ questionId, selected }) => ({
+        questionId,
+        selectedOptionIds: selected,
+      })),
+    };
+    try {
+      // Replace this with your real API endpoint
+      const response = await createQuizSubmission(payload);
+      if (response?.data) {
+        router.replace(`/quizzes/result/${response.data.submissionId}`);
+      }
+      localStorage.removeItem(storageKey);
+      toast.success("Quiz completed! See your results below.");
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 

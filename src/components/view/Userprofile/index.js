@@ -9,6 +9,7 @@ import { BlogType } from "@/utils/const";
 import ProfilingReport from "./ProfilingReport";
 import { useSelector } from "react-redux";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import Achievements from "./Achievements";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -62,6 +63,11 @@ export default function UserProfile() {
       label: "Profile Reports",
       subtitle: "View and analyze your profiling reports",
       content: <ProfilingReport user={user} />,
+    },
+    5: {
+      label: "Achievements",
+      subtitle: "View your achievements and milestones",
+      content: <Achievements user={user} />,
     },
   };
 
