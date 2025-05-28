@@ -22,6 +22,7 @@ const QuizDetail = () => {
   // Local state
   const [quizData, setQuizData] = useState(null); // Stores fetched quiz data
   const [loading, setLoading] = useState(false); // Indicates loading state
+  const [submitLoading, setSubmitLoading] = useState(false); // Indicates submission loading state
 
   const [currentIndex, setCurrentIndex] = useState(0); // Index of current question
   const [userAnswers, setUserAnswers] = useState([]); // Array of saved answers
@@ -157,6 +158,7 @@ const QuizDetail = () => {
   };
 
   const submitQuiz = async () => {
+    setSubmitLoading(true);
     const updatedAnswers = saveAnswer(); // Get the updated answers
 
     const payload = {
@@ -173,10 +175,12 @@ const QuizDetail = () => {
       if (response?.data) {
         router.replace(`/quizzes/result/${response.data.submissionId}`);
       }
+      setSubmitLoading(false);
       localStorage.removeItem(storageKey);
       toast.success("Quiz completed! See your results below.");
     } catch (error) {
       toast.error(error.message);
+      setSubmitLoading(false);
     }
   };
 
@@ -268,7 +272,8 @@ const QuizDetail = () => {
               onClick={goNext}
               type="primary"
               className="rounded-md"
-              disabled={selectedOptionIds.length === 0}
+              disabled={selectedOptionIds.length === 0 || submitLoading}
+              loading={submitLoading}
             >
               {currentIndex < quizData.questions.length - 1 ? "Next" : "Submit"}
             </Button>
