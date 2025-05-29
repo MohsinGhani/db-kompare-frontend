@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { DIFFICULTY } from "@/utils/const";
 const avatarColors = ["#f56a00", "#7265e6", "#00a2ae", "#ffbf00", "#1890ff"];
+
 const Quizzes = () => {
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
@@ -30,13 +31,13 @@ const Quizzes = () => {
       .finally(() => setLoading(false));
   }, [user]);
 
-
-
   const handleStartQuiz = (quizId) => {
     // Check if the user is logged in
     if (!user) {
-      toast.error("Please log in to start the quiz.");
-      console.log("User details:", user, quizId);
+      const afterLogin = `/certifications`; // or `/quizzes/${quizId}`
+
+      // 3) push them to /signin with ?redirect=…
+      router.push(`/signin?redirect=${encodeURIComponent(afterLogin)}`);
       return;
     } else {
       // Redirect to quiz page
@@ -86,11 +87,11 @@ const Quizzes = () => {
                   : "text-red-600 bg-red-100";
 
               return (
-                <Col xs={24} sm={12} md={8} lg={5} key={id}>
+                <Col xs={24} sm={12} md={8} lg={8} xl={5} key={id}>
                   <div className="bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
                     <div className="h-40 relative">
                       <img
-                        className="w-full h-40 object-contain rounded-t-lg"
+                        className="w-full h-40 object-cover rounded-t-lg"
                         alt={name}
                         src={`https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg`}
                       />

@@ -13,8 +13,16 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
+const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+const shuffleArray=(arr)=>{
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 const QuizDetail = () => {
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
@@ -26,8 +34,9 @@ const QuizDetail = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0); // Index of current question
   const [userAnswers, setUserAnswers] = useState([]); // Array of saved answers
+    const [questions, setQuestions] = useState([]);
   const [selectedOptionIds, setSelectedOptionIds] = useState([]); // Currently selected options
-  const userDetails = useSelector((state) => state.auth.userDetails);
+  const {userDetails,isUserLoading} = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
 
   const storageKey = `quiz-${quizId}-user-${user?.id}`; // Key for saving to localStorage
@@ -43,6 +52,14 @@ const QuizDetail = () => {
 
           // Restore saved answers and index if available
           const saved = localStorage.getItem(storageKey);
+            // either shuffle fresh or keep original order so resume still aligns:
+        const orderedQuestions =saved 
+          ? data.questions
+          : shuffleArray(data.questions);
+
+        setQuizData(data);
+        setQuestions(orderedQuestions);
+
           if (saved) {
             const { answers, index } = JSON.parse(saved);
             setUserAnswers(answers);
@@ -69,7 +86,7 @@ const QuizDetail = () => {
   }, [userAnswers, currentIndex, quizData]);
 
   // Show loader while fetching data
-  if (loading || !quizData) {
+  if (loading || !quizData || (isUserLoading && !user)) {
     return (
       <div className="h-screen">
         <CommonLoader />
@@ -78,7 +95,7 @@ const QuizDetail = () => {
   }
 
   // Extract current question and its properties
-  const question = quizData.questions[currentIndex];
+  const question = questions[currentIndex];
   const isMultiple = question.isMultipleAnswer; // Allows multiple selections
   const maxSelect = question.correctCount; // Max number of selectable options
 

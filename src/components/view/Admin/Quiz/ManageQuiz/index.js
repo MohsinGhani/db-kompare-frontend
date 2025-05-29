@@ -112,7 +112,6 @@ const ManageQuiz = () => {
         .finally(() => setLoading(false));
     }
   }, [id, form]);
-console.log("quiz", quizd)
   const handleCancel = () => setPreviewVisible(false);
 
   const handlePreview = async (file) => {
