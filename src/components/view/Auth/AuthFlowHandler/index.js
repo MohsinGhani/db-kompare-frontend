@@ -9,6 +9,20 @@ import { isAdmin } from "@/utils/helper";
 
 const getHash = () =>
   typeof window !== "undefined" ? window.location.hash : undefined;
+function parseCustomStateFromHash(hash) {
+  // Amplify uses responseType=token, so everything comes back in window.location.hash
+  const params = new URLSearchParams(hash.slice(1))  // drop the leading "#"
+  const rawState = params.get('state')
+  if (!rawState) return null
+
+  try {
+    // Amplify Base64-encodes a JSON blob that contains { csrf, customState, ... }
+    const decoded = JSON.parse(atob(rawState))
+    return decoded.customState ?? null
+  } catch {
+    return null
+  }
+}
 
 const AuthFlowHandler = () => {
   const [loader, setLoader] = useState(false);
@@ -18,7 +32,12 @@ const AuthFlowHandler = () => {
   const router = useRouter();
 
   const has_auth_error = hash?.includes("error_description");
+ const customState = parseCustomStateFromHash(hash)
 
+ console.log("customState", customState);
+    const dest = isAdmin(userDetails?.data?.data?.role)
+      ? '/admin/quiz'
+      : (customState || '/')  
   const authFlowHandler = async () => {
     if (!has_auth_error) {
       try {
@@ -32,6 +51,7 @@ const AuthFlowHandler = () => {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
   useEffect(() => {
     setLoader(true);
     if (!userDetails && !has_auth_error) {
@@ -41,10 +61,10 @@ const AuthFlowHandler = () => {
         console.log("Admin user");
         router.replace("/admin/quiz");
       } else {
-        router.replace("/");
+         router.replace(dest)
       }
     }
-  }, [userDetails]);
+  }, [userDetails,router]);
 
   if (!isClient) return null;
 

@@ -42,6 +42,10 @@ const Quiz = () => {
           .map((q) => _removeFileFromS3(`QUIZZES/${q.image}`));
         await Promise.all(removalPromises);
       }
+      if(quiz?.quizImage){
+        await _removeFileFromS3(`QUIZZES/${quiz.quizImage}`);
+      }
+      await _removeFileFromS3(`QUIZZES/${quiz.image}`);
 
       await deleteQuiz(quiz.id);
       message.success("Quiz and associated images deleted successfully");
