@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { DIFFICULTY } from "@/utils/const";
 const avatarColors = ["#f56a00", "#7265e6", "#00a2ae", "#ffbf00", "#1890ff"];
 
+const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 const Quizzes = () => {
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
@@ -63,7 +64,7 @@ const Quizzes = () => {
                 <div className="animate-pulse bg-white rounded-lg h-80" />
               </Col>
             ))
-          : quizzes.map((quiz) => {
+          : quizzes.map((quiz, ind) => {
               const {
                 id,
                 name,
@@ -77,6 +78,7 @@ const Quizzes = () => {
                 quizNo,
                 recentParticipants = [],
                 otherParticipantsCount = 0,
+                quizImage: image,
               } = quiz;
 
               const diffColor =
@@ -85,39 +87,42 @@ const Quizzes = () => {
                   : difficulty === DIFFICULTY.MEDIUM
                   ? "text-yellow-600 bg-yellow-100"
                   : "text-red-600 bg-red-100";
-
+              const quizImage = `${S3_BASE_URL}/QUIZZES/${image}`;
               return (
                 <Col xs={24} sm={12} md={8} lg={8} xl={5} key={id}>
-                  <div className="bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
-                    <div className="h-40 relative">
-                      <img
-                        className="w-full h-40 object-cover rounded-t-lg"
-                        alt={name}
-                        src={`https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg`}
-                      />
-                      <div className="absolute -top-2 left-0 flex items-center">
+                  <div className="bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col h-full p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="rounded-lg flex items-center">
                         <img
-                          className="w-16 h-16  object-contain rounded-t-lg"
+                          className="w-16   object-contain"
                           alt={name}
-                          src={`/assets/icons/quiz.gif`}
+                          src={`/assets/icons/quizz.gif`}
                         />
-                        <p className="bg-primary rounded-full font-semibold p-2 h-7 w-7 flex items-center justify-center text-white">
+                        <p className=" rounded-full font-semibold text-2xl ">
                           #{quizNo}
                         </p>
                       </div>
-
-                      <div className="absolute top-3 right-2">
-                        <span
-                          className={`text-sm font-semibold px-2 py-1 rounded-md ${diffColor}`}
-                        >
-                          {difficulty}
-                        </span>
-                      </div>
+                      <span
+                        className={`text-sm font-semibold px-2 py-1 rounded-md ${diffColor}`}
+                      >
+                        {difficulty}
+                      </span>
+                    </div>
+                    <div className="h-40 relative">
+                      <img
+                        className="w-full h-40 object-cover rounded-lg border"
+                        alt={name}
+                        src={
+                          image
+                            ? quizImage
+                            : "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg"
+                        }
+                      />
                     </div>
 
-                    <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div className="my-2 flex-1 flex flex-col justify-between">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 ">
                           {name}
                         </h3>
                         <div className="text-sm text-primary border-primary border my-4 w-max bg-[#EEF0FF] px-2 py-1 rounded-md">

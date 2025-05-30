@@ -7,8 +7,8 @@ const Certifications = () => {
       <div className="flex flex-col gap-3 items-center justify-center mb-12">
         <p className="text-5xl font-semibold text-gray-800 text-center ">
           Get FREE{" "}
-          <span className="text-orange-500 font-[Pacifico] font-bold italic">
-            Certifications
+          <span className="text-orange-500 text-7xl  certifications">
+            Certificate
           </span>
         </p>
         <p className="text-sm text-center text-gray-600 font-[Pacifico]">

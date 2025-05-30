@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+
 const shuffleArray=(arr)=>{
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -49,7 +50,6 @@ const QuizDetail = () => {
         .then((res) => {
           const data = res.data;
           setQuizData(data);
-
           // Restore saved answers and index if available
           const saved = localStorage.getItem(storageKey);
             // either shuffle fresh or keep original order so resume still aligns:
@@ -84,6 +84,9 @@ const QuizDetail = () => {
       localStorage.setItem(storageKey, JSON.stringify(payload));
     }
   }, [userAnswers, currentIndex, quizData]);
+
+
+
 
   // Show loader while fetching data
   if (loading || !quizData || (isUserLoading && !user)) {

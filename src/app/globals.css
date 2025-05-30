@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mea+Culpa&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 /* Custom Styles */
 * {
@@ -12,10 +12,15 @@
   margin: 0;
   padding: 0;
 }
+
 body {
   background: #ebf2ff;
-  font-family: "Plus Jakarta Sans", "Pacifico", cursive,  sans-serif ;
+  font-family: "Plus Jakarta Sans", "Mea Culpa", cursive,  sans-serif ;
   margin: 0 !important;
+}
+
+.certifications{
+ font-family: "Mea Culpa", cursive !important;
 }
 
 @layer utilities {

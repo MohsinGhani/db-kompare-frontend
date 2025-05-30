@@ -65,17 +65,17 @@ const ManageQuiz = () => {
       setLoading(true);
       fetchQuizById(id)
         .then((res) => {
-          const quiz = res.data;
+          const quiz = res?.data;
           // Convert startDate and endDate strings to dayjs objects if present
           const startDate = quiz.startDate ? dayjs(quiz.startDate) : null;
           const endDate = quiz.endDate ? dayjs(quiz.endDate) : null;
-          const quizImageList = quiz.image
+          const quizImageList = quiz.quizImage
             ? [
                 {
-                  uid: quiz.image,
+                  uid: quiz.quizImage,
                   name: "Quiz Image",
                   status: "done",
-                  url: `${S3_BASE_URL}/QUIZZES/${quiz.image}`,
+                  url: `${S3_BASE_URL}/QUIZZES/${quiz.quizImage}`,
                 },
               ]
             : [];
@@ -87,6 +87,7 @@ const ManageQuiz = () => {
             description: quiz.description,
             validDateRange: startDate && endDate ? [startDate, endDate] : [],
             file: quizImageList,
+            quizImage: quiz?.quizImage,
             questions: quiz.questions.map((q) => ({
               question: q.question,
               id: q.id,
@@ -140,9 +141,8 @@ const ManageQuiz = () => {
           fileObj.name.split(".").pop() || fileObj.type.split("/")[1]
         ).toLowerCase();
         const newKey = `QUIZZES/${qid}-cover.${ext}`;
-
         // If editing and they replaced the old cover, you may want to remove it:
-        if (id && quiz.image && quiz.image !== `${qid}-cover.${ext}`) {
+        if (id && values.quizImage && values.quizImage !== newKey) {
           await _removeFileFromS3(`QUIZZES/${quiz.image}`);
         }
 
@@ -158,14 +158,14 @@ const ManageQuiz = () => {
       const questionsWithImages = await Promise.all(
         values.questions.map(async (q) => {
           let imageKey = null;
-
+          const questionId = q.id || ulid();
           if (q.file?.[0]?.originFileObj) {
             const fileObj = q.file[0].originFileObj;
             const ext =
               fileObj.name.split(".").pop().toLowerCase() ||
               fileObj.type.split("/")[1];
-            const newKey = `QUIZZES/${qid}.${ext}`;
-            const oldKey = q?.image ? `QUIZZES/${q.image}` : null;
+            const newKey = `QUIZZES/${questionId}.${ext}`;
+            const oldKey = q?.image ? `QUIZZES/${q?.image}` : null;
 
             if (id && oldKey && oldKey !== newKey) {
               try {
@@ -190,7 +190,7 @@ const ManageQuiz = () => {
           }));
 
           return {
-            id: qid,
+            id: questionId,
             question: q.question,
             options,
             explanation: q.explanation,
@@ -227,7 +227,7 @@ const ManageQuiz = () => {
         message.success("Quiz created successfully");
       }
 
-      // router.push("/admin/quiz");
+      router.push("/admin/quiz");
     } catch (error) {
       console.error("Error saving quiz:", error);
       message.error("Error saving quiz");
@@ -302,7 +302,7 @@ const ManageQuiz = () => {
               label="Category"
               rules={[{ required: true, message: "Please select a category" }]}
             >
-              <Select showSearch  placeholder="Please select a category">
+              <Select showSearch placeholder="Please select a category">
                 {rankingOptions.slice(1).map((option) => (
                   <Select.Option key={option.value} value={option.value}>
                     {option.label}
@@ -434,6 +434,7 @@ const ManageQuiz = () => {
                                   ]}
                                 >
                                   <Input
+                                    className="!w-full"
                                     placeholder={`Option ${optName + 1}`}
                                   />
                                 </Form.Item>
