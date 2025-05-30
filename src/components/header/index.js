@@ -195,7 +195,7 @@ export default function Navbar() {
                       router.push("/signin");
                     }}
                   >
-                    Vendor Login
+                    Login
                   </CommonButton>
                 </div>
               )}
@@ -302,7 +302,7 @@ export default function Navbar() {
                         setIsOpen(false);
                       }}
                     >
-                      Vendor Login
+                      Login
                     </CommonButton>
                   </div>
                 )}

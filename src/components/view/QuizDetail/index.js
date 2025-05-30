@@ -13,8 +13,17 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
+const shuffleArray=(arr)=>{
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 const QuizDetail = () => {
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
@@ -22,11 +31,13 @@ const QuizDetail = () => {
   // Local state
   const [quizData, setQuizData] = useState(null); // Stores fetched quiz data
   const [loading, setLoading] = useState(false); // Indicates loading state
+  const [submitLoading, setSubmitLoading] = useState(false); // Indicates submission loading state
 
   const [currentIndex, setCurrentIndex] = useState(0); // Index of current question
   const [userAnswers, setUserAnswers] = useState([]); // Array of saved answers
+    const [questions, setQuestions] = useState([]);
   const [selectedOptionIds, setSelectedOptionIds] = useState([]); // Currently selected options
-  const userDetails = useSelector((state) => state.auth.userDetails);
+  const {userDetails,isUserLoading} = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
 
   const storageKey = `quiz-${quizId}-user-${user?.id}`; // Key for saving to localStorage
@@ -39,9 +50,16 @@ const QuizDetail = () => {
         .then((res) => {
           const data = res.data;
           setQuizData(data);
-
           // Restore saved answers and index if available
           const saved = localStorage.getItem(storageKey);
+            // either shuffle fresh or keep original order so resume still aligns:
+        const orderedQuestions =saved 
+          ? data.questions
+          : shuffleArray(data.questions);
+
+        setQuizData(data);
+        setQuestions(orderedQuestions);
+
           if (saved) {
             const { answers, index } = JSON.parse(saved);
             setUserAnswers(answers);
@@ -67,8 +85,11 @@ const QuizDetail = () => {
     }
   }, [userAnswers, currentIndex, quizData]);
 
+
+
+
   // Show loader while fetching data
-  if (loading || !quizData) {
+  if (loading || !quizData || (isUserLoading && !user)) {
     return (
       <div className="h-screen">
         <CommonLoader />
@@ -77,7 +98,7 @@ const QuizDetail = () => {
   }
 
   // Extract current question and its properties
-  const question = quizData.questions[currentIndex];
+  const question = questions[currentIndex];
   const isMultiple = question.isMultipleAnswer; // Allows multiple selections
   const maxSelect = question.correctCount; // Max number of selectable options
 
@@ -157,6 +178,7 @@ const QuizDetail = () => {
   };
 
   const submitQuiz = async () => {
+    setSubmitLoading(true);
     const updatedAnswers = saveAnswer(); // Get the updated answers
 
     const payload = {
@@ -173,10 +195,12 @@ const QuizDetail = () => {
       if (response?.data) {
         router.replace(`/quizzes/result/${response.data.submissionId}`);
       }
+      setSubmitLoading(false);
       localStorage.removeItem(storageKey);
       toast.success("Quiz completed! See your results below.");
     } catch (error) {
       toast.error(error.message);
+      setSubmitLoading(false);
     }
   };
 
@@ -268,7 +292,8 @@ const QuizDetail = () => {
               onClick={goNext}
               type="primary"
               className="rounded-md"
-              disabled={selectedOptionIds.length === 0}
+              disabled={selectedOptionIds.length === 0 || submitLoading}
+              loading={submitLoading}
             >
               {currentIndex < quizData.questions.length - 1 ? "Next" : "Submit"}
             </Button>
