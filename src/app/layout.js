@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
           type="image/gif"
         />
       </head>
-      <body className="font-sans bg-white min-h-screen">
+      <body className="bg-white min-h-screen">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
