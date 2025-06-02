@@ -19,9 +19,7 @@ body {
   margin: 0 !important;
 }
 
-.certifications{
- font-family: "Mea Culpa", cursive !important;
-}
+
 
 @layer utilities {
   .text-balance {
