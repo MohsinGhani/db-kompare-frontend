@@ -8,7 +8,7 @@ const PUBLIC_PAGES = [
   "/email-verification",
 ];
 
-const PROTECTED_PAGES = ["/user-profile", "/add-blog", "/edit-blog", "/quizzes"];
+const PROTECTED_PAGES = ["/user-profile", "/add-blog", "/edit-blog"];
 
 export function middleware(request) {
   const token = request.cookies.get("accessToken")?.value;
