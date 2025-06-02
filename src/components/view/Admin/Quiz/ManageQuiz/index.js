@@ -88,6 +88,7 @@ const ManageQuiz = () => {
             validDateRange: startDate && endDate ? [startDate, endDate] : [],
             file: quizImageList,
             quizImage: quiz?.quizImage,
+            decreaseQuestions: quiz?.decreaseQuestions || 0,
             questions: quiz.questions.map((q) => ({
               question: q.question,
               id: q.id,
