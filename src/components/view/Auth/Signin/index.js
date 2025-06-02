@@ -61,7 +61,7 @@ const SignIn = () => {
         )
       ) {
         dispatch(setEmail(values.email));
-        router.push("/verification-code");
+        router.replace("/verification-code");
       } else {
         toast.error(err?.message);
       }
@@ -89,7 +89,7 @@ const SignIn = () => {
         const redirectPath = isValidRedirect(redirectParam)
           ? decodeURIComponent(redirectParam)
           : "/";
-        router.push(redirectPath);
+        router.replace(redirectPath);
       } else if (response.status === 404) {
         console.warn("User not found.");
       } else {
