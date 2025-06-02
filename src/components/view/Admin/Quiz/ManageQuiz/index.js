@@ -216,6 +216,7 @@ const ManageQuiz = () => {
         startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
         endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
         quizImage: quizImageKey,
+        decreaseQuestions: values.decreaseQuestions || 0,
       };
 
       console.log("Payload to be sent:", payload);
@@ -324,6 +325,17 @@ const ManageQuiz = () => {
                   </Select.Option>
                 ))}
               </Select>
+            </Form.Item>
+            <Form.Item
+              name="decreaseQuestions"
+              label="Decrease Questions"
+            >
+            <Input
+                type="number"
+                min={0}
+                max={100}
+                placeholder="Enter how many questions to decrease by."
+              />
             </Form.Item>
             <Form.Item name="description" label="Description">
               <TextArea rows={4} placeholder="Enter description here." />

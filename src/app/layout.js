@@ -1,6 +1,8 @@
-import "./globals.css";
 import ClientLayout from "./client-layout";
 import "@/style/global.scss"
+import "./globals.css";
+
+
 export const metadata = {
   title: {
     default: "DB Kompare",
@@ -18,8 +20,13 @@ export default function RootLayout({ children }) {
           href="/assets/icons/Animation-loader.gif"
           type="image/gif"
         />
+         <link
+          href="https://fonts.googleapis.com/css2?
+            family=Mea+Culpa&family=Plus+Jakarta+Sans:wght@200;400;600;800&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className="font-sans bg-white min-h-screen">
+      <body className=" bg-white min-h-screen">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
