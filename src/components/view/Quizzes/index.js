@@ -60,8 +60,8 @@ const Quizzes = () => {
       <Row gutter={[24, 24]} className="flex justify-center ">
         {loading
           ? Array.from({ length: 4 }).map((_, idx) => (
-              <Col xs={24} sm={12} md={8} lg={6} key={idx}>
-                <div className="animate-pulse bg-white rounded-lg h-80" />
+              <Col xs={24} sm={12} md={8} lg={8} xl={5} key={idx}>
+                <div className="animate-pulse bg-white rounded-lg h-[500px]" />
               </Col>
             ))
           : quizzes.map((quiz, ind) => {
@@ -147,9 +147,9 @@ const Quizzes = () => {
                             {dayjs(endDate).format("dddd, MMM DD, YYYY")}
                           </span>
                         </p>
-                        <div className="flex items-center text-sm gap-2">
+                        <div className="flex items-center text-sm ">
                           <span className="font-semibold">Participants:</span>{" "}
-                          <Avatar.Group>
+                          <Avatar.Group className="ml-2">
                             {recentParticipants?.map((participant, idx) => {
                               // cycle through your color list
                               const bgColor =
@@ -172,7 +172,11 @@ const Quizzes = () => {
                               );
                             })}
                           </Avatar.Group>
-                          <span>+ {otherParticipantsCount} more</span>
+                          <span>
+                            {recentParticipants?.length > 0 && "+"}
+                            {otherParticipantsCount}{" "}
+                            {recentParticipants?.length > 0 && "more"}
+                          </span>
                         </div>
                       </div>
                       {taken ? (

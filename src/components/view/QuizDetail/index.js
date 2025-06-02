@@ -24,7 +24,7 @@ const shuffleArray=(arr)=>{
   }
   return a;
 }
-const QuizDetail = () => {
+const QuizDetail = ({quiz}) => {
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
   const router = useRouter();
@@ -44,38 +44,37 @@ const QuizDetail = () => {
 
   // Fetch quiz data and restore saved progress on mount
   useEffect(() => {
-    if (quizId) {
-      setLoading(true);
-      fetchQuizById(quizId)
-        .then((res) => {
-          const data = res.data;
-          setQuizData(data);
-          // Restore saved answers and index if available
-          const saved = localStorage.getItem(storageKey);
-            // either shuffle fresh or keep original order so resume still aligns:
-        const orderedQuestions =saved 
-          ? data.questions
-          : shuffleArray(data.questions);
+    if (!quiz || !user) return;
 
-        setQuizData(data);
-        setQuestions(orderedQuestions);
+    setQuizData(quiz);
 
-          if (saved) {
-            const { answers, index } = JSON.parse(saved);
-            setUserAnswers(answers);
-            setCurrentIndex(index);
+    // Attempt to restore from localStorage
+    const savedRaw = localStorage.getItem(storageKey);
+    if (savedRaw) {
+      try {
+        const { answers, index } = JSON.parse(savedRaw);
+        setUserAnswers(answers);
+        setCurrentIndex(index);
 
-            // Restore selected options for the resumed question
-            const restored = answers.find(
-              (a) => a.questionId === data.questions[index].id
-            );
-            setSelectedOptionIds(restored?.selected || []);
-          }
-        })
-        .catch(() => toast.error("Failed to load quiz data"))
-        .finally(() => setLoading(false));
+        // Restore question order to original so indexing matches
+        setQuestions(quiz.questions);
+
+        // Restore selected options for the resumed question
+        const resumed = answers.find(
+          (a) => a.questionId === quiz.questions[index].id
+        );
+        setSelectedOptionIds(resumed?.selected || []);
+      } catch {
+        // If parsing fails, treat as no saved state
+        const freshOrder = shuffleArray(quiz.questions);
+        setQuestions(freshOrder);
+      }
+    } else {
+      // No saved state: shuffle questions
+      const freshOrder = shuffleArray(quiz.questions);
+      setQuestions(freshOrder);
     }
-  }, [quizId]);
+  }, [quiz, user]);
 
   // Persist answers and current question index to localStorage on any change
   useEffect(() => {
