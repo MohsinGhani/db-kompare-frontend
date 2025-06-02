@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
   // Canonical URL
 
   // OpenGraph image URL
-  const ogImageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/QUIZZES/${quiz?.quizImage}`;
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/QUIZZES/${quiz?.quizImage}` || "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg";
 
   // Base metadata from your helper
   const baseMetadata = generateCommonMetadata({
@@ -45,7 +45,6 @@ export async function generateMetadata({ params }) {
 
   return {
     ...baseMetadata,
-    metadataBase: new URL("https://www.db-kompare.com"),
     keywords: keywordsArray,
     robots: {
       index: true,
@@ -74,35 +73,11 @@ export default async function QuizPage({ params }) {
   // JSON-LD for structured data
   const rawText = convertHtmlToText(quiz.description || "");
   const isoCreatedAt = new Date(Number(quiz.createdAt)).toISOString();
-  const quizUrl = `https://www.db-kompare.com/quiz/${quiz.id}`;
   const ogImageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/QUIZ/${id}.webp`;
-
-  // Build question entities
-  const questionEntities = quiz.questions.map((q, idx) => {
-    const accepted = q.options.find((opt) => opt.isCorrect);
-    return {
-      "@type": "Question",
-      "@id": `${quizUrl}#question${idx + 1}`,
-      name: q.question,
-      text: q.question,
-      answerCount: q.options.length,
-      acceptedAnswer: accepted
-        ? {
-            "@type": "Answer",
-            text: accepted.text,
-          }
-        : null,
-      suggestedAnswer: q.options.map((opt) => ({
-        "@type": "Answer",
-        text: opt.text,
-      })),
-    };
-  });
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Quiz",
-    "@id": `${quizUrl}#quiz`,
     name: quiz.name,
     description: rawText,
     dateCreated: isoCreatedAt,
@@ -110,10 +85,8 @@ export default async function QuizPage({ params }) {
       "@type": "Person",
       name: "DB Kompare Team",
     },
-    url: quizUrl,
-    image: ogImageUrl,
+    image: ogImageUrl ,
     totalQuestions: quiz.totalQuestions,
-    hasPart: questionEntities,
   };
 
   return (
