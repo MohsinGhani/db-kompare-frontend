@@ -78,6 +78,7 @@ const Quizzes = () => {
                 quizNo,
                 recentParticipants = [],
                 otherParticipantsCount = 0,
+                decreaseQuestions = 0,
                 quizImage: image,
               } = quiz;
 
@@ -133,7 +134,7 @@ const Quizzes = () => {
                           <span className="font-semibold">
                             Number of Questions:
                           </span>{" "}
-                          {totalQuestions}
+                          {totalQuestions - decreaseQuestions}
                         </p>
                         <p className=" text-sm mb-2">
                           <span className="font-semibold">

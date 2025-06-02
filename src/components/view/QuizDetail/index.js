@@ -2,53 +2,122 @@
 
 // Importing necessary components and libraries
 import CommonLoader from "@/components/shared/CommonLoader";
-import { createQuizSubmission, fetchQuizById } from "@/utils/quizUtil";
+import { createQuizSubmission } from "@/utils/quizUtil";
 import {
   ArrowLeftOutlined,
   InfoCircleOutlined,
   LockOutlined,
 } from "@ant-design/icons";
 import { Button, Progress, Radio, Checkbox } from "antd";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
-const shuffleArray=(arr)=>{
+// Utility to shuffle an array
+const shuffleArray = (arr) => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-const QuizDetail = ({quiz}) => {
+};
+
+const QuizDetail = ({ quiz }) => {
+
+  console.log("QuizDetail component rendered with quiz:", quiz);
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
   const router = useRouter();
-  // Local state
-  const [quizData, setQuizData] = useState(null); // Stores fetched quiz data
-  const [loading, setLoading] = useState(false); // Indicates loading state
-  const [submitLoading, setSubmitLoading] = useState(false); // Indicates submission loading state
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [currentIndex, setCurrentIndex] = useState(0); // Index of current question
-  const [userAnswers, setUserAnswers] = useState([]); // Array of saved answers
-    const [questions, setQuestions] = useState([]);
-  const [selectedOptionIds, setSelectedOptionIds] = useState([]); // Currently selected options
-  const {userDetails,isUserLoading} = useSelector((state) => state.auth);
+  // Redux state
+  const { userDetails, isUserLoading } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data;
 
-  const storageKey = `quiz-${quizId}-user-${user?.id}`; // Key for saving to localStorage
+  // Local state
+  const [quizData, setQuizData] = useState(null); // The entire quiz object
+  const [questions, setQuestions] = useState([]); // Final, shuffled+reduced question objects
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState([]); // { questionId, selected: [...] }
+  const [selectedOptionIds, setSelectedOptionIds] = useState([]); // For current question
+  const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Fetch quiz data and restore saved progress on mount
+  // Where decreaseQuestions is the number to remove from total
+  const decreaseCount = quiz?.decreaseQuestions || 0;
+
+  // Storage keys
+  const storageKey = `quiz-${quizId}-user-${user?.id}`;
+  const questionsKey = `quiz-${quizId}-questions-${user?.id}`;
+
+  /**
+   * Redirect to sign-in if user is not logged in.
+   * Include current URL (with query) as redirect param.
+   */
+  useEffect(() => {
+    if (!user && !isUserLoading) {
+      const currentUrl =
+        pathname +
+        (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+      toast.error("You must be logged in to take a quiz.");
+      router.replace(`/signin?redirect=${encodeURIComponent(currentUrl)}`);
+    }
+  }, [user, isUserLoading, pathname, searchParams, router]);
+
+  /**
+   * On mount (and whenever quiz or user changes):
+   * 1) Initialize quizData
+   * 2) Determine final question set:
+   *    - If we've stored question IDs previously, restore that specific order+subset
+   *    - Otherwise: shuffle all quiz.questions, slice off `decreaseCount` items, store that array of IDs
+   * 3) Restore saved answers and index if available
+   */
   useEffect(() => {
     if (!quiz || !user) return;
 
     setQuizData(quiz);
 
-    // Attempt to restore from localStorage
+    // Try to restore question IDs array from localStorage
+    const savedQuestionIdsRaw = localStorage.getItem(questionsKey);
+    let finalQuestionIds = null;
+
+    if (savedQuestionIdsRaw) {
+      try {
+        finalQuestionIds = JSON.parse(savedQuestionIdsRaw);
+      } catch {
+        finalQuestionIds = null;
+      }
+    }
+
+    if (finalQuestionIds && Array.isArray(finalQuestionIds)) {
+      // Reconstruct question objects in the saved order
+      const restoredQuestions = finalQuestionIds
+        .map((qid) => quiz.questions.find((q) => q.id === qid))
+        // Filter out any missing ones (just in case)
+        .filter(Boolean);
+      setQuestions(restoredQuestions);
+    } else {
+      // No saved question IDs → shuffle & slice
+      const allShuffled = shuffleArray(quiz.questions);
+      const numToTake = quiz.questions.length - decreaseCount;
+      const sliced = allShuffled.slice(0, Math.max(numToTake, 0));
+      setQuestions(sliced);
+
+      // Store the final question IDs for future restores
+      const slicedIds = sliced.map((q) => q.id);
+      localStorage.setItem(questionsKey, JSON.stringify(slicedIds));
+    }
+
+    // Next, restore answers & index from localStorage if present
     const savedRaw = localStorage.getItem(storageKey);
     if (savedRaw) {
       try {
@@ -56,27 +125,23 @@ const QuizDetail = ({quiz}) => {
         setUserAnswers(answers);
         setCurrentIndex(index);
 
-        // Restore question order to original so indexing matches
-        setQuestions(quiz.questions);
-
         // Restore selected options for the resumed question
-        const resumed = answers.find(
-          (a) => a.questionId === quiz.questions[index].id
+        const resumedAnswer = answers.find(
+          (a) => a.questionId === questions[index]?.id
         );
-        setSelectedOptionIds(resumed?.selected || []);
+        setSelectedOptionIds(resumedAnswer?.selected || []);
       } catch {
-        // If parsing fails, treat as no saved state
-        const freshOrder = shuffleArray(quiz.questions);
-        setQuestions(freshOrder);
+        // If parsing fails, start fresh
+        setUserAnswers([]);
+        setCurrentIndex(0);
+        setSelectedOptionIds([]);
       }
-    } else {
-      // No saved state: shuffle questions
-      const freshOrder = shuffleArray(quiz.questions);
-      setQuestions(freshOrder);
     }
   }, [quiz, user]);
 
-  // Persist answers and current question index to localStorage on any change
+  /**
+   * Persist answers and current question index to localStorage on any change
+   */
   useEffect(() => {
     if (quizData) {
       const payload = { answers: userAnswers, index: currentIndex };
@@ -84,11 +149,8 @@ const QuizDetail = ({quiz}) => {
     }
   }, [userAnswers, currentIndex, quizData]);
 
-
-
-
-  // Show loader while fetching data
-  if (loading || !quizData || (isUserLoading && !user)) {
+  // Show loader while initializing
+  if (!quizData || (isUserLoading && !user) || questions.length === 0) {
     return (
       <div className="h-screen">
         <CommonLoader />
@@ -96,116 +158,112 @@ const QuizDetail = ({quiz}) => {
     );
   }
 
-  // Extract current question and its properties
+  // Current question
   const question = questions[currentIndex];
-  const isMultiple = question.isMultipleAnswer; // Allows multiple selections
-  const maxSelect = question.correctCount; // Max number of selectable options
+  const isMultiple = question.isMultipleAnswer;
+  const maxSelect = question.correctCount;
 
   /**
    * Handle option selection click
-   * - For multiple-answer questions, enforce maxSelect
-   * - For single-answer, replace selection
    */
   const handleOptionChange = (id) => {
     if (isMultiple) {
       if (selectedOptionIds.includes(id)) {
-        // Deselect option
         setSelectedOptionIds((prev) => prev.filter((x) => x !== id));
       } else if (selectedOptionIds.length < maxSelect) {
-        // Select option if under limit
         setSelectedOptionIds((prev) => [...prev, id]);
       } else {
-        // Notify user when exceeding limit
         toast.info(
-          `You can select up to ${maxSelect} options for this question.`
+          `You can select up to ${maxSelect} option${
+            maxSelect > 1 ? "s" : ""
+          } for this question.`
         );
       }
     } else {
-      // Single-choice selection
       setSelectedOptionIds([id]);
     }
   };
 
   /**
-   * Save the current question's answer into userAnswers array
+   * Save the current question's answer into userAnswers
    */
   const saveAnswer = () => {
     const updated = userAnswers.filter((a) => a.questionId !== question.id);
     updated.push({ questionId: question.id, selected: selectedOptionIds });
     setUserAnswers(updated);
-    return updated; // Return the updated answers
+    return updated;
   };
 
   /**
-   * Move to the next question or finish quiz
+   * Navigate to the next question or submit if on last
    */
   const goNext = () => {
-    saveAnswer();
+    const updatedAnswers = saveAnswer();
 
-    if (currentIndex < quizData.questions.length - 1) {
-      // Advance to next question
+    if (currentIndex < questions.length - 1) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
 
-      //  look in userAnswers to see if the user had already answered that next question
-      const nextAns = [
-        ...userAnswers.filter((a) => a.questionId !== question.id),
-        { questionId: question.id, selected: selectedOptionIds },
-      ].find((a) => a.questionId === quizData.questions[nextIdx].id);
-
-      setSelectedOptionIds(nextAns?.selected || []);
+      // Restore any previously saved selection for that question
+      const nextSaved = updatedAnswers.find(
+        (a) => a.questionId === questions[nextIdx].id
+      );
+      setSelectedOptionIds(nextSaved?.selected || []);
     } else {
-      submitQuiz();
+      submitQuiz(updatedAnswers);
     }
   };
 
   /**
-   * Move to the previous question while saving current answer
+   * Navigate to the previous question, saving current answer first
    */
   const goPrevious = () => {
     if (currentIndex > 0) {
-      saveAnswer();
+      const updatedAnswers = saveAnswer();
       const prevIdx = currentIndex - 1;
       setCurrentIndex(prevIdx);
 
-      // Restore selection on previous question
-      const prevAns = userAnswers.find(
-        (a) => a.questionId === quizData.questions[prevIdx].id
+      // Restore selection for the previous question
+      const prevSaved = updatedAnswers.find(
+        (a) => a.questionId === questions[prevIdx].id
       );
-      setSelectedOptionIds(prevAns?.selected || []);
+      setSelectedOptionIds(prevSaved?.selected || []);
     }
   };
 
-  const submitQuiz = async () => {
+  /**
+   * Submit the quiz
+   */
+  const submitQuiz = async (updatedAnswersArg) => {
     setSubmitLoading(true);
-    const updatedAnswers = saveAnswer(); // Get the updated answers
+    const finalAnswers = updatedAnswersArg || saveAnswer();
 
     const payload = {
       quizId,
-      userId: user?.id,
-      answers: updatedAnswers.map(({ questionId, selected }) => ({
+      userId: user.id,
+      answers: finalAnswers.map(({ questionId, selected }) => ({
         questionId,
         selectedOptionIds: selected,
       })),
     };
+
     try {
-      // Replace this with your real API endpoint
       const response = await createQuizSubmission(payload);
       if (response?.data) {
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(questionsKey);
+        toast.success("Quiz completed! Redirecting to results…");
         router.replace(`/quizzes/result/${response.data.submissionId}`);
       }
-      setSubmitLoading(false);
-      localStorage.removeItem(storageKey);
-      toast.success("Quiz completed! See your results below.");
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      toast.error(err.message || "Failed to submit quiz. Please try again.");
       setSubmitLoading(false);
     }
   };
 
-  // Calculate progress percentage
+  // Progress indicator
   const progressPercent = Math.round(
-    ((currentIndex + 1) / quizData.questions.length) * 100
+    ((currentIndex + 1) / questions.length) * 100
   );
 
   return (
@@ -228,36 +286,42 @@ const QuizDetail = ({quiz}) => {
             className="!w-full"
           />
         </div>
-        <div className="flex items-center gap-1 !text-[#777777] ">
+        <div className="flex items-center gap-1 !text-[#777777]">
           <LockOutlined />
           <p>Certificate</p>
         </div>
       </div>
 
       {/* Question display section */}
-      <div className="container flex justify-center items-center min-h-[90vh]  h-full overflow-auto py-6 flex-col">
+      <div className="container flex justify-center items-center min-h-[90vh] h-full overflow-auto py-6 flex-col">
         <h1 className="text-3xl font-bold text-left">
           Q{currentIndex + 1}. {question.question}
         </h1>
+
         {question?.image && (
           <img
             src={`${S3_BASE_URL}/QUIZZES/${question.image}`}
             className="rounded-lg h-[200px] w-full object-contain mt-4"
+            alt={`Question ${currentIndex + 1} image`}
           />
         )}
+
         {isMultiple && (
           <p className="text-primary font-semibold italic text-sm text-left mt-2">
             <InfoCircleOutlined /> Select up to {maxSelect} answers
           </p>
         )}
-        <div className="flex flex-col items-center justify-center mt-8 max-w-[50%] w-full ">
+
+        <div className="flex flex-col items-center justify-center mt-8 max-w-[50%] w-full">
           {question.options.map((option) => {
             const isSelected = selectedOptionIds.includes(option.id);
             return (
               <div
                 key={option.id}
                 className={`w-full p-4 rounded-md mt-4 flex items-center gap-2 cursor-pointer border ${
-                  isSelected ? "border-2 border-primary" : "border-transparent"
+                  isSelected
+                    ? "border-2 border-primary"
+                    : "border-transparent"
                 } bg-[#F4F5FF]`}
                 onClick={() => handleOptionChange(option.id)}
               >
@@ -294,7 +358,7 @@ const QuizDetail = ({quiz}) => {
               disabled={selectedOptionIds.length === 0 || submitLoading}
               loading={submitLoading}
             >
-              {currentIndex < quizData.questions.length - 1 ? "Next" : "Submit"}
+              {currentIndex < questions.length - 1 ? "Next" : "Submit"}
             </Button>
           </div>
           <div className="flex items-center gap-1 font-semibold">

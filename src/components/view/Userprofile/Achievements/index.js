@@ -12,7 +12,7 @@ const Achievements = ({user}) => {
   ];
   return (
     <div className="lg:max-w-[75%] pb-20">
-      <Collapse className="custom-collapse border-none " items={items} />
+      <Collapse className="custom-collapse border-none " defaultActiveKey={'1'} items={items} />
     </div>
   );
 };
