@@ -25,6 +25,7 @@ const CommonUserDropdown = () => {
       case "2":
         await signOut();
         RemoveAccessTokenFormCookies();
+        localStorage.clear();
         window.location.href = "/";
         break;
       default:

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { useSelector } from "react-redux";
 import { Image } from "antd";
@@ -10,16 +10,16 @@ import { isAdmin } from "@/utils/helper";
 const getHash = () =>
   typeof window !== "undefined" ? window.location.hash : undefined;
 
-
 const AuthFlowHandler = () => {
   const [loader, setLoader] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [hash, setHash] = useState(getHash());
   const { userDetails } = useSelector((state) => state.auth);
+  const user = userDetails?.data?.data || null;
   const router = useRouter();
+  const routerRef = useRef("{}");
 
   const has_auth_error = hash?.includes("error_description");
-
 
   const authFlowHandler = async () => {
     if (!has_auth_error) {
@@ -36,6 +36,14 @@ const AuthFlowHandler = () => {
   }, []);
 
   useEffect(() => {
+    const customOAuthState = localStorage.getItem("customOAuthState");
+    if (customOAuthState) routerRef.current = customOAuthState;
+    return () => {
+      localStorage.removeItem("customOAuthState");
+    };
+  }, [router]);
+
+  useEffect(() => {
     setLoader(true);
     if (!userDetails && !has_auth_error) {
       authFlowHandler();
@@ -44,10 +52,17 @@ const AuthFlowHandler = () => {
         console.log("Admin user");
         router.replace("/admin/quiz");
       } else {
-         router.replace("/")
+        router.replace("/");
       }
     }
-  }, [userDetails,router]);
+  }, [userDetails, router]);
+
+  useEffect(() => {
+    if (user) {
+      const query = routerRef.current;
+      router.replace(`${query || "/"}`);
+    }
+  }, [user]);
 
   if (!isClient) return null;
 
