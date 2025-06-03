@@ -33,7 +33,6 @@ const shuffleArray = (arr) => {
 
 const QuizDetail = ({ quiz }) => {
 
-  console.log("QuizDetail component rendered with quiz:", quiz);
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
   const router = useRouter();
@@ -294,7 +293,7 @@ const QuizDetail = ({ quiz }) => {
 
       {/* Question display section */}
       <div className="container flex justify-center items-center min-h-[90vh] h-full overflow-auto py-6 flex-col">
-        <h1 className="text-3xl font-bold text-left">
+        <h1 className="text-3xl font-bold text-left pointer-events-none select-none">
           Q{currentIndex + 1}. {question.question}
         </h1>
 
@@ -307,7 +306,7 @@ const QuizDetail = ({ quiz }) => {
         )}
 
         {isMultiple && (
-          <p className="text-primary font-semibold italic text-sm text-left mt-2">
+          <p className="text-primary font-semibold italic text-sm text-left mt-2 ">
             <InfoCircleOutlined /> Select up to {maxSelect} answers
           </p>
         )}
