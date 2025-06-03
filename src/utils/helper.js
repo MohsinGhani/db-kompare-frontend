@@ -144,36 +144,52 @@ export const dataToJson = (data) => {
   return JSON.stringify(data, null, 2);
 };
 
+// utils/helper.ts
 export function generateCommonMetadata({
   title,
   description,
   imageUrl = "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg",
   siteName = "DB Kompare",
   type = "website",
+  twitterHandle = "@dbkompare",       // your site’s Twitter username
+  twitterCreator = "@dbkompare_team", // optional: the author handle
 }) {
   const desc =
-    description ||
+    description ??
     "DB Kompare is a comprehensive platform designed to simplify the process of comparing over 300 different database systems. Whether you're a developer, business analyst, or IT professional, DB Kompare provides powerful tools to evaluate and compare the performance, scalability, features, and suitability of various databases. With real-time rankings based on search engine results from Google, Bing, Stack Overflow, and other sources, users can make data-driven decisions when selecting the ideal database for their needs. Additionally, DB Kompare features an extensive collection of blogs and articles that cover in-depth insights, tutorials, and the latest trends for each of the 300+ databases listed on the platform. Our database tools and comparison engine also provide accurate, up-to-date data, including performance benchmarks, user reviews, and feature analysis. Whether you're migrating to a new database or optimizing your current system, DB Kompare makes it easier than ever to find the right database solution for your projects.";
 
+  const fullTitle = `${title} | ${siteName}`;
+
   return {
-    title: `${title} | ${siteName}`,
+    title: fullTitle,
     description: desc,
     openGraph: {
-      title: `${title} | ${siteName}`,
+      title: fullTitle,
       description: desc,
-      type: type,
+      type,
+      siteName,
       images: [
         {
-          url: imageUrl || "",
+          url: imageUrl,
           width: 1200,
           height: 630,
-          alt: title || "Default Image Alt",
+          alt: title,
         },
       ],
-      siteName: siteName,
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: twitterHandle,
+      creator: twitterCreator,
+      title: fullTitle,
+      description: desc,
+      images: [imageUrl],
     },
   };
 }
+
+
+
 export const convertHtmlToText = (html) => {
   return html?.replace(/<[^>]+>/g, "");
 };
