@@ -28,7 +28,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/'
+  const redirect = searchParams.get("redirect") || "/";
   const dispatch = useDispatch();
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
@@ -129,7 +129,9 @@ const SignIn = () => {
               Continue with Google
             </button>
             <button
-              onClick={() => socialRegisteration({ custom: "GitHub",redirect })}
+              onClick={() =>
+                socialRegisteration({ custom: "GitHub" }, redirect)
+              }
               className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
             >
               <Image
@@ -141,7 +143,9 @@ const SignIn = () => {
               Continue with Github
             </button>
             <button
-              onClick={() => socialRegisteration({ custom: "LinkedIn" })}
+              onClick={() =>
+                socialRegisteration({ custom: "LinkedIn" }, redirect)
+              }
               className="border-stroke mb-6 flex w-full items-center justify-center gap-3 rounded-sm border bg-white px-6 py-3 text-lg text-secondary outline-none focus:outline-none hover:bg-[#f8f8f8]"
             >
               <Image
