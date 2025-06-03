@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
   // Canonical URL
 
   // OpenGraph image URL
-  const ogImageUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/QUIZZES/${quiz?.quizImage}` || "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg";
+  const ogImageUrl = quiz?.quizImage ? `${process.env.NEXT_PUBLIC_BUCKET_URL}/QUIZZES/${quiz?.quizImage}` : "https://db-kompare-dev.s3.eu-west-1.amazonaws.com/COMMON/db-kompare-banner.jpg";
 
   // Base metadata from your helper
   const baseMetadata = generateCommonMetadata({
