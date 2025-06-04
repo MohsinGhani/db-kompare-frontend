@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         /> */}
       </head>
-      <body className={`${meaCulpa.className} bg-white min-h-screen`}>
+      <body className={`${meaCulpa.className} font-sans bg-white min-h-screen`}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
