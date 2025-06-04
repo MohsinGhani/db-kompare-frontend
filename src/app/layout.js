@@ -1,14 +1,19 @@
 import ClientLayout from "./client-layout";
-import "@/style/global.scss"
+import "@/style/global.scss";
 import "./globals.css";
-import { Mea_Culpa } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
-const meaCulpa = Mea_Culpa({
-  weight: ["400"],
+const inter = Inter({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata = {
   title: {
@@ -27,12 +32,10 @@ export default function RootLayout({ children }) {
           href="/assets/icons/Animation-loader.gif"
           type="image/gif"
         />
-         {/* <link
-          href="https://fonts.googleapis.com/css2?family=Mea+Culpa&family=Plus+Jakarta+Sans:wght@200;400;600;800&display=swap"
-          rel="stylesheet"
-        /> */}
       </head>
-      <body className={`${meaCulpa.className} font-sans bg-white min-h-screen`}>
+      <body
+        className={`${inter.className} ${plusJakartaSans.className} bg-white min-h-screen`}
+      >
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
