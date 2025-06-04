@@ -1,75 +1,54 @@
+// src/pages/admin/questions.jsx
+
 "use client";
 
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../";
-import { Button, Table, Space, message, Popconfirm } from "antd";
+import { Button, Space, message, Popconfirm } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useRouter } from "nextjs-toploader/app";
-import { fetchQuizzes, deleteQuiz } from "@/utils/quizUtil";
 import CommonTable from "@/components/shared/CommonTable";
-import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { _removeFileFromS3 } from "@/utils/s3Services";
+import { fetchQuizzesQuestions } from "@/utils/quizUtil";
 
 dayjs.extend(relativeTime);
-const Quiz = () => {
-  const [quizzes, setQuizzes] = useState([]);
+
+const Questions = () => {
+    
+  const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const loadQuizzes = async () => {
+  const loadQuestions = async () => {
     setLoading(true);
     try {
-      const data = await fetchQuizzes();
-      setQuizzes(data?.data || []);
+      const data = await fetchQuizzesQuestions();
+      setQuestions(data?.data || []);
     } catch (err) {
       console.error(err);
-      message.error("Failed to load quizzes");
+      message.error("Failed to load questions");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadQuizzes();
+    loadQuestions();
   }, []);
 
-  
-  const handleDelete = async (quiz) => {
-    setLoading(true);
-    try {
-      if (quiz?.questions?.length) {
-        const removalPromises = quiz.questions
-          .filter((q) => q.image)
-          .map((q) => _removeFileFromS3(`QUIZZES/${q.image}`));
-        await Promise.all(removalPromises);
-      }
-      if(quiz?.quizImage){
-        await _removeFileFromS3(`QUIZZES/${quiz.quizImage}`);
-      }
-      await _removeFileFromS3(`QUIZZES/${quiz.image}`);
-
-      await deleteQuiz(quiz.id);
-      message.success("Quiz and associated images deleted successfully");
-      await loadQuizzes();
-    } catch (err) {
-      console.error(err);
-      message.error("Failed to delete quiz and its images");
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      sortDirections: ["ascend", "descend"],
-      // Styling header and cells
+      title: "Question",
+      dataIndex: "question",
+      key: "question",
+      ellipsis: true,
       className: "font-semibold text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
+      render: (text) => <div className="whitespace-pre-wrap">{text}</div>,
     },
     {
       title: "Category",
@@ -90,34 +69,13 @@ const Quiz = () => {
       onCell: () => ({ style: { padding: "10px 16px" } }),
     },
     {
-      title: "Passing %",
-      dataIndex: "passingPerc",
-      key: "passingPerc",
-      sorter: (a, b) => Number(a.passingPerc) - Number(b.passingPerc),
+      title: "Correct Count",
+      dataIndex: "correctCount",
+      key: "correctCount",
+      sorter: (a, b) => a.correctCount - b.correctCount,
       sortDirections: ["ascend", "descend"],
+      align: "center",
       onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
-    },
-    {
-      title: "Total Questions",
-      dataIndex: "totalQuestions",
-      key: "totalQuestions",
-      sorter: (a, b) => a.totalQuestions - b.totalQuestions,
-      sortDirections: ["ascend", "descend"],
-      onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
-    },
-    {
-      title: "Desired Questions",
-      dataIndex: "desiredQuestions",
-      key: "desiredQuestions",
-      sorter: (a, b) => a.desiredQuestions - b.desiredQuestions,
-      sortDirections: ["ascend", "descend"],
-      onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
-      render: (ts) => (
-        <p>
-          {ts > 0 ? ts : "All"}{" "}
-          
-        </p>
-      ),
     },
     {
       title: "Created At",
@@ -141,18 +99,20 @@ const Quiz = () => {
     {
       title: "Actions",
       key: "actions",
+      width: 140,
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
             icon={<EditOutlined />}
-            onClick={() => router.push(`/admin/quiz/${record.id}`)}
+            onClick={() => router.push(`/admin/questions/${record.id}`)}
             type="default"
             size="small"
             className="hover:bg-blue-100"
           />
           <Popconfirm
-            title="Delete this quiz?"
-            onConfirm={() => handleDelete(record)}
+            title="Delete this question?"
+            // onConfirm={() => handleDelete(record)}
             okText="Yes"
             cancelText="No"
           >
@@ -173,18 +133,18 @@ const Quiz = () => {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Quizzes ({quizzes.length})</h1>
+        <h1 className="text-2xl font-semibold">Questions ({questions.length})</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => router.push("/admin/quiz/new")}
+          onClick={() => router.push("/admin/questions/new")}
         >
-          Create Quiz
+          Create Question
         </Button>
       </div>
       <CommonTable
         rowKey="id"
-        dataSource={quizzes}
+        dataSource={questions}
         columns={columns}
         loading={loading}
       />
@@ -192,4 +152,4 @@ const Quiz = () => {
   );
 };
 
-export default Quiz;
+export default Questions;

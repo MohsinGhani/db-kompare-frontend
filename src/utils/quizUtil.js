@@ -52,6 +52,19 @@ export const fetchQuizzes = async (queryParams = {}) => {
     },
   });
 };
+// Fetch all quizzes questions (optionally filtered by status)
+export const fetchQuizzesQuestions = async (queryParams = {}) => {
+  const queryString = new URLSearchParams(queryParams).toString();
+  const url = `${API_BASE_URL}/get-quiz-questions${
+    queryString ? `?${queryString}` : ""
+  }`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
 
 // Fetch a single quiz by ID
 export const fetchQuizById = async (id) => {

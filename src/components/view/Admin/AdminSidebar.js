@@ -9,6 +9,7 @@ import {
   DashboardFilled,
   FolderAddFilled,
   LogoutOutlined,
+  QuestionCircleFilled,
   SettingFilled,
 } from "@ant-design/icons";
 import { RemoveAccessTokenFormCookies } from "@/utils/helper";
@@ -24,6 +25,11 @@ const menuItems = [
     key: "/admin/quiz",
     label: "Quiz",
     icon: <FolderAddFilled />,
+  },
+  {
+    key: "/admin/questions",
+    label: "Questions",
+    icon: <QuestionCircleFilled />,
   },
   {
     key: "/admin/settings",
@@ -64,7 +70,7 @@ const AdminSidebar = ({ user, setUser }) => {
       </div>
       <Menu
         items={menuItems}
-        mode="vertical"
+        mode="inline"
         className="!h-full bg-gray-50 !min-h-[(100vh-64px)]"
         selectedKeys={[pathname]}
         onClick={onMenuClick}

@@ -88,7 +88,7 @@ const ManageQuiz = () => {
             validDateRange: startDate && endDate ? [startDate, endDate] : [],
             file: quizImageList,
             quizImage: quiz?.quizImage,
-            decreaseQuestions: quiz?.decreaseQuestions || 0,
+            desiredQuestions: quiz?.desiredQuestions || 0,
             questions: quiz.questions.map((q) => ({
               question: q.question,
               id: q.id,
@@ -217,7 +217,7 @@ const ManageQuiz = () => {
         startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
         endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
         quizImage: quizImageKey,
-        decreaseQuestions: values.decreaseQuestions || 0,
+        desiredQuestions: values.desiredQuestions || 0,
       };
 
       console.log("Payload to be sent:", payload);
@@ -328,8 +328,8 @@ const ManageQuiz = () => {
               </Select>
             </Form.Item>
             <Form.Item
-              name="decreaseQuestions"
-              label="Decrease Questions"
+              name="desiredQuestions"
+              label="Desired No of Questions"
             >
             <Input
                 type="number"
