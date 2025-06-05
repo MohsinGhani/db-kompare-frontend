@@ -26,6 +26,19 @@ export const createQuiz = async (quizData) => {
     body: JSON.stringify(quizData),
   });
 };
+
+// Create a new quiz question
+export const createQuizQuesions = async (quizData) => {
+  const url = `${API_BASE_URL}/create-quiz-questions`;
+  return fetchAPI(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify(quizData),
+  });
+};
 // Create a new quiz submission
 export const createQuizSubmission = async (quizData) => {
   const url = `${API_BASE_URL}/create-quiz-submission`;
@@ -43,6 +56,19 @@ export const createQuizSubmission = async (quizData) => {
 export const fetchQuizzes = async (queryParams = {}) => {
   const queryString = new URLSearchParams(queryParams).toString();
   const url = `${API_BASE_URL}/get-quizzes${
+    queryString ? `?${queryString}` : ""
+  }`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+// Fetch all quizzes questions (optionally filtered by status)
+export const fetchQuizzesQuestions = async (queryParams = {}) => {
+  const queryString = new URLSearchParams(queryParams).toString();
+  const url = `${API_BASE_URL}/get-quiz-questions${
     queryString ? `?${queryString}` : ""
   }`;
   return fetchAPI(url, {
@@ -86,10 +112,32 @@ export const updateQuiz = async (id, updateData) => {
     body: JSON.stringify(updateData),
   });
 };
+// Update an existing quiz by ID
+export const updateQuizQuestion = async (id, updateData) => {
+  const url = `${API_BASE_URL}/quiz-question/${id}`;
+  return fetchAPI(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify(updateData),
+  });
+};
 
 // Delete a quiz by ID
 export const deleteQuiz = async (id) => {
   const url = `${API_BASE_URL}/quiz/${id}`;
+  return fetchAPI(url, {
+    method: "DELETE",
+    headers: {
+      "x-api-key": X_API_KEY,
+    },
+  });
+};
+// Delete a quiz by ID
+export const deleteQuizQuestion = async (id) => {
+  const url = `${API_BASE_URL}/quiz-question/${id}`;
   return fetchAPI(url, {
     method: "DELETE",
     headers: {

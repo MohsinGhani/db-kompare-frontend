@@ -32,6 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import CommonLoader from "@/components/shared/CommonLoader";
+import QuizQuestionsTable from "../../Questions/QuizQuestionsTable";
 
 const { Dragger } = Upload;
 const { TextArea } = Input;
@@ -53,10 +54,14 @@ const ManageQuiz = () => {
   const [form] = Form.useForm();
   const router = useRouter();
   const { id } = useParams();
+  
   const [loading, setLoading] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
 
@@ -88,7 +93,7 @@ const ManageQuiz = () => {
             validDateRange: startDate && endDate ? [startDate, endDate] : [],
             file: quizImageList,
             quizImage: quiz?.quizImage,
-            decreaseQuestions: quiz?.decreaseQuestions || 0,
+            desiredQuestions: quiz?.desiredQuestions || 0,
             questions: quiz.questions.map((q) => ({
               question: q.question,
               id: q.id,
@@ -217,7 +222,7 @@ const ManageQuiz = () => {
         startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
         endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
         quizImage: quizImageKey,
-        decreaseQuestions: values.decreaseQuestions || 0,
+        desiredQuestions: values.desiredQuestions || 0,
       };
 
       console.log("Payload to be sent:", payload);
@@ -257,7 +262,6 @@ const ManageQuiz = () => {
           layout="vertical"
           name="manage_quiz"
           onFinish={onFinish}
-          initialValues={{ questions: [] }}
         >
           <div className="bg-white border rounded-lg p-6 mb-4">
             <Form.Item
@@ -327,11 +331,8 @@ const ManageQuiz = () => {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item
-              name="decreaseQuestions"
-              label="Decrease Questions"
-            >
-            <Input
+            <Form.Item name="desiredQuestions" label="Desired No of Questions">
+              <Input
                 type="number"
                 min={0}
                 max={100}
@@ -370,133 +371,16 @@ const ManageQuiz = () => {
             </Form.Item>
           </div>
           {/* Questions */}
-          <Form.List name="questions">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name }, index) => (
-                  <div
-                    key={key}
-                    className="bg-white border rounded-lg p-6 mb-4"
-                  >
-                    <Space
-                      align="baseline"
-                      style={{ justifyContent: "space-between", width: "100%" }}
-                    >
-                      <h3 className="font-semibold text-lg mb-3">
-                        Question {index + 1}
-                      </h3>
-                      <MinusCircleOutlined
-                        className="text-red-600"
-                        onClick={() => remove(name)}
-                      />
-                    </Space>
-                    <Form.Item
-                      name={[name, "question"]}
-                      label="Question"
-                      rules={[
-                        { required: true, message: "Please enter question" },
-                      ]}
-                    >
-                      <Input placeholder="Enter question here" />
-                    </Form.Item>
-                    <Form.Item
-                      name={[name, "file"]}
-                      label="Upload Image"
-                      valuePropName="fileList"
-                      getValueFromEvent={normFile}
-                    >
-                      <Dragger
-                        accept="image/*"
-                        maxCount={1}
-                        listType="picture"
-                        onPreview={handlePreview}
-                        showUploadList={{
-                          showPreviewIcon: true,
-                          showRemoveIcon: true,
-                        }}
-                      >
-                        <p className="ant-upload-drag-icon">
-                          <InboxOutlined />
-                        </p>
-                        <p className="ant-upload-text">
-                          Click or drag an image to this area to upload
-                        </p>
-                        <p className="ant-upload-hint">
-                          Only images are accepted and will upload upon form
-                          submit.
-                        </p>
-                      </Dragger>
-                    </Form.Item>
-                    <Form.Item label="Options">
-                      <Form.List name={[name, "options"]}>
-                        {(
-                          optFields,
-                          { add: addOption, remove: removeOption }
-                        ) => (
-                          <>
-                            {optFields.map(({ key: optKey, name: optName }) => (
-                              <Space
-                                key={optKey}
-                                align="baseline"
-                                style={{ display: "flex", marginBottom: 8 }}
-                              >
-                                <Form.Item
-                                  name={[optName, "text"]}
-                                  rules={[
-                                    { required: true, message: "Option text" },
-                                  ]}
-                                >
-                                  <Input
-                                    className="!w-full"
-                                    placeholder={`Option ${optName + 1}`}
-                                  />
-                                </Form.Item>
-                                <Form.Item
-                                  name={[optName, "isCorrect"]}
-                                  valuePropName="checked"
-                                >
-                                  <Checkbox>Mark as correct answer</Checkbox>
-                                </Form.Item>
-                                <MinusCircleOutlined
-                                  onClick={() => removeOption(optName)}
-                                />
-                              </Space>
-                            ))}
-                            <Form.Item>
-                              <Button
-                                type="dashed"
-                                onClick={() => addOption()}
-                                block
-                                icon={<PlusOutlined />}
-                              >
-                                Add Option
-                              </Button>
-                            </Form.Item>
-                          </>
-                        )}
-                      </Form.List>
-                    </Form.Item>
-                    <Form.Item name={[name, "explanation"]} label="Explanation">
-                      <TextArea
-                        rows={3}
-                        placeholder="Enter explanation (optional)"
-                      />
-                    </Form.Item>
-                  </div>
-                ))}
-                <Form.Item>
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                  >
-                    Add Question
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
+          <div className="bg-white border rounded-lg p-6 mb-4">
+            <p className="text-lg font-semibold mb-3">Select Questions</p>
+            <QuizQuestionsTable
+              isRowSelect={true}
+              selectedRowKeys={selectedRowKeys}
+              setSelectedRowKeys={setSelectedRowKeys}
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen}
+            />
+          </div>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               {id ? "Update Quiz" : "Create Quiz"}

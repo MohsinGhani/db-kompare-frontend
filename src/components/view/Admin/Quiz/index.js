@@ -33,6 +33,8 @@ const Quiz = () => {
   useEffect(() => {
     loadQuizzes();
   }, []);
+
+  
   const handleDelete = async (quiz) => {
     setLoading(true);
     try {
@@ -104,6 +106,20 @@ const Quiz = () => {
       onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
     },
     {
+      title: "Desired Questions",
+      dataIndex: "desiredQuestions",
+      key: "desiredQuestions",
+      sorter: (a, b) => a.desiredQuestions - b.desiredQuestions,
+      sortDirections: ["ascend", "descend"],
+      onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
+      render: (ts) => (
+        <p>
+          {ts > 0 ? ts : "All"}{" "}
+          
+        </p>
+      ),
+    },
+    {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
@@ -171,6 +187,7 @@ const Quiz = () => {
         dataSource={quizzes}
         columns={columns}
         loading={loading}
+        bordered={true}
       />
     </AdminLayout>
   );
