@@ -187,6 +187,7 @@ const Quiz = () => {
         dataSource={quizzes}
         columns={columns}
         loading={loading}
+        bordered={true}
       />
     </AdminLayout>
   );

@@ -17,16 +17,16 @@ const AdminLayout = ({ children }) => {
           collapsible
           breakpoint="lg"
           collapsedWidth="80"
-          className=" !bg-white !min-h-screen"
+          className=" !bg-white"
           trigger={null}
         >
           <AdminSidebar />
         </Sider>
 
         {/* Main Content */}
-        <Layout className="!bg-white ">
+        <Layout className="!bg-white">
           <AdminHeader />
-          <Content className="!p-6">{children}</Content>
+          <Content className="!p-6 content-box">{children}</Content>
         </Layout>
       </Layout>
     </Layout>

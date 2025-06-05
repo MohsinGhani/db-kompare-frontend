@@ -16,14 +16,10 @@ import { RemoveAccessTokenFormCookies } from "@/utils/helper";
 import { signOut } from "@aws-amplify/auth";
 
 const menuItems = [
-  {
-    key: "/admin/dashboard",
-    label: "Dashboard",
-    icon: <DashboardFilled />,
-  },
+
   {
     key: "/admin/quiz",
-    label: "Quiz",
+    label: "Quizzes",
     icon: <FolderAddFilled />,
   },
   {
@@ -31,11 +27,7 @@ const menuItems = [
     label: "Questions",
     icon: <QuestionCircleFilled />,
   },
-  {
-    key: "/admin/settings",
-    label: "Settings",
-    icon: <SettingFilled />,
-  },
+
 ];
 
 const AdminSidebar = ({ user, setUser }) => {
@@ -56,7 +48,7 @@ const AdminSidebar = ({ user, setUser }) => {
 
   return (
     <>
-      <div className="flex items-center gap-2 my-4 mb-8 justify-center logo">
+      <div className=" flex items-center gap-2 my-4 mb-8 justify-center logo">
         <Image
           src={"/assets/icons/logo.gif"}
           alt="DB Logo"
@@ -71,17 +63,19 @@ const AdminSidebar = ({ user, setUser }) => {
       <Menu
         items={menuItems}
         mode="inline"
-        className="!h-full bg-gray-50 !min-h-[(100vh-64px)]"
+        className=" bg-gray-50 !min-h-[(100vh-64px)]"
         selectedKeys={[pathname]}
         onClick={onMenuClick}
       />
-      <Button
-        icon={<LogoutOutlined />}
-        onClick={handleLogout}
-        className=" absolute bottom-2 bg-red-700/65 text-white hover:!bg-red-700/80 w-full flex items-center justify-center"
-      >
-        Logout
-      </Button>
+      {user && (
+        <Button
+          icon={<LogoutOutlined />}
+          onClick={handleLogout}
+          className=" absolute bottom-2 bg-red-700/65 text-white hover:!bg-red-700/80 w-full flex items-center justify-center"
+        >
+          Logout
+        </Button>
+      )}
     </>
   );
 };
