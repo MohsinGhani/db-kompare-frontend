@@ -9,6 +9,7 @@ import {
   DashboardFilled,
   FolderAddFilled,
   LogoutOutlined,
+  PictureFilled,
   QuestionCircleFilled,
   SettingFilled,
 } from "@ant-design/icons";
@@ -24,8 +25,13 @@ const menuItems = [
   },
   {
     key: "/admin/questions",
-    label: "Questions",
+    label: "Questions Bank",
     icon: <QuestionCircleFilled />,
+  },
+  {
+    key: "/admin/gallery",
+    label: "Gallery",
+    icon: <PictureFilled />,
   },
 
 ];

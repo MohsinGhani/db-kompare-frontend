@@ -1,0 +1,28 @@
+[
+    {
+    "question": "Which of the following is a potential drawback of using Pinecone?",
+    "options": [
+      { "text": "It is open-source and lacks enterprise support.", "isCorrect": false },
+      { "text": "High costs associated with large-scale deployments.", "isCorrect": true },
+      { "text": "Inability to handle real-time search queries.", "isCorrect": false },
+      { "text": "Lack of Python SDK support.", "isCorrect": false }
+    ],
+    "explanation": "High costs associated with large-scale deployments.",
+    "image": null,
+    "difficulty": "HARD",
+    "category": "Vector DBMS"
+  },
+  {
+    "question": "What type of service model does Pinecone offer?",
+    "options": [
+      { "text": "Self-hosted only.", "isCorrect": false },
+      { "text": "Fully managed cloud service.", "isCorrect": true },
+      { "text": "On-premises deployment only.", "isCorrect": false },
+      { "text": "Hybrid cloud and on-premises.", "isCorrect": false }
+    ],
+    "explanation": "Fully managed cloud service.",
+    "image": null,
+    "difficulty": "HARD",
+    "category": "Vector DBMS"
+  }
+]

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import AdminLayout from "../";
 import { Button, Upload } from "antd";
-import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { EditFilled, PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { _removeFileFromS3 } from "@/utils/s3Services";
@@ -16,6 +16,7 @@ const Questions = () => {
   const [uploading, setUploading] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   // Handle JSON file upload
   const handleFileUpload = (file) => {
     const isJson =
@@ -61,8 +62,17 @@ const Questions = () => {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Questions</h1>
+        <h1 className="text-2xl font-semibold">Questions Bank</h1>
         <div className="flex items-center space-x-2">
+          {selectedRowKeys?.length > 0 && (
+            <Button
+              type="primary"
+              icon={<EditFilled />}
+              onClick={openCreateModal}
+            >
+              Bulk Edit
+            </Button>
+          )}
           <Upload
             accept=".json"
             beforeUpload={handleFileUpload}
@@ -86,7 +96,13 @@ const Questions = () => {
           </Button>
         </div>
       </div>
-      <QuizQuestionsTable isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <QuizQuestionsTable
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        isRowSelect
+        selectedRowKeys={selectedRowKeys}
+        setSelectedRowKeys={setSelectedRowKeys}
+      />
     </AdminLayout>
   );
 };
