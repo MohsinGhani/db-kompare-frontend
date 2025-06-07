@@ -3,12 +3,20 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { list ,getUrl} from 'aws-amplify/storage';
-import { Row, Col, Card, Modal, Spin, Popconfirm, message } from "antd";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { list, getUrl, getProperties, Storage } from "aws-amplify/storage";
+import { Row, Col, Card, Modal, Spin, Popconfirm, message, Button } from "antd";
+import {
+  EyeOutlined,
+  DeleteOutlined,
+  FolderOpenOutlined,
+  FolderOpenFilled,
+} from "@ant-design/icons";
 import AdminLayout from "../"; // adjust import if needed
+import { toast } from "react-toastify";
+import Link from "next/link";
 
 // Initialize Amplify (if not already configured elsewhere)
+const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 const Gallery = () => {
   // State for folder prefixes
@@ -16,75 +24,165 @@ const Gallery = () => {
   const [loadingFolders, setLoadingFolders] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState(null);
 
-  // State for images in the selected folder
+  // State for files in the selected folder
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
 
   // State for the preview modal
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewType, setPreviewType] = useState(null);
 
-  // Fetch unique folder prefixes (first segment before “/” in each key)
+  // Fetch unique folder prefixes
   const fetchFolders = useCallback(async () => {
     setLoadingFolders(true);
     try {
-      const allItems = await list({
-        path:"",
-      })
-      console.log("Fetched items:", allItems);
+      const allItems = await list({ path: "" });
+      console.log("Fetched S3 items:", allItems);
       const folderSet = new Set();
-
       allItems?.items?.forEach((item) => {
         if (item.path.includes("/")) {
           const [folderName] = item.path.split("/");
           folderSet.add(folderName);
         }
       });
-
       const folderArray = Array.from(folderSet).sort();
       setFolders(folderArray);
-
-      // Auto-select the first folder if none is selected
       if (folderArray.length > 0) {
         setSelectedFolder((prev) => prev || folderArray[0]);
       }
     } catch (err) {
       console.error("Error listing S3 objects:", err);
-      message.error("Unable to load gallery folders.");
+      toast.error("Unable to load gallery folders.");
     } finally {
       setLoadingFolders(false);
     }
   }, []);
 
-  // Fetch images under the selected folder
-  const fetchImagesInFolder = useCallback(
-    async (folder) => {
-      if (!folder) {
-        setImages([]);
-        return;
-      }
-      setLoadingImages(true);
-      try {
-          const folderItems = await list({
+  // Fetch files under the selected folder
+  const fetchImagesInFolder = useCallback(async (folder) => {
+    if (!folder) {
+      setImages([]);
+      return;
+    }
+    setLoadingImages(true);
+    try {
+      const folderItems = await list({
         path: `${folder}/`,
         accessLevel: "public",
-      })
-      console.log("Fetched folder items:", folderItems,folder);
-        const imageFiles = folderItems.filter((it) => !it.path.endsWith("/"));
+        options: { subpathStrategy: { strategy: "exclude" }, listAll: true },
+      });
+      const fileItems = folderItems?.items.filter(
+        (it) => !it.path.endsWith("/")
+      );
 
-        const urlPromises = imageFiles.map(async (file) => {
-          const signedUrl = await Storage.get(file.key, { level: "public" });
-          return { key: file.key, url: signedUrl };
-        });
-        const urlList = await Promise.all(urlPromises);
-        setImages(urlList);
-      } catch (err) {
-        console.error(`Error listing images in S3 at ${folder}/:`, err);
-        message.error("Unable to load images for the selected folder.");
-      } finally {
-        setLoadingImages(false);
-      }
-    },
-    []
+      const urlPromises = fileItems.map(async (file) => {
+        const props = await getProperties({ path: file.path });
+        const signedUrl = `${BUCKET_URL}/${props.path}`;
+        return { key: file.path, url: signedUrl, data: props };
+      });
+      const urlList = await Promise.all(urlPromises);
+      setImages(urlList);
+    } catch (err) {
+      console.error(`Error listing files in S3 at ${folder}/:`, err);
+      message.error("Unable to load files for the selected folder.");
+    } finally {
+      setLoadingImages(false);
+    }
+  }, []);
+
+  // Delete a single file from S3
+  const handleDeleteImage = useCallback(async (fullKey) => {
+    try {
+      await Storage.remove(fullKey, { level: "public" });
+      setImages((prev) => prev.filter((img) => img.key !== fullKey));
+      message.success("File deleted successfully");
+    } catch (err) {
+      console.error("Error deleting file:", err);
+      message.error("Failed to delete file");
+    }
+  }, []);
+
+  // Open preview modal
+  const openPreview = useCallback((url, type) => {
+    setPreviewUrl(url);
+    setPreviewType(type);
+  }, []);
+
+  // Close preview modal
+  const closePreview = useCallback(() => {
+    setPreviewUrl(null);
+    setPreviewType(null);
+  }, []);
+
+  // Decide how to render file based on content type
+  const renderFilePreview = (item) => {
+    const {
+      url,
+      data: { contentType },
+    } = item;
+    if (contentType.startsWith("image/")) {
+      return (
+        <img
+          alt={item.key}
+          src={url}
+          style={{ objectFit: "cover", maxHeight: "100%", maxWidth: "100%" }}
+        />
+      );
+    }
+    if (contentType === "application/pdf") {
+      return (
+        <iframe
+          title={item.key}
+          src={url}
+          style={{ width: "100%", height: "150px", border: "none" }}
+        />
+      );
+    }
+    if (contentType.startsWith("video/")) {
+      return (
+        <video
+          src={url}
+          controls
+          style={{ maxWidth: "100%", maxHeight: "150px" }}
+        />
+      );
+    }
+    // Fallback to download link for other types
+    return (
+      <div style={{ padding: 16 }}>
+        <p>Preview not available for this file type.</p>
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          Download
+        </a>
+      </div>
+    );
+  };
+
+  // Memoize folder list UI
+  const folderList = useMemo(
+    () =>
+      folders.map((folder) => {
+        const isActive = folder === selectedFolder;
+        return (
+          <div
+            key={folder}
+            onClick={() => setSelectedFolder(folder)}
+            className={`px-4 py-6 w-full md:w-56 flex items-center gap-2 rounded-lg cursor-pointer transition ${
+              isActive
+                ? "bg-blue-100 border-2 border-primary font-semibold"
+                : "bg-gray-100 hover:bg-gray-200 border border-gray-300"
+            }`}
+          >
+            {isActive ? (
+              <FolderOpenFilled className="text-2xl text-primary" />
+            ) : (
+              <FolderOpenOutlined className="text-2xl text-primary" />
+            )}
+            <p className="text-sm text-gray-800">{folder}</p>
+          </div>
+        );
+      }),
+    [folders, selectedFolder]
   );
 
   // Load folders on mount
@@ -92,53 +190,10 @@ const Gallery = () => {
     fetchFolders();
   }, [fetchFolders]);
 
-  // Whenever selectedFolder changes, reload images
+  // Whenever selectedFolder changes, reload files
   useEffect(() => {
     fetchImagesInFolder(selectedFolder);
   }, [selectedFolder, fetchImagesInFolder]);
-
-  // Delete a single image from S3
-  const handleDeleteImage = useCallback(async (fullKey) => {
-    try {
-      await Storage.remove(fullKey, { level: "public" });
-      setImages((prev) => prev.filter((img) => img.key !== fullKey));
-      message.success("Image deleted successfully");
-    } catch (err) {
-      console.error("Error deleting image:", err);
-      message.error("Failed to delete image");
-    }
-  }, []);
-
-  // Open preview modal
-  const openPreview = useCallback((url) => {
-    setPreviewUrl(url);
-  }, []);
-
-  // Close preview modal
-  const closePreview = useCallback(() => {
-    setPreviewUrl(null);
-  }, []);
-
-  // Memoize folder list UI
-  const folderList = useMemo(() => {
-    return folders.map((folder) => {
-      const isActive = folder === selectedFolder;
-      return (
-        <div
-          key={folder}
-          onClick={() => setSelectedFolder(folder)}
-          className={`
-            px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition
-            ${isActive
-              ? "bg-blue-100 border border-blue-500 font-semibold"
-              : "bg-gray-100 hover:bg-gray-200 border border-transparent"}
-          `}
-        >
-          {folder}
-        </div>
-      );
-    });
-  }, [folders, selectedFolder]);
 
   return (
     <AdminLayout>
@@ -146,10 +201,11 @@ const Gallery = () => {
 
       {/* Folder Bar */}
       <div className="mb-6 px-2">
+        <p className="text-lg font-semibold mb-3">Folders</p>
         {loadingFolders ? (
           <Spin tip="Loading folders..." />
         ) : folders.length > 0 ? (
-          <div className="flex space-x-4 overflow-x-auto">{folderList}</div>
+          <div className="flex gap-4 flex-wrap">{folderList}</div>
         ) : (
           <div className="text-gray-500 italic">
             No folders found in your S3 bucket.
@@ -157,15 +213,21 @@ const Gallery = () => {
         )}
       </div>
 
-      {/* Image Grid */}
+      {/* File Grid */}
       <div>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-lg font-semibold">Files ({images?.length})</p>
+          <Button type="primary" size="large" href="/admin/upload">
+            Upload Files {selectedFolder && `in ${selectedFolder} Folder`}
+          </Button>
+        </div>
         {loadingImages ? (
-          <Spin tip="Loading images..." />
+          <Spin tip="Loading files..." />
         ) : images.length === 0 ? (
           <div className="text-gray-500 italic">
             {selectedFolder
-              ? "No images found in this folder."
-              : "Select a folder above to view its images."}
+              ? "No files found in this folder."
+              : "Select a folder above to view its files."}
           </div>
         ) : (
           <Row gutter={[16, 16]}>
@@ -173,7 +235,7 @@ const Gallery = () => {
               <Col key={img.key} xs={24} sm={12} md={8} lg={6} xl={4}>
                 <Card
                   hoverable
-                  bodyStyle={{ padding: 0 }}
+                  style={{ padding: 0 }}
                   cover={
                     <div
                       style={{
@@ -185,28 +247,29 @@ const Gallery = () => {
                         backgroundColor: "#f0f0f0",
                       }}
                     >
-                      <img
-                        alt={img.key}
-                        src={img.url}
-                        style={{
-                          objectFit: "cover",
-                          maxHeight: "100%",
-                          maxWidth: "100%",
-                        }}
-                      />
+                      {renderFilePreview(img)}
                     </div>
                   }
                   actions={[
-                    <EyeOutlined key="view" onClick={() => openPreview(img.url)} />,
-                    <Popconfirm
-                      key="delete"
-                      title="Delete this image?"
-                      onConfirm={() => handleDeleteImage(img.key)}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <DeleteOutlined />
-                    </Popconfirm>,
+                    <div className="flex items-center justify-around gap-2">
+                      <Link
+                        href={img.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-max"
+                      >
+                        <EyeOutlined key="view" />
+                      </Link>
+                      <Popconfirm
+                        key="delete"
+                        title="Delete this file?"
+                        onConfirm={() => handleDeleteImage(img.key)}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <DeleteOutlined />
+                      </Popconfirm>
+                    </div>,
                   ]}
                 />
               </Col>
@@ -214,25 +277,6 @@ const Gallery = () => {
           </Row>
         )}
       </div>
-
-      {/* Preview Modal */}
-      <Modal
-        open={!!previewUrl}
-        footer={null}
-        onCancel={closePreview}
-        centered
-        bodyStyle={{ padding: 0 }}
-        width="50%"
-        destroyOnClose
-      >
-        {previewUrl && (
-          <img
-            alt="Preview"
-            style={{ width: "100%", height: "auto", display: "block" }}
-            src={previewUrl}
-          />
-        )}
-      </Modal>
     </AdminLayout>
   );
 };
