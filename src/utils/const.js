@@ -102,6 +102,8 @@ export const rankingOptions = [
   { value: ["Columnar", "Wide column store"], label: "Columnar DB" },
   { value: "Navigational DBMS", label: "Hierarchial DB" },
 ];
+
+
 export const RESOURCE_TYPE = {
   GITHUB: "GITHUB",
   STACKOVERFLOW: "STACKOVERFLOW",

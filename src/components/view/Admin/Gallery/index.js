@@ -14,6 +14,7 @@ import {
 import AdminLayout from "../"; // adjust import if needed
 import { toast } from "react-toastify";
 import Link from "next/link";
+import CommonHeading from "@/components/shared/CommonHeading";
 
 // Initialize Amplify (if not already configured elsewhere)
 const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
@@ -167,7 +168,7 @@ const Gallery = () => {
           <div
             key={folder}
             onClick={() => setSelectedFolder(folder)}
-            className={`px-4 py-6 w-full md:w-56 flex items-center gap-2 rounded-lg cursor-pointer transition ${
+            className={`px-4 py-4 w-full md:w-56 flex items-center gap-2 rounded-lg cursor-pointer transition ${
               isActive
                 ? "bg-blue-100 border-2 border-primary font-semibold"
                 : "bg-gray-100 hover:bg-gray-200 border border-gray-300"
@@ -197,10 +198,9 @@ const Gallery = () => {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-semibold mb-6">Gallery</h1>
-
+      <CommonHeading title="Gallery" />
       {/* Folder Bar */}
-      <div className="mb-6 px-2">
+      <div className="my-6 px-2">
         <p className="text-lg font-semibold mb-3">Folders</p>
         {loadingFolders ? (
           <Spin tip="Loading folders..." />
@@ -217,7 +217,7 @@ const Gallery = () => {
       <div>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-lg font-semibold">Files ({images?.length})</p>
-          <Button type="primary" size="large" href="/admin/upload">
+          <Button type="primary" size="middle" href="/admin/upload">
             Upload Files {selectedFolder && `in ${selectedFolder} Folder`}
           </Button>
         </div>
@@ -256,14 +256,14 @@ const Gallery = () => {
                         href={img.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-max"
+                        className="!w-max"
                       >
                         <EyeOutlined key="view" />
                       </Link>
                       <Popconfirm
                         key="delete"
                         title="Delete this file?"
-                        onConfirm={() => handleDeleteImage(img.key)}
+                        // onConfirm={() => handleDeleteImage(img.key)}
                         okText="Yes"
                         cancelText="No"
                       >
