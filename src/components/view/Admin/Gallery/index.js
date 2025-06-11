@@ -1,65 +1,55 @@
-// src/pages/admin/gallery.jsx
-
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { list, getUrl, getProperties, Storage } from "aws-amplify/storage";
-import { Row, Col, Card, Modal, Spin, Popconfirm, message, Button } from "antd";
+import { Row, Col, Card, Spin, Popconfirm, message, Button } from "antd";
 import {
   EyeOutlined,
   DeleteOutlined,
   FolderOpenOutlined,
   FolderOpenFilled,
 } from "@ant-design/icons";
-import AdminLayout from "../"; // adjust import if needed
-import { toast } from "react-toastify";
-import Link from "next/link";
+import AdminLayout from "../"; // adjust if needed
 import CommonHeading from "@/components/shared/CommonHeading";
-
-// Initialize Amplify (if not already configured elsewhere)
-const BUCKET_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+import Link from "next/link";
+import {
+  _getListFromS3,
+  _getUrlFromS3,
+  _getUrlPropertiesFromS3,
+  _removeFileFromS3,
+} from "@/utils/s3Services";
+import CommonFileUploadToS3 from "@/components/shared/CommonFileUploadToS3";
 
 const Gallery = () => {
-  // State for folder prefixes
+  // Folder state
   const [folders, setFolders] = useState([]);
   const [loadingFolders, setLoadingFolders] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState(null);
 
-  // State for files in the selected folder
+  // File state
   const [images, setImages] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
 
-  // State for the preview modal
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [previewType, setPreviewType] = useState(null);
-
-  // Fetch unique folder prefixes
+  // Fetch top-level folder prefixes
   const fetchFolders = useCallback(async () => {
     setLoadingFolders(true);
     try {
-      const allItems = await list({ path: "" });
-      console.log("Fetched S3 items:", allItems);
-      const folderSet = new Set();
-      allItems?.items?.forEach((item) => {
-        if (item.path.includes("/")) {
-          const [folderName] = item.path.split("/");
-          folderSet.add(folderName);
-        }
+      const res = await _getListFromS3("", {
+        subpathStrategy: { strategy: "exclude" },
       });
-      const folderArray = Array.from(folderSet).sort();
-      setFolders(folderArray);
-      if (folderArray.length > 0) {
-        setSelectedFolder((prev) => prev || folderArray[0]);
+      const dirs = res.excludedSubpaths || [];
+      setFolders(dirs);
+      if (!selectedFolder && dirs.length > 0) {
+        setSelectedFolder(dirs[0]);
       }
-    } catch (err) {
-      console.error("Error listing S3 objects:", err);
-      toast.error("Unable to load gallery folders.");
+    } catch (error) {
+      console.error("Unable to list folders:", error);
+      message.error("Failed to load gallery folders.");
     } finally {
       setLoadingFolders(false);
     }
   }, []);
 
-  // Fetch files under the selected folder
+  // Fetch files for current folder
   const fetchImagesInFolder = useCallback(async (folder) => {
     if (!folder) {
       setImages([]);
@@ -67,60 +57,45 @@ const Gallery = () => {
     }
     setLoadingImages(true);
     try {
-      const folderItems = await list({
-        path: `${folder}/`,
-        accessLevel: "public",
-        options: { subpathStrategy: { strategy: "exclude" }, listAll: true },
-      });
-      const fileItems = folderItems?.items.filter(
-        (it) => !it.path.endsWith("/")
+      const res = await _getListFromS3(folder);
+      const items = (res.items || []).filter(
+        (item) => !item.path.endsWith("/")
       );
-
-      const urlPromises = fileItems.map(async (file) => {
-        const props = await getProperties({ path: file.path });
-        const signedUrl = `${BUCKET_URL}/${props.path}`;
-        return { key: file.path, url: signedUrl, data: props };
-      });
-      const urlList = await Promise.all(urlPromises);
-      setImages(urlList);
-    } catch (err) {
-      console.error(`Error listing files in S3 at ${folder}/:`, err);
-      message.error("Unable to load files for the selected folder.");
+      const imgs = await Promise.all(
+        items.map(async (file) => {
+          const data = await _getUrlPropertiesFromS3(file.path);
+          const url = await _getUrlFromS3(file.path);
+          return { key: file.path, url, data };
+        })
+      );
+      setImages(imgs);
+    } catch (error) {
+      console.error(`Unable to list files in ${folder}/:`, error);
+      message.error("Failed to load files for selected folder.");
     } finally {
       setLoadingImages(false);
     }
   }, []);
 
-  // Delete a single file from S3
-  const handleDeleteImage = useCallback(async (fullKey) => {
+  // Delete a file
+  const handleDeleteImage = useCallback(async (key) => {
     try {
-      await Storage.remove(fullKey, { level: "public" });
-      setImages((prev) => prev.filter((img) => img.key !== fullKey));
+      await _removeFileFromS3(key);
+      setImages((prev) => prev.filter((img) => img.key !== key));
       message.success("File deleted successfully");
-    } catch (err) {
-      console.error("Error deleting file:", err);
-      message.error("Failed to delete file");
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      message.error("Unable to delete file.");
     }
   }, []);
 
-  // Open preview modal
-  const openPreview = useCallback((url, type) => {
-    setPreviewUrl(url);
-    setPreviewType(type);
-  }, []);
-
-  // Close preview modal
-  const closePreview = useCallback(() => {
-    setPreviewUrl(null);
-    setPreviewType(null);
-  }, []);
-
-  // Decide how to render file based on content type
+  // Render preview based on content type
   const renderFilePreview = (item) => {
     const {
       url,
       data: { contentType },
     } = item;
+
     if (contentType.startsWith("image/")) {
       return (
         <img
@@ -135,7 +110,7 @@ const Gallery = () => {
         <iframe
           title={item.key}
           src={url}
-          style={{ width: "100%", height: "150px", border: "none" }}
+          style={{ width: "100%", height: 150, border: "none" }}
         />
       );
     }
@@ -144,14 +119,13 @@ const Gallery = () => {
         <video
           src={url}
           controls
-          style={{ maxWidth: "100%", maxHeight: "150px" }}
+          style={{ maxWidth: "100%", maxHeight: 150 }}
         />
       );
     }
-    // Fallback to download link for other types
     return (
       <div style={{ padding: 16 }}>
-        <p>Preview not available for this file type.</p>
+        <p>No preview available.</p>
         <a href={url} target="_blank" rel="noopener noreferrer">
           Download
         </a>
@@ -159,39 +133,37 @@ const Gallery = () => {
     );
   };
 
-  // Memoize folder list UI
+  // Folder list UI
   const folderList = useMemo(
     () =>
       folders.map((folder) => {
-        const isActive = folder === selectedFolder;
+        const active = folder === selectedFolder;
         return (
           <div
             key={folder}
             onClick={() => setSelectedFolder(folder)}
-            className={`px-4 py-4 w-full md:w-56 flex items-center gap-2 rounded-lg cursor-pointer transition ${
-              isActive
-                ? "bg-blue-100 border-2 border-primary font-semibold"
-                : "bg-gray-100 hover:bg-gray-200 border border-gray-300"
+            className={`px-4 py-3 w-full md:w-52 flex items-center gap-2 rounded-lg cursor-pointer transition ${
+              active
+                ? "border-2 border-primary font-semibold"
+                : "hover:bg-gray-200 border border-gray-300"
             }`}
           >
-            {isActive ? (
+            {active ? (
               <FolderOpenFilled className="text-2xl text-primary" />
             ) : (
               <FolderOpenOutlined className="text-2xl text-primary" />
             )}
-            <p className="text-sm text-gray-800">{folder}</p>
+            <p className="text-xs text-gray-800">{folder}</p>
           </div>
         );
       }),
-    [folders, selectedFolder]
+    [folders,selectedFolder]
   );
 
-  // Load folders on mount
+  // Load on mount and when folder changes
   useEffect(() => {
     fetchFolders();
-  }, [fetchFolders]);
-
-  // Whenever selectedFolder changes, reload files
+  }, []);
   useEffect(() => {
     fetchImagesInFolder(selectedFolder);
   }, [selectedFolder, fetchImagesInFolder]);
@@ -199,7 +171,8 @@ const Gallery = () => {
   return (
     <AdminLayout>
       <CommonHeading title="Gallery" />
-      {/* Folder Bar */}
+
+      {/* Folders */}
       <div className="my-6 px-2">
         <p className="text-lg font-semibold mb-3">Folders</p>
         {loadingFolders ? (
@@ -207,27 +180,29 @@ const Gallery = () => {
         ) : folders.length > 0 ? (
           <div className="flex gap-4 flex-wrap">{folderList}</div>
         ) : (
-          <div className="text-gray-500 italic">
-            No folders found in your S3 bucket.
-          </div>
+          <div className="text-gray-500 italic">No folders found.</div>
         )}
       </div>
 
-      {/* File Grid */}
+      {/* Files */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-lg font-semibold">Files ({images?.length})</p>
-          <Button type="primary" size="middle" href="/admin/upload">
-            Upload Files {selectedFolder && `in ${selectedFolder} Folder`}
-          </Button>
+          <p className="text-lg font-semibold">Files ({images.length})</p>
+          <CommonFileUploadToS3
+            path="QUIZZES"
+            buttonText="Add Media"
+            multiple
+            maxFileSize={2 * 1024 * 1024}
+            onUploadComplete={(results) => console.log(results)}
+          />
         </div>
         {loadingImages ? (
           <Spin tip="Loading files..." />
         ) : images.length === 0 ? (
           <div className="text-gray-500 italic">
             {selectedFolder
-              ? "No files found in this folder."
-              : "Select a folder above to view its files."}
+              ? "No files in this folder."
+              : "Select a folder to view files."}
           </div>
         ) : (
           <Row gutter={[16, 16]}>
@@ -235,7 +210,6 @@ const Gallery = () => {
               <Col key={img.key} xs={24} sm={12} md={8} lg={6} xl={4}>
                 <Card
                   hoverable
-                  style={{ padding: 0 }}
                   cover={
                     <div
                       style={{
@@ -251,25 +225,23 @@ const Gallery = () => {
                     </div>
                   }
                   actions={[
-                    <div className="flex items-center justify-around gap-2">
-                      <Link
-                        href={img.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="!w-max"
-                      >
-                        <EyeOutlined key="view" />
-                      </Link>
-                      <Popconfirm
-                        key="delete"
-                        title="Delete this file?"
-                        // onConfirm={() => handleDeleteImage(img.key)}
-                        okText="Yes"
-                        cancelText="No"
-                      >
-                        <DeleteOutlined />
-                      </Popconfirm>
-                    </div>,
+                    <Link
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key="view"
+                    >
+                      <EyeOutlined />
+                    </Link>,
+                    <Popconfirm
+                      key="delete"
+                      title="Delete this file?"
+                      onConfirm={() => handleDeleteImage(img.key)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <DeleteOutlined />
+                    </Popconfirm>,
                   ]}
                 />
               </Col>

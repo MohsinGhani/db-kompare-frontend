@@ -2,7 +2,22 @@
   .ant-table {
     .ant-table-thead {
       .ant-table-cell {
-        background: #fcfcff !important;
+        background: #353d63 !important;
+        color: #ffffff !important;
+        padding: 18px;
+        .ant-table-column-sorter {
+          color: #ffffff !important;
+        }
+      }
+    }
+    .ant-table-tbody {
+      > tr:nth-child(odd) > td {
+        background-color: #fafafa;
+        color: #000;
+      }
+      > tr:nth-child(even) > td {
+        background-color: #ffffff;
+        color: #000;
       }
     }
   }

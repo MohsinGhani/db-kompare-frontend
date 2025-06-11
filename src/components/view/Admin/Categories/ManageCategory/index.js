@@ -2,16 +2,11 @@
 
 import React, { useEffect } from 'react';
 import { Drawer, Form, Input, TreeSelect, Button } from 'antd';
+import { buildTreeData } from '@/utils/helper';
 
 const { TextArea } = Input;
 
-const buildTreeData = (categories) => {
-  return categories.map(category => ({
-    value: category.id,       // Using id as value (must be unique)
-    title: category.name,     // Using name as title
-    children: category.children ? buildTreeData(category.children) : [],
-  }));
-};
+
 
 const ManageCategory = ({
   visible,

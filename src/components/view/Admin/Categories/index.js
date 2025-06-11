@@ -89,12 +89,16 @@ const Categories = () => {
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
       sortDirections: ["descend", "ascend"],
-      className:"!text-center",
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      render: (text) => (
+        <span className={`text-gray-700 ${!text ? "!italic !text-gray-400" : ""}`}>
+          {text || "--No description--"}
+        </span>
+      ),
     },
     {
       title: "Child Categories",
@@ -118,7 +122,6 @@ const Categories = () => {
       render: (ts) => new Date(ts).toLocaleString(),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       sortDirections: ["descend", "ascend"],
-      defaultSortOrder: "descend",
     },
     {
       title: "Actions",
@@ -149,7 +152,7 @@ const Categories = () => {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-6 px-2">
+      <div className="flex justify-between admin-categories items-center mb-6 px-2">
         <CommonHeading title="Categories" />
         <Button
           type="primary"
