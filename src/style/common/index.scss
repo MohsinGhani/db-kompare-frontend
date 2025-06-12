@@ -22,3 +22,14 @@
     }
   }
 }
+
+.common-category-tree-select{
+    .ant-select-tree-node {
+      padding: 0 10px;
+      line-height: 32px;
+      height: 32px;
+      font-size: 14px;
+      text-transform: capitalize !important;
+    }
+   
+}

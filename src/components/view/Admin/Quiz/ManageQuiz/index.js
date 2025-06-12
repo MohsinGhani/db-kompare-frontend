@@ -61,7 +61,7 @@ const ManageQuiz = () => {
   const [previewTitle, setPreviewTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
+  const[quizData, setQuizData] = useState(null);
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
 
@@ -71,6 +71,7 @@ const ManageQuiz = () => {
       fetchQuizById(id)
         .then((res) => {
           const quiz = res?.data;
+          setQuizData(quiz);
           // Convert startDate and endDate strings to dayjs objects if present
           const startDate = quiz.startDate ? dayjs(quiz.startDate) : null;
           const endDate = quiz.endDate ? dayjs(quiz.endDate) : null;
@@ -134,78 +135,10 @@ const ManageQuiz = () => {
   };
 
   const onFinish = async (values) => {
+    console.log("Form values:", values);
     setLoading(true);
     try {
       const qid = id || ulid();
-
-      // 1️⃣ Quiz‐level image:
-      let quizImageKey = null;
-      if (values.file?.[0]?.originFileObj) {
-        // A brand‐new file was chosen:
-        const fileObj = values.file[0].originFileObj;
-        const ext = (
-          fileObj.name.split(".").pop() || fileObj.type.split("/")[1]
-        ).toLowerCase();
-        const newKey = `QUIZZES/${qid}-cover.${ext}`;
-        // If editing and they replaced the old cover, you may want to remove it:
-        if (id && values.quizImage && values.quizImage !== newKey) {
-          await _removeFileFromS3(`QUIZZES/${quiz.image}`);
-        }
-
-        // Finally upload:
-        await _putFileToS3(newKey, fileObj, 200 * 1024, fileObj.type);
-        quizImageKey = `${qid}-cover.${ext}`;
-      } else if (values.file?.[0]?.url) {
-        // They didn't change it, so grab the existing filename:
-        quizImageKey = values.file[0].url.split("/").pop();
-      }
-
-      // Process questions with images and other data
-      const questionsWithImages = await Promise.all(
-        values.questions.map(async (q) => {
-          let imageKey = null;
-          const questionId = q.id || ulid();
-          if (q.file?.[0]?.originFileObj) {
-            const fileObj = q.file[0].originFileObj;
-            const ext =
-              fileObj.name.split(".").pop().toLowerCase() ||
-              fileObj.type.split("/")[1];
-            const newKey = `QUIZZES/${questionId}.${ext}`;
-            const oldKey = q?.image ? `QUIZZES/${q?.image}` : null;
-
-            if (id && oldKey && oldKey !== newKey) {
-              try {
-                await _removeFileFromS3(oldKey);
-                console.log("Old image removed successfully:", oldKey);
-              } catch (err) {
-                console.error("Failed to remove old image:", oldKey, err);
-              }
-            }
-
-            await _putFileToS3(newKey, fileObj, 200 * 1024, fileObj.type);
-            imageKey = `${qid}.${ext}`;
-          } else if (q.file?.[0]?.url) {
-            imageKey = q.file[0].url.split("/").pop();
-          }
-
-          const correctCount = q.options.filter((o) => o.isCorrect).length;
-          const options = q.options.map((opt) => ({
-            id: opt.oid || ulid(),
-            text: opt.text,
-            isCorrect: opt.isCorrect || false,
-          }));
-
-          return {
-            id: questionId,
-            question: q.question,
-            options,
-            explanation: q.explanation,
-            image: imageKey,
-            isMultipleAnswer: correctCount > 1,
-            correctCount,
-          };
-        })
-      );
 
       // Extract startDate and endDate from RangePicker
       const [startDate, endDate] = values.validDateRange || [];
@@ -216,13 +149,14 @@ const ManageQuiz = () => {
         category: values.category,
         difficulty: values.difficulty,
         description: values.description,
-        questions: questionsWithImages,
-        totalQuestions: questionsWithImages.length,
+        questions:quizData.questions,
+        totalQuestions: quizData.questions.length,
         createdBy: user?.id,
         startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
         endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
-        quizImage: quizImageKey,
+        quizImage: quizData.quizImage,
         desiredQuestions: values.desiredQuestions || 0,
+        questionIds: selectedRowKeys,
       };
 
       console.log("Payload to be sent:", payload);
@@ -250,6 +184,8 @@ const ManageQuiz = () => {
       </div>
     );
   }
+
+console.log("selectedRowKeys:", selectedRowKeys);
 
   return (
     <AdminLayout>

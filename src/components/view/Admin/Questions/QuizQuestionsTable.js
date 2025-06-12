@@ -17,6 +17,7 @@ import {
 import { toast } from "react-toastify";
 import ManageQuestionModal from "./ManageQuestionModal";
 import { rankingOptions } from "@/utils/const";
+import CommonCategoryTreeSelect from "@/components/shared/CommonCategoryTreeSelect";
 
 dayjs.extend(relativeTime);
 
@@ -162,6 +163,16 @@ const QuizQuestionsTable = ({
 
   const columns = [
     {
+      title: "Question NO",
+      dataIndex: "questionNo",
+      key: "questionNo",
+      ellipsis: true,
+      className: "font-semibold text-left",
+      onCell: () => ({ style: { padding: "10px 16px" } }),
+      render: (text) => <div className="whitespace-pre-wrap">{text}</div>,
+      sorter: (a, b) => a.questionNo - b.questionNo,
+    },
+    {
       title: "Question",
       dataIndex: "question",
       key: "question",
@@ -178,19 +189,8 @@ const QuizQuestionsTable = ({
       sortDirections: ["ascend", "descend"],
       className: "text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
-    },
-    {
-      title: "Subcategory",
-      dataIndex: "subcategory",
-      key: "subcategory",
-      sorter: (a, b) => {
-        if (!a.subcategory) return -1;
-        if (!b.subcategory) return 1;
-        return a.subcategory.localeCompare(b.subcategory);
-      },
-      sortDirections: ["ascend", "descend"],
-      className: "text-left",
-      onCell: () => ({ style: { padding: "10px 16px" } }),
+      render: (category) => (
+        <p className="whitespace-pre-wrap capitalize">{category?.name}</p>   ) 
     },
     {
       title: "Difficulty",
@@ -283,24 +283,8 @@ const QuizQuestionsTable = ({
             </Select.Option>
           ))}
         </Select>
+        <CommonCategoryTreeSelect className="w-96"  />
 
-        <Select
-          placeholder="Select Subcategory"
-          className="w-64"
-          showSearch
-          allowClear
-          value={subcategoryFilter}
-          onChange={(val) => setSubcategoryFilter(val)}
-        >
-          <Select.Option key="all" value="all">
-            All Subcategories
-          </Select.Option>
-          {availableSubcategories.map((sub) => (
-            <Select.Option key={sub} value={sub}>
-              {sub}
-            </Select.Option>
-          ))}
-        </Select>
 
         {isRowSelect && (
           <Button

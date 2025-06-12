@@ -189,9 +189,10 @@ const Gallery = () => {
         <div className="mb-4 flex items-center justify-between">
           <p className="text-lg font-semibold">Files ({images.length})</p>
           <CommonFileUploadToS3
-            path="QUIZZES"
+            path={selectedFolder || "COMMON"}
             buttonText="Add Media"
             multiple
+            modalTitle={`Upload to ${selectedFolder || "Common"}`}
             maxFileSize={2 * 1024 * 1024}
             onUploadComplete={(results) => console.log(results)}
           />

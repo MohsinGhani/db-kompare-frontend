@@ -13,6 +13,7 @@ export default function CommonCategoryTreeSelect({
   placeholder = "Select category",
   allowClear = true,
   disabled = false,
+  className = "",
   ...rest
 }) {
   const [categories, setCategories] = useState([]);
@@ -50,7 +51,9 @@ export default function CommonCategoryTreeSelect({
       placeholder={placeholder}
       allowClear={allowClear}
       disabled={disabled || loading}
-      showSearch
+      loading={loading}
+      className={`common-category-tree-select ${className}`}
+      showSearch={true}
       treeDefaultExpandAll
       dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
       notFoundContent={loading ? <Spin size="small" /> : null}

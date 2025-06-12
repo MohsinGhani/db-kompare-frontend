@@ -89,6 +89,7 @@ const Categories = () => {
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
       sortDirections: ["descend", "ascend"],
+      className:"capitalize",
     },
     {
       title: "Description",
