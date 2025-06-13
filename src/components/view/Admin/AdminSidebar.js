@@ -6,11 +6,11 @@ import { useRouter } from "nextjs-toploader/app";
 import CommonTypography from "@/components/shared/Typography";
 import Image from "next/image";
 import {
-  DashboardFilled,
+  AppstoreFilled,
   FolderAddFilled,
   LogoutOutlined,
+  PictureFilled,
   QuestionCircleFilled,
-  SettingFilled,
 } from "@ant-design/icons";
 import { RemoveAccessTokenFormCookies } from "@/utils/helper";
 import { signOut } from "@aws-amplify/auth";
@@ -24,8 +24,18 @@ const menuItems = [
   },
   {
     key: "/admin/questions",
-    label: "Questions",
+    label: "Questions Bank",
     icon: <QuestionCircleFilled />,
+  },
+  {
+    key: "/admin/gallery",
+    label: "Gallery",
+    icon: <PictureFilled />,
+  },
+  {
+    key: "/admin/categories",
+    label: "Categories",
+    icon: <AppstoreFilled />,
   },
 
 ];

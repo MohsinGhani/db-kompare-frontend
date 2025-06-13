@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Button, Avatar } from "antd";
 import { fetchQuizzes } from "@/utils/quizUtil";
 import dayjs from "dayjs";
@@ -7,37 +7,65 @@ import { useRouter } from "nextjs-toploader/app";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { DIFFICULTY } from "@/utils/const";
+import { getSingleCategory } from "@/utils/categoriesUtils";
 const avatarColors = ["#f56a00", "#7265e6", "#00a2ae", "#ffbf00", "#1890ff"];
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+
 const Quizzes = () => {
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
   const router = useRouter();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState({});
 
   useEffect(() => {
     const params = {
       status: "ACTIVE",
       ...(user ? { userId: user.id } : {}),
     };
+
+    // Fetch quizzes
     fetchQuizzes(params)
-      .then((res) => {
-        setQuizzes(res.data || []);
+      .then(async (res) => {
+        const quizzesData = res.data || [];
+        setQuizzes(quizzesData);
+
+        // Fetch categories for all quizzes
+        const categoriesData = await Promise.all(
+          quizzesData.map(async (quiz) => {
+            if (!categories[quiz.category]) {
+              const categoryDetail = await getSingleCategory(quiz.category);
+              console.log("categories", categoryDetail);
+              return {
+                id: quiz.category,
+                name: categoryDetail?.data.name || "Unknown",
+              };
+            }
+            return { id: quiz.category, name: categories[quiz.category] }; // If already fetched
+          })
+        );
+
+        const categoriesMap = categoriesData.reduce((acc, category) => {
+          acc[category.id] = category.name;
+          return acc;
+        }, {});
+
+        setCategories(categoriesMap);
       })
       .catch(() => {
-        // Optional: handle error notification
+        // Handle error notification if needed
+        toast.error("Failed to load quizzes");
       })
       .finally(() => setLoading(false));
   }, [user]);
-
   const handleStartQuiz = (quizId) => {
     // Check if the user is logged in
     if (!user) {
       const afterLogin = `/certifications`; // or `/quizzes/${quizId}`
 
-      // 3) push them to /signin with ?redirect=…
+      // Push them to /signin with ?redirect=…
       router.push(`/signin?redirect=${encodeURIComponent(afterLogin)}`);
       return;
     } else {
@@ -57,7 +85,7 @@ const Quizzes = () => {
 
   return (
     <>
-      <Row gutter={[24, 24]} className="flex justify-center ">
+      <Row gutter={[24, 24]} className="flex justify-center">
         {loading
           ? Array.from({ length: 4 }).map((_, idx) => (
               <Col xs={24} sm={12} md={8} lg={8} xl={5} key={idx}>
@@ -79,7 +107,7 @@ const Quizzes = () => {
                 recentParticipants = [],
                 otherParticipantsCount = 0,
                 desiredQuestions = 0,
-                quizImage: image,
+                image,
               } = quiz;
 
               const diffColor =
@@ -88,18 +116,21 @@ const Quizzes = () => {
                   : difficulty === DIFFICULTY.MEDIUM
                   ? "text-yellow-600 bg-yellow-100"
                   : "text-red-600 bg-red-100";
-              const quizImage = `${S3_BASE_URL}/QUIZZES/${image}`;
+
+              const quizImage = `${S3_BASE_URL}/${image}`;
+              const categoryName = categories[category] || "Loading..."; // Use the pre-fetched category
+
               return (
                 <Col xs={24} sm={12} md={8} lg={8} xl={5} key={id}>
                   <div className="bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col h-full p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="rounded-lg flex items-center">
                         <img
-                          className="w-16   object-contain"
+                          className="w-16 object-contain"
                           alt={name}
                           src={`/assets/icons/quizz.gif`}
                         />
-                        <p className=" rounded-full font-semibold text-2xl ">
+                        <p className="rounded-full font-semibold text-2xl">
                           #{quizNo}
                         </p>
                       </div>
@@ -123,20 +154,20 @@ const Quizzes = () => {
 
                     <div className="my-2 flex-1 flex flex-col justify-between">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 ">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
                           {name}
                         </h3>
                         <div className="text-sm text-primary border-primary border my-4 w-max bg-[#EEF0FF] px-2 py-1 rounded-md">
-                          {category}
+                          {categoryName}
                         </div>
 
-                        <p className=" text-sm mb-2">
+                        <p className="text-sm mb-2">
                           <span className="font-semibold">
                             Number of Questions:
                           </span>{" "}
                           {desiredQuestions || totalQuestions}
                         </p>
-                        <p className=" text-sm mb-2">
+                        <p className="text-sm mb-2">
                           <span className="font-semibold">
                             Passing Percentage:{" "}
                           </span>{" "}
@@ -152,15 +183,12 @@ const Quizzes = () => {
                           <span className="font-semibold">Participants:</span>{" "}
                           <Avatar.Group className="ml-2">
                             {recentParticipants?.map((participant, idx) => {
-                              // cycle through your color list
                               const bgColor =
                                 avatarColors[idx % avatarColors.length];
-                              // grab the display name (adjust to your shape)
                               const name =
                                 participant.user?.name ||
                                 participant.name ||
                                 "U";
-                              // first letter, uppercase
                               const initial = name.charAt(0).toUpperCase();
 
                               return (
