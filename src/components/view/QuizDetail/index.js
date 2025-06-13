@@ -32,6 +32,8 @@ const shuffleArray = (arr) => {
 };
 
 const QuizDetail = ({ quiz }) => {
+
+  console.log("QuizDetail component rendered with quiz:", quiz);
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
   const router = useRouter();
@@ -99,14 +101,14 @@ const QuizDetail = ({ quiz }) => {
     if (finalQuestionIds && Array.isArray(finalQuestionIds)) {
       // Reconstruct question objects in the saved order
       const restoredQuestions = finalQuestionIds
-        .map((qid) => quiz.questions.find((q) => q.id === qid))
+        .map((qid) => quiz?.questions?.find((q) => q?.id === qid))
         // Filter out any missing ones (just in case)
         .filter(Boolean);
       setQuestions(restoredQuestions);
     } else {
       // No saved question IDs → shuffle & slice
-      const allShuffled = shuffleArray(quiz.questions);
-      const totalCount = quiz.questions.length;
+      const allShuffled = shuffleArray(quiz.questions || quiz?.questionsIdQ);
+      const totalCount = quiz?.questions?.length || quiz?.questionsIdQ.length || 0;
       const numToTake =
         desiredQuestions > 0
           ? Math.min(desiredQuestions, totalCount)

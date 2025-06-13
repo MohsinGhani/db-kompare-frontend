@@ -21,7 +21,7 @@ const ManageCategory = ({
   useEffect(() => {
     if (visible) {
       form.setFieldsValue({
-        name: initialValues.name || '',
+        displayName: initialValues.displayName || '',
         description: initialValues.description || '',
         parentId: initialValues.parentId || null,
         status: initialValues.status || 'ACTIVE'
@@ -60,7 +60,7 @@ const ManageCategory = ({
         onFinish={handleFinish}
       >
         <Form.Item
-          name="name"
+          name="displayName"
           label="Name"
           rules={[{ required: true, message: 'Please enter category name' }]}
         >

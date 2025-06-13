@@ -176,7 +176,7 @@ const Gallery = () => {
       <div className="my-6 px-2">
         <p className="text-lg font-semibold mb-3">Folders</p>
         {loadingFolders ? (
-          <Spin tip="Loading folders..." />
+          <Spin />
         ) : folders.length > 0 ? (
           <div className="flex gap-4 flex-wrap">{folderList}</div>
         ) : (
@@ -198,7 +198,7 @@ const Gallery = () => {
           />
         </div>
         {loadingImages ? (
-          <Spin tip="Loading files..." />
+          <Spin />
         ) : images.length === 0 ? (
           <div className="text-gray-500 italic">
             {selectedFolder

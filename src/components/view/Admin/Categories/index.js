@@ -43,26 +43,37 @@ const Categories = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+const handleCategoryAction = async (values, isEdit) => {
+  setActionLoading(true);
 
-  const handleCategoryAction = async (values, isEdit) => {
-    setActionLoading(true);
-    try {
-      if (isEdit) {
-        await updateCategory(selectedCategory.id, values);
-        toast.success("Category updated");
-      } else {
-        await createCategory([values]);
-        toast.success("Category created");
-      }
-      fetchCategories();
-      setDrawerVisible(false);
-    } catch (error) {
-      toast.error(error.message);
-      console.error("Category action error:", error);
-    } finally {
-      setActionLoading(false);
-    }
+  const { displayName, description, parentId } = values;
+  const payload = {
+    displayName,
+    description,
+    parentId: parentId || null,
   };
+
+  try {
+    if (isEdit) {
+      payload.name = displayName?.trim().toLowerCase(); 
+      await updateCategory(selectedCategory.id, payload);
+      toast.success("Category updated");
+    } else {
+      payload.name = displayName; 
+      await createCategory([payload]);
+      toast.success("Category created");
+    }
+
+    fetchCategories();
+    setDrawerVisible(false);
+  } catch (error) {
+    toast.error(error.message);
+    console.error("Category action error:", error);
+  } finally {
+    setActionLoading(false);
+  }
+};
+
 
   const handleDelete = async (record) => {
     try {
@@ -85,18 +96,20 @@ const Categories = () => {
   const columns = [
     {
       title: "Name",
-      dataIndex: "name",
-      key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      dataIndex: "displayName",
+      key: "displayName",
+      sorter: (a, b) => a.displayName.localeCompare(b.displayName),
       sortDirections: ["descend", "ascend"],
-      className:"capitalize",
+      className: "capitalize",
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
       render: (text) => (
-        <span className={`text-gray-700 ${!text ? "!italic !text-gray-400" : ""}`}>
+        <span
+          className={`text-gray-700 ${!text ? "!italic !text-gray-400" : ""}`}
+        >
           {text || "--No description--"}
         </span>
       ),

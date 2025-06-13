@@ -20,16 +20,16 @@
         color: #000;
       }
     }
+    .ant-table-content{
+      overflow: auto !important;
+      table{
+        min-width: max-content !important;
+        overflow: auto !important;
+      }
+    }
   }
 }
 
-.common-category-tree-select{
-    .ant-select-tree-node {
-      padding: 0 10px;
-      line-height: 32px;
-      height: 32px;
-      font-size: 14px;
-      text-transform: capitalize !important;
-    }
-   
+.ant-tree-select-dropdown{
+  text-transform: capitalize !important;
 }

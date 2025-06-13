@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -13,18 +13,16 @@ import {
   Spin,
   Modal,
   DatePicker,
+  Image,
 } from "antd";
 import {
   InboxOutlined,
   PlusOutlined,
   MinusCircleOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import AdminLayout from "../..";
-import {
-  LESSON_CATEGORY,
-  rankingOptions,
-  TOPICS_CATEGORIES,
-} from "@/utils/const";
+import { LESSON_CATEGORY } from "@/utils/const";
 import { ulid } from "ulid";
 import { _putFileToS3, _removeFileFromS3 } from "@/utils/s3Services";
 import { createQuiz, fetchQuizById, updateQuiz } from "@/utils/quizUtil";
@@ -33,35 +31,28 @@ import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import CommonLoader from "@/components/shared/CommonLoader";
 import QuizQuestionsTable from "../../Questions/QuizQuestionsTable";
+import CommonS3ImagePicker from "@/components/shared/CommonS3ImagePicker";
+import CommonCategoryTreeSelect from "@/components/shared/CommonCategoryTreeSelect";
 
-const { Dragger } = Upload;
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 
-const normFile = (e) => e?.fileList;
-const getBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-
-// S3 base URL (e.g. https://your-bucket.s3.amazonaws.com)
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
 
 const ManageQuiz = () => {
   const [form] = Form.useForm();
   const router = useRouter();
   const { id } = useParams();
-  
+
   const [loading, setLoading] = useState(false);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const[quizData, setQuizData] = useState(null);
+  const [quizData, setQuizData] = useState(null);
+
+  console.log("Quiz Data:", quizData);
+  // Image picker state
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
   const userDetails = useSelector((state) => state.auth.userDetails);
   const user = userDetails?.data?.data;
 
@@ -75,16 +66,15 @@ const ManageQuiz = () => {
           // Convert startDate and endDate strings to dayjs objects if present
           const startDate = quiz.startDate ? dayjs(quiz.startDate) : null;
           const endDate = quiz.endDate ? dayjs(quiz.endDate) : null;
-          const quizImageList = quiz.quizImage
-            ? [
-                {
-                  uid: quiz.quizImage,
-                  name: "Quiz Image",
-                  status: "done",
-                  url: `${S3_BASE_URL}/QUIZZES/${quiz.quizImage}`,
-                },
-              ]
-            : [];
+          setSelectedRowKeys(quiz.questionIds || []);
+          if (quiz.image) {
+            setSelectedImages([
+              {
+                key: quiz.image,
+                url: `${process.env.NEXT_PUBLIC_BUCKET_URL}/${quiz.image}`,
+              },
+            ]);
+          }
           form.setFieldsValue({
             name: quiz.name,
             passingPerc: quiz.passingPerc,
@@ -92,26 +82,8 @@ const ManageQuiz = () => {
             difficulty: quiz.difficulty,
             description: quiz.description,
             validDateRange: startDate && endDate ? [startDate, endDate] : [],
-            file: quizImageList,
-            quizImage: quiz?.quizImage,
+            image: quiz?.image,
             desiredQuestions: quiz?.desiredQuestions || 0,
-            questions: quiz.questions.map((q) => ({
-              question: q.question,
-              id: q.id,
-              file: q.image
-                ? [
-                    {
-                      uid: q.image,
-                      name: "Uploaded Image",
-                      status: "done",
-                      url: `${S3_BASE_URL}/QUIZZES/${q.image}`,
-                    },
-                  ]
-                : [],
-              options: q.options,
-              explanation: q.explanation,
-              image: q.image,
-            })),
           });
         })
         .catch(() => {
@@ -120,28 +92,12 @@ const ManageQuiz = () => {
         .finally(() => setLoading(false));
     }
   }, [id, form]);
-  const handleCancel = () => setPreviewVisible(false);
-
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-
-    setPreviewImage(file.url || file.preview);
-    setPreviewTitle(
-      file.name || file.url.substring(file.url.lastIndexOf("/") + 1)
-    );
-    setPreviewVisible(true);
-  };
 
   const onFinish = async (values) => {
-    console.log("Form values:", values);
     setLoading(true);
     try {
-      const qid = id || ulid();
-
-      // Extract startDate and endDate from RangePicker
       const [startDate, endDate] = values.validDateRange || [];
+      const imageKey = selectedImages[0]?.key || null;
 
       const payload = {
         name: values.name,
@@ -149,17 +105,15 @@ const ManageQuiz = () => {
         category: values.category,
         difficulty: values.difficulty,
         description: values.description,
-        questions:quizData.questions,
-        totalQuestions: quizData.questions.length,
-        createdBy: user?.id,
-        startDate: startDate ? startDate.format("YYYY-MM-DD") : null,
-        endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
-        quizImage: quizData.quizImage,
+        createdBy: user?.id || null,
+        startDate: startDate?.format("YYYY-MM-DD") || null,
+        endDate: endDate?.format("YYYY-MM-DD") || null,
+        image: imageKey,
         desiredQuestions: values.desiredQuestions || 0,
         questionIds: selectedRowKeys,
+        totalQuestions: selectedRowKeys.length,
       };
 
-      console.log("Payload to be sent:", payload);
       if (id) {
         await updateQuiz(id, payload);
         message.success("Quiz updated successfully");
@@ -177,6 +131,13 @@ const ManageQuiz = () => {
     }
   };
 
+  // Remove a selected image by key
+  const removeSelectedImage = useCallback((key) => {
+    setSelectedImages((prev) => prev.filter((img) => img.key !== key));
+  }, []);
+
+  console.log("selectedRowKeys:", selectedRowKeys);
+
   if (loading) {
     return (
       <div className="h-screen">
@@ -185,11 +146,9 @@ const ManageQuiz = () => {
     );
   }
 
-console.log("selectedRowKeys:", selectedRowKeys);
-
   return (
     <AdminLayout>
-      <div className="max-w-[80%]">
+      <div className="w-full xl:max-w-[80%]">
         <h1 className="text-2xl font-semibold mb-4">
           {id ? "Edit Quiz" : "Create Quiz"}
         </h1>
@@ -244,13 +203,7 @@ console.log("selectedRowKeys:", selectedRowKeys);
               label="Category"
               rules={[{ required: true, message: "Please select a category" }]}
             >
-              <Select showSearch placeholder="Please select a category">
-                {rankingOptions.slice(1).map((option) => (
-                  <Select.Option key={option.value} value={option.value}>
-                    {option.label}
-                  </Select.Option>
-                ))}
-              </Select>
+              <CommonCategoryTreeSelect placeholder="Select Category" />
             </Form.Item>
             <Form.Item
               name="difficulty"
@@ -278,37 +231,58 @@ console.log("selectedRowKeys:", selectedRowKeys);
             <Form.Item name="description" label="Description">
               <TextArea rows={4} placeholder="Enter description here." />
             </Form.Item>
-            <Form.Item
-              name={"file"}
-              label="Upload Image"
-              valuePropName="fileList"
-              getValueFromEvent={normFile}
+
+            <Button
+              type="dashed"
+              block
+              icon={<PlusOutlined />}
+              onClick={() => setPickerVisible(true)}
             >
-              <Dragger
-                accept="image/*"
-                maxCount={1}
-                listType="picture"
-                onPreview={handlePreview}
-                showUploadList={{
-                  showPreviewIcon: true,
-                  showRemoveIcon: true,
-                }}
-              >
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">
-                  Click or drag an image to this area to upload
-                </p>
-                <p className="ant-upload-hint">
-                  Only images are accepted and will upload upon form submit.
-                </p>
-              </Dragger>
-            </Form.Item>
+              Select Images from S3
+            </Button>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedImages.map((img) => (
+                <div
+                  key={img.key}
+                  style={{ position: "relative", display: "inline-block" }}
+                >
+                  <Image
+                    preview
+                    width={80}
+                    src={img.url}
+                    alt="Selected"
+                    style={{ border: "1px solid #ddd", borderRadius: 4 }}
+                  />
+                  <CloseCircleOutlined
+                    onClick={() => removeSelectedImage(img.key)}
+                    style={{
+                      position: "absolute",
+                      top: -8,
+                      right: -8,
+                      fontSize: 16,
+                      color: "#ff4d4f",
+                      cursor: "pointer",
+                      background: "#fff",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <CommonS3ImagePicker
+              visible={pickerVisible}
+              onSelect={(items) => {
+            setSelectedImages(items)
+                setPickerVisible(false);
+              }}
+              onClose={() => setPickerVisible(false)}
+            />
           </div>
           {/* Questions */}
           <div className="bg-white border rounded-lg p-6 mb-4">
-            <p className="text-lg font-semibold mb-3">Select Questions</p>
+            <p className="text-lg font-semibold mb-3">
+              Select Questions From Questions Bank
+            </p>
             <QuizQuestionsTable
               isRowSelect={true}
               selectedRowKeys={selectedRowKeys}
@@ -324,15 +298,6 @@ console.log("selectedRowKeys:", selectedRowKeys);
           </Form.Item>
         </Form>
       </div>
-
-      <Modal
-        visible={previewVisible}
-        title={previewTitle}
-        footer={null}
-        onCancel={handleCancel}
-      >
-        <img alt="Preview" style={{ width: "100%" }} src={previewImage} />
-      </Modal>
     </AdminLayout>
   );
 };

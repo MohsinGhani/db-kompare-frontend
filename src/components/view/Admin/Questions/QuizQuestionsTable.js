@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Button, Space, Popconfirm, Select } from "antd";
+import { Button, Space, Popconfirm, Select, Modal, Form } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import CommonTable from "@/components/shared/CommonTable";
 import CommonModal from "@/components/shared/CommonModal";
@@ -53,8 +53,16 @@ const QuizQuestionsTable = ({
 
   const loadQuestions = useCallback(async () => {
     setLoading(true);
+    let data;
     try {
-      const data = await fetchQuizzesQuestions();
+      if (categoryFilter) {
+        const queryParams = {
+          category: categoryFilter,
+        };
+        data = await fetchQuizzesQuestions(queryParams);
+      } else {
+        data = await fetchQuizzesQuestions();
+      }
       setQuestions(data?.data || []);
     } catch (err) {
       console.error(err);
@@ -62,11 +70,11 @@ const QuizQuestionsTable = ({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [categoryFilter]);
 
   useEffect(() => {
     loadQuestions();
-  }, [loadQuestions]);
+  }, [loadQuestions, categoryFilter]);
 
   const handleDelete = async (record) => {
     setLoading(true);
@@ -81,41 +89,6 @@ const QuizQuestionsTable = ({
       setLoading(false);
     }
   };
-
-  // Derive unique categories (skip first dummy element if needed)
-  const categoryOptions = useMemo(
-    () =>
-      rankingOptions.slice(1).map((opt) => ({
-        label: opt.label,
-        value: opt.value,
-      })),
-    []
-  );
-
-  // Derive subcategories based on current questions + applied categoryFilter
-  const availableSubcategories = useMemo(() => {
-    const setSub = new Set();
-    questions.forEach((q) => {
-      if (!categoryFilter || q.category === categoryFilter) {
-        if (q.subcategory) {
-          setSub.add(q.subcategory);
-        }
-      }
-    });
-    return Array.from(setSub).sort();
-  }, [questions, categoryFilter]);
-
-  // Filtered questions for table rendering
-  const filteredQuestions = useMemo(() => {
-    return questions.filter((q) => {
-      const byCategory = categoryFilter ? q.category === categoryFilter : true;
-      const bySubcategory =
-        subcategoryFilter && subcategoryFilter !== "all"
-          ? q.subcategory === subcategoryFilter
-          : true;
-      return byCategory && bySubcategory;
-    });
-  }, [questions, categoryFilter, subcategoryFilter]);
 
   // Bulk edit handlers
   const openBulkEditModal = () => {
@@ -154,12 +127,16 @@ const QuizQuestionsTable = ({
   };
 
   // Only supply rowSelection when isRowSelect is true
-  const rowSelection = isRowSelect
-    ? {
-        selectedRowKeys,
-        onChange: (keys) => setSelectedRowKeys(keys),
-      }
-    : undefined;
+const rowSelection = isRowSelect
+  ? {
+      selectedRowKeys,
+      onChange: (keys) => {
+        // Merging the new keys with the previously selected keys and removing duplicates
+        const updatedKeys = [...new Set([...selectedRowKeys, ...keys])];
+        setSelectedRowKeys(updatedKeys); // Set the updated keys
+      },
+    }
+  : undefined;
 
   const columns = [
     {
@@ -177,6 +154,7 @@ const QuizQuestionsTable = ({
       dataIndex: "question",
       key: "question",
       ellipsis: true,
+      width: "40%",
       className: "font-semibold text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
       render: (text) => <div className="whitespace-pre-wrap">{text}</div>,
@@ -190,7 +168,8 @@ const QuizQuestionsTable = ({
       className: "text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
       render: (category) => (
-        <p className="whitespace-pre-wrap capitalize">{category?.name}</p>   ) 
+        <p className="whitespace-pre-wrap capitalize">{category?.name}</p>
+      ),
     },
     {
       title: "Difficulty",
@@ -200,15 +179,6 @@ const QuizQuestionsTable = ({
       sortDirections: ["ascend", "descend"],
       className: "text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
-    },
-    {
-      title: "Correct Count",
-      dataIndex: "correctCount",
-      key: "correctCount",
-      sorter: (a, b) => a.correctCount - b.correctCount,
-      sortDirections: ["ascend", "descend"],
-      align: "center",
-      onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
     },
     {
       title: "Created At",
@@ -262,30 +232,17 @@ const QuizQuestionsTable = ({
       onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
     },
   ];
-
+  console.log("categoryFilter", categoryFilter);
   return (
     <>
       <div className="flex mt-8 mb-4 gap-2 items-center">
-        <Select
-          showSearch
-          placeholder="Select Category"
-          className="w-64"
-          allowClear
-          value={categoryFilter}
-          onChange={(val) => {
-            setCategoryFilter(val);
-            setSubcategoryFilter(null);
-          }}
-        >
-          {categoryOptions.map((opt) => (
-            <Select.Option key={opt.value} value={opt.value}>
-              {opt.label}
-            </Select.Option>
-          ))}
-        </Select>
-        <CommonCategoryTreeSelect className="w-96"  />
+        <CommonCategoryTreeSelect
+          className="w-96"
+          onChange={(value) => setCategoryFilter(value)}
+          onClear={() => setCategoryFilter(null)}
+        />
 
-
+        {/* 
         {isRowSelect && (
           <Button
             type="primary"
@@ -294,12 +251,12 @@ const QuizQuestionsTable = ({
           >
             Bulk Edit
           </Button>
-        )}
+        )} */}
       </div>
 
       <CommonTable
         rowKey="id"
-        dataSource={filteredQuestions}
+        dataSource={questions}
         columns={columns}
         loading={loading}
         bordered
@@ -315,75 +272,48 @@ const QuizQuestionsTable = ({
       />
 
       {/* Bulk Edit Modal */}
-      <CommonModal
-        isModalOpen={isBulkModalOpen}
-        handleOk={handleBulkEditOk}
-        handleCancel={handleBulkEditCancel}
+      {/* <Modal
+        open={isBulkModalOpen}
+        onOk={handleBulkEditOk}
+        onCancel={handleBulkEditCancel}
         title="Bulk Edit Questions"
         centered
         destroyOnClose
         width={400}
       >
+    <Form form={form} layout="vertical" name="bulk-edit-form">
         <div className="flex flex-col gap-4">
-          <div>
-            <label className="block font-medium mb-1">New Category</label>
-            <Select
-              showSearch
+          <Form.Item
+            name="category"
+            label="Category"
+            rules={[{ required: true, message: "Please select a category" }]}
+          >
+            <CommonCategoryTreeSelect
               placeholder="Select Category"
+              onChange={handleCategoryChange}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="difficulty"
+            label="Difficulty Level"
+            rules={[{ required: true, message: "Please select difficulty level" }]}
+          >
+            <Select
+              placeholder="Select difficulty level"
+              onChange={handleDifficultyChange}
               className="w-full"
-              allowClear
-              value={bulkCategory}
-              onChange={(val) => {
-                setBulkCategory(val);
-                setBulkSubcategory(null);
-              }}
             >
-              {categoryOptions.map((opt) => (
-                <Select.Option key={opt.value} value={opt.value}>
-                  {opt.label}
+              {Object.values(LESSON_CATEGORY).map((level) => (
+                <Select.Option key={level} value={level}>
+                  {level}
                 </Select.Option>
               ))}
             </Select>
-          </div>
-
-          <div>
-            <label className="block font-medium mb-1">New Subcategory</label>
-            <Select
-              placeholder="Select Subcategory"
-              className="w-full"
-              showSearch
-              allowClear
-              value={bulkSubcategory}
-              onChange={(val) => setBulkSubcategory(val)}
-            >
-              {/**
-                If user picks a new bulkCategory, you might restrict subcategories
-                to those under that category; otherwise show all from existing data.
-              */}
-              {/**
-                We derive options from all questions that match either
-                the currently selected bulkCategory or all if none chosen.
-              */}
-              {Array.from(
-                new Set(
-                  questions
-                    .filter((q) =>
-                      bulkCategory ? q.category === bulkCategory : true
-                    )
-                    .map((q) => q.subcategory)
-                    .filter((s) => !!s)
-                )
-              )
-                .sort()
-                .map((sub) => (
-                  <Select.Option key={sub} value={sub}>
-                    {sub}
-                  </Select.Option>
-                ))}
-            </Select>
-          </div>
+          </Form.Item>
         </div>
-      </CommonModal>
+      </Form>
+      </Modal> */}
     </>
   );
 };

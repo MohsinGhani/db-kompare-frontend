@@ -127,32 +127,50 @@ export default function CommonS3ImagePicker({
   );
 
   // render preview card
-  const renderPreview = (item) => {
-    const { url, meta, key } = item;
-    const isSelected = selectedImages.some((i) => i.key === key);
-    return (
-      <div style={{ position: "relative" }}>
+    const renderPreview = (item) => {
+    const {
+      url,
+      meta: { contentType },
+    } = item;
+
+    if (contentType.startsWith("image/")) {
+      return (
         <img
+          alt={item.key}
           src={url}
-          alt={key}
-          className={`object-cover w-full h-32 cursor-pointer ${
-            isSelected
-              ? "opacity-70 backdrop-contrast-100 border-2 border-primary"
-              : ""
-          } `}
+          style={{ objectFit: "cover", maxHeight: "100%", maxWidth: "100%" }}
           onClick={() => handleSelectImage(item)}
         />
-        {isSelected && (
-          <CheckCircleOutlined
-            style={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              fontSize: 24,
-              color: "#1890ff",
-            }}
-          />
-        )}
+      );
+    }
+    if (contentType === "application/pdf") {
+      return (
+        <iframe
+          title={item.key}
+          src={url}
+          style={{ width: "100%", height: 150, border: "none" }}
+          onClick={() => handleSelectImage(item)}
+
+        />
+      );
+    }
+    if (contentType.startsWith("video/")) {
+      return (
+        <video
+          src={url}
+          controls
+          style={{ maxWidth: "100%", maxHeight: 150 }}
+          onClick={() => handleSelectImage(item)}
+
+        />
+      );
+    }
+    return (
+      <div style={{ padding: 16 }}>
+        <p>No preview available.</p>
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          Download
+        </a>
       </div>
     );
   };
@@ -182,7 +200,7 @@ export default function CommonS3ImagePicker({
       <div className="my-2">
         <p className="text-sm font-semibold mb-2">Folders</p>
         {loadingFolders ? (
-          <Spin tip="Loading folders..." />
+          <Spin />
         ) : folders.length > 0 ? (
           <div className="flex gap-2 flex-wrap">{folderTabs}</div>
         ) : (

@@ -88,6 +88,33 @@ export async function updateCategory(id, payload) {
     throw error;
   }
 }
+export async function getSingleCategory(id) {
+  try {
+    if (!id) throw new Error("Category ID is required for update");
+
+    const response = await fetch(
+      `${API_BASE_URL_3}/category/${encodeURIComponent(id)}`,
+      {
+        method: "GET",
+         headers: {
+          "x-api-key": X_API_KEY,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(
+        `Error updating category: ${response.status} ${err.message || response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in updateCategory:", error);
+    throw error;
+  }
+}
 
 /**
  * Delete a category by ID

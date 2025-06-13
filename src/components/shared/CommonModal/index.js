@@ -10,6 +10,7 @@ const CommonModal = ({
   title = "",
   closable = false,
   footer = null,
+  forceRender,
   width,
   destroyOnClose = false,
   closeIcon = false,
@@ -29,6 +30,7 @@ const CommonModal = ({
       destroyOnClose={destroyOnClose}
       closeIcon={closeIcon}
       maskClosable={maskClosable}
+      forceRender={forceRender}
     >
       {children}
     </Modal>

@@ -11,9 +11,13 @@ import {
   message,
   Image,
 } from "antd";
-import { PlusOutlined, MinusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  MinusCircleOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
 import CommonModal from "@/components/shared/CommonModal";
-import { LESSON_CATEGORY, rankingOptions } from "@/utils/const";
+import { DIFFICULTY, LESSON_CATEGORY, rankingOptions } from "@/utils/const";
 import { createQuizQuesions, updateQuizQuestion } from "@/utils/quizUtil";
 import CommonS3ImagePicker from "@/components/shared/CommonS3ImagePicker";
 import CommonCategoryTreeSelect from "@/components/shared/CommonCategoryTreeSelect";
@@ -38,10 +42,10 @@ const ManageQuestionModal = ({
     if (question) {
       form.setFieldsValue({
         question: question.question,
-        category: question.category,
+        category: question.category.name,
         difficulty: question.difficulty,
         explanation: question.explanation,
-        options: question.options.map(opt => ({
+        options: question.options.map((opt) => ({
           text: opt.text,
           isCorrect: opt.isCorrect,
         })),
@@ -49,7 +53,7 @@ const ManageQuestionModal = ({
       // Map existing image keys to display items
       if (Array.isArray(question.images)) {
         setSelectedImages(
-          question.images.map(key => ({ key, url: `${S3_URL}/${key}` }))
+          question.images.map((key) => ({ key, url: `${S3_URL}/${key}` }))
         );
       } else {
         setSelectedImages([]);
@@ -68,19 +72,19 @@ const ManageQuestionModal = ({
 
   // Remove a selected image by key
   const removeSelectedImage = useCallback((key) => {
-    setSelectedImages(prev => prev.filter(img => img.key !== key));
+    setSelectedImages((prev) => prev.filter((img) => img.key !== key));
   }, []);
 
   const onFinish = useCallback(
     async (values) => {
-      setSubmitting(true);
+      // setSubmitting(true);
       try {
         // Prepare options
-        const formattedOptions = values.options.map(opt => ({
+        const formattedOptions = values.options.map((opt) => ({
           text: opt.text.trim(),
           isCorrect: Boolean(opt.isCorrect),
         }));
-        const correctCount = formattedOptions.filter(o => o.isCorrect).length;
+        const correctCount = formattedOptions.filter((o) => o.isCorrect).length;
 
         // Build payload including image keys array
         const payload = {
@@ -88,7 +92,7 @@ const ManageQuestionModal = ({
           category: values.category,
           difficulty: values.difficulty,
           explanation: values.explanation?.trim() || "",
-          images: selectedImages.map(img => img.key),
+          images: selectedImages.map((img) => img.key),
           options: formattedOptions,
           correctCount,
           isMultipleAnswer: correctCount > 1,
@@ -116,7 +120,6 @@ const ManageQuestionModal = ({
     [question, form, onClose, onSuccess, selectedImages]
   );
 
-
   console.log("question", question);
 
   return (
@@ -126,12 +129,17 @@ const ManageQuestionModal = ({
       footer={null}
       title={question ? "Edit Question" : "Create Question"}
       destroyOnClose
+      forceRender
+      
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ options: [{ text: "", isCorrect: false }] }}
+        initialValues={{
+          difficulty: DIFFICULTY.EASY,
+          options: [{ text: "", isCorrect: false }],
+        }}
       >
         <Form.Item
           name="question"
@@ -146,16 +154,23 @@ const ManageQuestionModal = ({
           label="Category"
           rules={[{ required: true, message: "Please select a category" }]}
         >
-          <CommonCategoryTreeSelect placeholder="Select category" />
+          <CommonCategoryTreeSelect
+            placeholder="Select category"
+            onChange={(value, categoryName) =>
+              form.setFieldsValue({ category: categoryName, categoryName })
+            }
+          />
         </Form.Item>
 
         <Form.Item
           name="difficulty"
           label="Difficulty Level"
-          rules={[{ required: true, message: "Please select difficulty level" }]}
+          rules={[
+            { required: true, message: "Please select difficulty level" },
+          ]}
         >
           <Select placeholder="Select difficulty level">
-            {Object.values(LESSON_CATEGORY).map(level => (
+            {Object.values(LESSON_CATEGORY).map((level) => (
               <Select.Option key={level} value={level}>
                 {level}
               </Select.Option>
@@ -183,26 +198,29 @@ const ManageQuestionModal = ({
             Select Images from S3
           </Button>
           <div className="flex flex-wrap gap-2 mt-2">
-            {selectedImages.map(img => (
-              <div key={img.key} style={{ position: 'relative', display: 'inline-block' }}>
+            {selectedImages.map((img) => (
+              <div
+                key={img.key}
+                style={{ position: "relative", display: "inline-block" }}
+              >
                 <Image
                   preview
                   width={80}
                   src={img.url}
                   alt="Selected"
-                  style={{ border: '1px solid #ddd', borderRadius: 4 }}
+                  style={{ border: "1px solid #ddd", borderRadius: 4 }}
                 />
                 <CloseCircleOutlined
                   onClick={() => removeSelectedImage(img.key)}
                   style={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: -8,
                     right: -8,
                     fontSize: 16,
-                    color: '#ff4d4f',
-                    cursor: 'pointer',
-                    background: '#fff',
-                    borderRadius: '50%',
+                    color: "#ff4d4f",
+                    cursor: "pointer",
+                    background: "#fff",
+                    borderRadius: "50%",
                   }}
                 />
               </div>
@@ -211,13 +229,13 @@ const ManageQuestionModal = ({
           <CommonS3ImagePicker
             visible={pickerVisible}
             multiple
-            onSelect={items => {
+            onSelect={(items) => {
               // merge new items, avoid duplicates
-              setSelectedImages(prev => {
-                const existingKeys = new Set(prev.map(i => i.key));
+              setSelectedImages((prev) => {
+                const existingKeys = new Set(prev.map((i) => i.key));
                 return [
                   ...prev,
-                  ...items.filter(i => !existingKeys.has(i.key))
+                  ...items.filter((i) => !existingKeys.has(i.key)),
                 ];
               });
               setPickerVisible(false);
@@ -270,7 +288,7 @@ const ManageQuestionModal = ({
 
         <Form.Item>
           <Button type="primary" htmlType="submit" block loading={submitting}>
-            {question ? 'Update Question' : 'Add Question'}
+            {question ? "Update Question" : "Add Question"}
           </Button>
         </Form.Item>
       </Form>
