@@ -33,6 +33,7 @@ const shuffleArray = (arr) => {
 
 const QuizDetail = ({ quiz }) => {
 
+  console.log("QuizDetail component rendered with quiz:", quiz);
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
   const router = useRouter();
@@ -51,8 +52,8 @@ const QuizDetail = ({ quiz }) => {
   const [selectedOptionIds, setSelectedOptionIds] = useState([]); // For current question
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Where decreaseQuestions is the number to remove from total
-  const decreaseCount = quiz?.decreaseQuestions || 0;
+   // Where desiredQuestions is the number to keep (if present)
+  const desiredQuestions = quiz?.desiredQuestions || 0;
 
   // Storage keys
   const storageKey = `quiz-${quizId}-user-${user?.id}`;
@@ -100,15 +101,19 @@ const QuizDetail = ({ quiz }) => {
     if (finalQuestionIds && Array.isArray(finalQuestionIds)) {
       // Reconstruct question objects in the saved order
       const restoredQuestions = finalQuestionIds
-        .map((qid) => quiz.questions.find((q) => q.id === qid))
+        .map((qid) => quiz?.questions?.find((q) => q?.id === qid))
         // Filter out any missing ones (just in case)
         .filter(Boolean);
       setQuestions(restoredQuestions);
     } else {
       // No saved question IDs → shuffle & slice
-      const allShuffled = shuffleArray(quiz.questions);
-      const numToTake = quiz.questions.length - decreaseCount;
-      const sliced = allShuffled.slice(0, Math.max(numToTake, 0));
+      const allShuffled = shuffleArray(quiz.questions || quiz?.questionsIdQ);
+      const totalCount = quiz?.questions?.length || quiz?.questionsIdQ.length || 0;
+      const numToTake =
+        desiredQuestions > 0
+          ? Math.min(desiredQuestions, totalCount)
+          : totalCount;
+      const sliced = allShuffled.slice(0, numToTake);
       setQuestions(sliced);
 
       // Store the final question IDs for future restores
@@ -318,9 +323,7 @@ const QuizDetail = ({ quiz }) => {
               <div
                 key={option.id}
                 className={`w-full p-4 rounded-md mt-4 flex items-center gap-2 cursor-pointer border ${
-                  isSelected
-                    ? "border-2 border-primary"
-                    : "border-transparent"
+                  isSelected ? "border-2 border-primary" : "border-transparent"
                 } bg-[#F4F5FF]`}
                 onClick={() => handleOptionChange(option.id)}
               >

@@ -41,21 +41,22 @@ const CertificateVerification = () => {
       </div>
     );
 
- const handleCopyEmail = (email) => {
+  const handleCopyEmail = (email) => {
     if (email) {
-      navigator.clipboard.writeText(user.email).then(() => {
-        toast.success('Email copied to clipboard');
-      }).catch(() => {
-        toast.error('Failed to copy email');
-      });
+      navigator.clipboard
+        .writeText(user.email)
+        .then(() => {
+          toast.success("Email copied to clipboard");
+        })
+        .catch(() => {
+          toast.error("Failed to copy email");
+        });
     }
   };
-
 
   const { certificate, quiz, user } = data || {};
   const certificateUrl = `${process.env.NEXT_PUBLIC_BUCKET_URL}/CERTIFICATES/${certificate?.id}-${certificate?.userId}-${certificate?.submissionId}.pdf`;
 
-  console.log("data", data);
   return (
     <div className="w-full 2xl:px-20 lg:pl-6 px-3 py-20 pt-28">
       {!data ? (
@@ -95,16 +96,29 @@ const CertificateVerification = () => {
                     <p className="font-bold text-xl">
                       Certificate earned by {user?.name}
                     </p>
-                    <p className="text-sm text-gray-600 italic">{user?.email} <CopyOutlined className="text-primary" onClick={()=>handleCopyEmail(user?.email)} /></p>
+                    <p className="text-sm text-gray-600 italic">
+                      {user?.email}{" "}
+                      <CopyOutlined
+                        className="text-primary"
+                        onClick={() => handleCopyEmail(user?.email)}
+                      />
+                    </p>
                     <p className="font-semibold">
                       {dayjs(certificate?.issueDate).format("MMMM DD, YYYY")}
                     </p>
                     <p className="font-semibold">
-                       Grade Achieved: {certificate?.metaData?.score}%
+                      Grade Achieved: {certificate?.metaData?.score}%
                     </p>
                     <p className="text-sm font-normal text-gray-700">
-                      <span className="font-semibold text-base text-orange-500">{user?.name} </span> account is verified. DB Kompare certifies
-                      their successful completion of <span className="text-green-500 font-semibold">{quiz?.name}</span>.
+                      <span className="font-semibold text-base text-orange-500">
+                        {user?.name}{" "}
+                      </span>{" "}
+                      account is verified. DB Kompare certifies their successful
+                      completion of{" "}
+                      <span className="text-green-500 font-semibold">
+                        {quiz?.name}
+                      </span>
+                      .
                     </p>
                   </div>
                   <div>
@@ -186,9 +200,7 @@ function PdfPageAsImage({ fileUrl, scale = 1.5, pageNumber = 1 }) {
     return <div className="text-red-600">Error: {error}</div>;
   }
   if (!imgSrc) {
-    return (
-        <Skeleton.Node active={true} style={{ width: 700, height: 500 }} />
-    );
+    return <Skeleton.Node active={true} style={{ width: 700, height: 500 }} />;
   }
 
   return (

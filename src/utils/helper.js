@@ -85,6 +85,14 @@ export const compressImage = (file, maxFileSize) => {
   }
 };
 
+export const buildTreeData = (categories) => {
+  return categories?.map(category => ({
+    value: category?.id,       // Using id as value (must be unique)
+    title: category?.name,     // Using name as title
+    children: category?.children ? buildTreeData(category.children) : [],
+  }));
+};
+
 export const stripHtml = (html) => {
   if (typeof window !== "undefined") {
     const tmp = document.createElement("DIV");

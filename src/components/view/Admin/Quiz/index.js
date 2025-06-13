@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../";
 import { Button, Table, Space, message, Popconfirm } from "antd";
@@ -10,18 +9,44 @@ import CommonTable from "@/components/shared/CommonTable";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import { _removeFileFromS3 } from "@/utils/s3Services";
+import { getSingleCategory } from "@/utils/categoriesUtils";
 
 dayjs.extend(relativeTime);
+
 const Quiz = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState({});
   const router = useRouter();
 
+  // Load quizzes and categories
   const loadQuizzes = async () => {
     setLoading(true);
     try {
       const data = await fetchQuizzes();
-      setQuizzes(data?.data || []);
+      const quizzesData = data?.data || [];
+      setQuizzes(quizzesData);
+
+      // Fetch categories for all quizzes
+      const categoriesData = await Promise.all(
+        quizzesData.map(async (quiz) => {
+          if (!categories[quiz.category]) {
+            const categoryDetail = await getSingleCategory(quiz.category);
+            return {
+              id: quiz.category,
+              name: categoryDetail?.data?.name || "Unknown",
+            };
+          }
+          return { id: quiz.category, name: categories[quiz.category] }; // If already fetched
+        })
+      );
+
+      const categoriesMap = categoriesData.reduce((acc, category) => {
+        acc[category.id] = category.name;
+        return acc;
+      }, {});
+
+      setCategories(categoriesMap);
     } catch (err) {
       console.error(err);
       message.error("Failed to load quizzes");
@@ -33,6 +58,7 @@ const Quiz = () => {
   useEffect(() => {
     loadQuizzes();
   }, []);
+
   const handleDelete = async (quiz) => {
     setLoading(true);
     try {
@@ -42,7 +68,7 @@ const Quiz = () => {
           .map((q) => _removeFileFromS3(`QUIZZES/${q.image}`));
         await Promise.all(removalPromises);
       }
-      if(quiz?.quizImage){
+      if (quiz?.quizImage) {
         await _removeFileFromS3(`QUIZZES/${quiz.quizImage}`);
       }
       await _removeFileFromS3(`QUIZZES/${quiz.image}`);
@@ -65,7 +91,6 @@ const Quiz = () => {
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
       sortDirections: ["ascend", "descend"],
-      // Styling header and cells
       className: "font-semibold text-left",
       onCell: () => ({ style: { padding: "10px 16px" } }),
     },
@@ -75,8 +100,9 @@ const Quiz = () => {
       key: "category",
       sorter: (a, b) => a.category.localeCompare(b.category),
       sortDirections: ["ascend", "descend"],
-      className: "text-left",
+      className: "text-left capitalize",
       onCell: () => ({ style: { padding: "10px 16px" } }),
+      render: (category) => categories[category] || "Loading...",
     },
     {
       title: "Difficulty",
@@ -102,6 +128,15 @@ const Quiz = () => {
       sorter: (a, b) => a.totalQuestions - b.totalQuestions,
       sortDirections: ["ascend", "descend"],
       onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
+    },
+    {
+      title: "Desired Questions",
+      dataIndex: "desiredQuestions",
+      key: "desiredQuestions",
+      sorter: (a, b) => a.desiredQuestions - b.desiredQuestions,
+      sortDirections: ["ascend", "descend"],
+      onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
+      render: (ts) => <p>{ts > 0 ? ts : "All"}</p>,
     },
     {
       title: "Created At",
@@ -171,6 +206,7 @@ const Quiz = () => {
         dataSource={quizzes}
         columns={columns}
         loading={loading}
+        bordered={true}
       />
     </AdminLayout>
   );

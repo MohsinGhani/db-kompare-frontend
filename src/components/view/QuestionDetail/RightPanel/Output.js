@@ -107,7 +107,7 @@ const Output = ({
           <CommonDynamicTable data={outputData} />
         ) : isLoading ? (
           <div className="h-full flex items-center justify-center">
-            <Spin spinning tip={"Please wait..."} />
+            <Spin  />
           </div>
         ) : null}
         {error && (
