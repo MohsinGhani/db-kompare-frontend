@@ -5,6 +5,8 @@ import CommonLoader from "@/components/shared/CommonLoader";
 import { createQuizSubmission } from "@/utils/quizUtil";
 import {
   ArrowLeftOutlined,
+  ClockCircleFilled,
+  ClockCircleOutlined,
   InfoCircleOutlined,
   LockOutlined,
 } from "@ant-design/icons";
@@ -15,11 +17,12 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
+const DEFAULT_TIME_LIMIT = 5; // 30 minutes in seconds
 
 // Utility to shuffle an array
 const shuffleArray = (arr) => {
@@ -31,8 +34,14 @@ const shuffleArray = (arr) => {
   return a;
 };
 
+const formatTime = (secs) => {
+  const m = Math.floor(secs / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = (secs % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+};
 const QuizDetail = ({ quiz }) => {
-
   console.log("QuizDetail component rendered with quiz:", quiz);
   // Get quizId from URL parameters
   const { id: quizId } = useParams();
@@ -52,7 +61,11 @@ const QuizDetail = ({ quiz }) => {
   const [selectedOptionIds, setSelectedOptionIds] = useState([]); // For current question
   const [submitLoading, setSubmitLoading] = useState(false);
 
-   // Where desiredQuestions is the number to keep (if present)
+  // Timer state
+  const [remainingTime, setRemainingTime] = useState(DEFAULT_TIME_LIMIT);
+  const timerRef = useRef(null);
+
+  // Where desiredQuestions is the number to keep (if present)
   const desiredQuestions = quiz?.desiredQuestions || 0;
 
   // Storage keys
@@ -85,7 +98,8 @@ const QuizDetail = ({ quiz }) => {
     if (!quiz || !user) return;
 
     setQuizData(quiz);
-
+    // Initialize remaining time from quiz or default
+    setRemainingTime(quiz.timeLimit || DEFAULT_TIME_LIMIT);
     // Try to restore question IDs array from localStorage
     const savedQuestionIdsRaw = localStorage.getItem(questionsKey);
     let finalQuestionIds = null;
@@ -108,7 +122,8 @@ const QuizDetail = ({ quiz }) => {
     } else {
       // No saved question IDs → shuffle & slice
       const allShuffled = shuffleArray(quiz.questions || quiz?.questionsIdQ);
-      const totalCount = quiz?.questions?.length || quiz?.questionsIdQ.length || 0;
+      const totalCount =
+        quiz?.questions?.length || quiz?.questionsIdQ.length || 0;
       const numToTake =
         desiredQuestions > 0
           ? Math.min(desiredQuestions, totalCount)
@@ -153,47 +168,16 @@ const QuizDetail = ({ quiz }) => {
     }
   }, [userAnswers, currentIndex, quizData]);
 
-  // Show loader while initializing
-  if (!quizData || (isUserLoading && !user) || questions.length === 0) {
-    return (
-      <div className="h-screen">
-        <CommonLoader />
-      </div>
-    );
-  }
-
   // Current question
   const question = questions[currentIndex];
-  const isMultiple = question.isMultipleAnswer;
-  const maxSelect = question.correctCount;
-
-  /**
-   * Handle option selection click
-   */
-  const handleOptionChange = (id) => {
-    if (isMultiple) {
-      if (selectedOptionIds.includes(id)) {
-        setSelectedOptionIds((prev) => prev.filter((x) => x !== id));
-      } else if (selectedOptionIds.length < maxSelect) {
-        setSelectedOptionIds((prev) => [...prev, id]);
-      } else {
-        toast.info(
-          `You can select up to ${maxSelect} option${
-            maxSelect > 1 ? "s" : ""
-          } for this question.`
-        );
-      }
-    } else {
-      setSelectedOptionIds([id]);
-    }
-  };
-
+  const isMultiple = question?.isMultipleAnswer;
+  const maxSelect = question?.correctCount;
   /**
    * Save the current question's answer into userAnswers
    */
   const saveAnswer = () => {
     const updated = userAnswers.filter((a) => a.questionId !== question.id);
-    updated.push({ questionId: question.id, selected: selectedOptionIds });
+    updated.push({ questionId: question?.id, selected: selectedOptionIds });
     setUserAnswers(updated);
     return updated;
   };
@@ -244,8 +228,8 @@ const QuizDetail = ({ quiz }) => {
 
     const payload = {
       quizId,
-      userId: user.id,
-      answers: finalAnswers.map(({ questionId, selected }) => ({
+      userId: user?.id,
+      answers: finalAnswers?.map(({ questionId, selected }) => ({
         questionId,
         selectedOptionIds: selected,
       })),
@@ -262,6 +246,59 @@ const QuizDetail = ({ quiz }) => {
     } catch (err) {
       toast.error(err.message || "Failed to submit quiz. Please try again.");
       setSubmitLoading(false);
+    }
+  };
+  const handleTimeout = () => {
+    toast.info("Time is up! Submitting quiz...");
+    saveAnswer();
+    submitQuiz(userAnswers);
+  };
+
+  // Timer effect
+  useEffect(() => {
+    // if (questions.length === 0) return;
+
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setRemainingTime((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          handleTimeout();
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, []);
+  // Show loader while initializing
+  if (!quizData || (isUserLoading && !user) || questions.length === 0) {
+    return (
+      <div className="h-screen">
+        <CommonLoader />
+      </div>
+    );
+  }
+
+  /**
+   * Handle option selection click
+   */
+  const handleOptionChange = (id) => {
+    if (isMultiple) {
+      if (selectedOptionIds.includes(id)) {
+        setSelectedOptionIds((prev) => prev.filter((x) => x !== id));
+      } else if (selectedOptionIds.length < maxSelect) {
+        setSelectedOptionIds((prev) => [...prev, id]);
+      } else {
+        toast.info(
+          `You can select up to ${maxSelect} option${
+            maxSelect > 1 ? "s" : ""
+          } for this question.`
+        );
+      }
+    } else {
+      setSelectedOptionIds([id]);
     }
   };
 
@@ -296,6 +333,13 @@ const QuizDetail = ({ quiz }) => {
         </div>
       </div>
 
+      {/* Remaining Timer section */}
+      <div className="container flex justify-end w-full">
+        <div className=" flex flex-col justify-center items-center mt-4">
+          <ClockCircleOutlined className="text-4xl !text-primary" />
+          Remaining Time: {formatTime(remainingTime)}
+        </div>
+      </div>
       {/* Question display section */}
       <div className="container flex justify-center items-center min-h-[90vh] h-full overflow-auto py-6 flex-col">
         <h1 className="text-3xl font-bold text-left pointer-events-none select-none">
