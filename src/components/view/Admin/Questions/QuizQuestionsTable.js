@@ -232,7 +232,6 @@ const rowSelection = isRowSelect
       onCell: () => ({ style: { padding: "10px 16px", whiteSpace: "nowrap" } }),
     },
   ];
-  console.log("categoryFilter", categoryFilter);
   return (
     <>
       <div className="flex mt-8 mb-4 gap-2 items-center">

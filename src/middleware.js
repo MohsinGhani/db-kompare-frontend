@@ -1,6 +1,13 @@
+// src/middleware.js
+
+import { jwtDecode } from "jwt-decode";
 import { NextResponse } from "next/server";
 
-const PUBLIC_PAGES = [
+/**
+ * Unauthenticated pages (e.g. sign-in, sign-up)
+ * should only be visible to guests.
+ */
+const PUBLIC_ROUTES = [
   "/signin",
   "/signup",
   "/verification-code",
@@ -8,48 +15,70 @@ const PUBLIC_PAGES = [
   "/email-verification",
 ];
 
-const PROTECTED_PAGES = ["/user-profile", "/add-blog", "/edit-blog"];
+/**
+ * Pages requiring at least a logged-in user.
+ */
+const PROTECTED_ROUTES = [
+  "/user-profile",
+  "/add-blog",
+  "/edit-blog",
+];
 
-export function middleware(request) {
-  const token = request.cookies.get("accessToken")?.value;
+/**
+ * Admin-only sections.
+ */
+const ADMIN_ROUTES = ["/admin"];
 
-  const { pathname } = request.nextUrl;
-
-  const isPublicPage = PUBLIC_PAGES.some(
-    (page) => pathname === page || pathname.startsWith(`${page}/`)
+/**
+ * Helper: does `pathname` start with any of `routes`?
+ */
+function matches(pathname, routes) {
+  return routes.some((route) =>
+    pathname === route || pathname.startsWith(`${route}/`)
   );
-
-  const isProtectedPage = PROTECTED_PAGES.some(
-    (page) => pathname === page || pathname.startsWith(`${page}/`)
-  );
-
-  if (token) {
-    // If user is logged in and tries to access a public page, redirect to home
-    if (isPublicPage) {
-      const homeUrl = new URL("/", request.url);
-      return NextResponse.redirect(homeUrl);
-    }
-    // Logged-in user accessing other pages, allow
-    return NextResponse.next();
-  } else {
-    // If not logged in and accessing a protected page, redirect to sign in
-    if (isProtectedPage) {
-      const signInUrl = new URL("/signin", request.url);
-      return NextResponse.redirect(signInUrl);
-    }
-    // If not logged in, allow access to all other pages
-    return NextResponse.next();
-  }
 }
 
+export function middleware(request) {
+  const { pathname } = request.nextUrl;
+  const token = request.cookies.get("accessToken")?.value;
+
+  // --- 1) Unauthenticated visitors ---
+  if (!token) {
+    // Redirect guests away from protected/admin pages
+    if (matches(pathname, PROTECTED_ROUTES) || matches(pathname, ADMIN_ROUTES)) {
+      return NextResponse.redirect(new URL("/signin", request.url));
+    }
+    // Everything else is fine
+    return NextResponse.next();
+  }
+
+  // --- 2) Authenticated users ---
+  let userRole = null;
+  try {
+    const payload = jwtDecode(token);
+    userRole = payload["cognito:groups"]?.[0] ?? null;
+  } catch (err) {
+    console.error("Invalid JWT:", err);
+    // Treat invalid token as logged-out
+    return NextResponse.redirect(new URL("/signin", request.url));
+  }
+
+  // 2a) Block signed-in users from seeing auth pages
+  if (matches(pathname, PUBLIC_ROUTES)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // 2b) Enforce admin-only routes
+  if (matches(pathname, ADMIN_ROUTES) && userRole !== "ADMINS") {
+    // Non-admins get bounced to homepage (or show a 403 page)
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // 2c) All other pages are fine
+  return NextResponse.next();
+}
+
+// Only run middleware on all non-API, non-_next, non-static, non-favicon routes
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for:
-     * - API routes
-     * - Static files
-     * - Next.js internals (/_next, /favicon.ico)
-     */
-    "/((?!api|_next|static|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next|static|favicon.ico).*)"],
 };

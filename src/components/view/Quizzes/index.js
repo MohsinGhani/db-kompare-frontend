@@ -135,7 +135,7 @@ const Quizzes = () => {
                       <p className="ml-2 font-semibold text-2xl">#{quizNo}</p>
                     </div>
                     <span
-                      className={`text-sm font-semibold px-2 py-1 rounded-md ${diffColor}`}
+                      className={`text-sm font-semibold px-2 py-1 rounded-md !capitalize ${diffColor}`}
                     >
                       {difficulty}
                     </span>

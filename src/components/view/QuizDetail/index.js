@@ -26,7 +26,7 @@ import {
 } from "@/utils/quizUtil";
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
-const DEFAULT_TIME_LIMIT_SEC = 5 * 60; // 5 minutes
+const DEFAULT_TIME_LIMIT_SEC = 30 * 60; // 30 minutes
 
 /** Shuffle array in-place */
 function shuffle(arr) {

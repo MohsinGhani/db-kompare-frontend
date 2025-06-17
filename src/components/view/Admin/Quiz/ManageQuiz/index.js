@@ -29,8 +29,6 @@ import CommonCategoryTreeSelect from "@/components/shared/CommonCategoryTreeSele
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 
-const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
-
 const ManageQuiz = () => {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -41,7 +39,6 @@ const ManageQuiz = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [quizData, setQuizData] = useState(null);
 
-  console.log("Quiz Data:", quizData);
   // Image picker state
   const [pickerVisible, setPickerVisible] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -129,7 +126,6 @@ const ManageQuiz = () => {
     setSelectedImages((prev) => prev.filter((img) => img.key !== key));
   }, []);
 
-  console.log("selectedRowKeys:", selectedRowKeys);
 
   if (loading) {
     return (
