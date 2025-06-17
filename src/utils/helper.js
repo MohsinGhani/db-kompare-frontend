@@ -1,9 +1,10 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
-import { METRICES_TYPE, UserRole } from "./const";
+import {  UserRole } from "./const";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isoWeek from "dayjs/plugin/isoWeek";
+import { signOut } from "@aws-amplify/auth";
 dayjs.extend(customParseFormat);
 dayjs.extend(isoWeek);
 
@@ -22,7 +23,6 @@ export const setAccessTokenFromLocalStorage = () => {
     Cookies.set("accessToken", accessToken, { expires, secure: true });
   }
 };
-
 export const isAdminRoute = (pathname) => {
   return pathname.startsWith("/admin");
 };
@@ -33,6 +33,15 @@ export const isAdmin = (role) => {
 export const RemoveAccessTokenFormCookies = () => {
   Cookies.remove("accessToken");
 };
+
+
+export const handleLogout = async () => {
+   await signOut();
+   RemoveAccessTokenFormCookies();
+   localStorage.clear();
+   window.location.href = "/";
+ };
+
 
 export const setCookieHandler = (accessToken) => {
   const decode = jwtDecode(accessToken);

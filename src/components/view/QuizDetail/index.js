@@ -1,269 +1,195 @@
 "use client";
 
-// Importing necessary components and libraries
-import CommonLoader from "@/components/shared/CommonLoader";
-import { createQuizSubmission } from "@/utils/quizUtil";
-import {
-  ArrowLeftOutlined,
-  ClockCircleFilled,
-  ClockCircleOutlined,
-  InfoCircleOutlined,
-  LockOutlined,
-} from "@ant-design/icons";
-import { Button, Progress, Radio, Checkbox } from "antd";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   useParams,
   usePathname,
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { Button, Progress, Radio, Checkbox } from "antd";
+import {
+  ArrowLeftOutlined,
+  InfoCircleOutlined,
+  LockOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
+
+import CommonLoader from "@/components/shared/CommonLoader";
+import { createQuizSubmission } from "@/utils/quizUtil";
+import {
+  fetchQuizProgress,
+  createQuizProgress,
+  updateQuizProgress,
+} from "@/utils/quizUtil";
 
 const S3_BASE_URL = process.env.NEXT_PUBLIC_BUCKET_URL;
-const DEFAULT_TIME_LIMIT = 5; // 30 minutes in seconds
+const DEFAULT_TIME_LIMIT_SEC = 5 * 60; // 5 minutes
 
-// Utility to shuffle an array
-const shuffleArray = (arr) => {
+/** Shuffle array in-place */
+function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-};
+}
 
-const formatTime = (secs) => {
-  const m = Math.floor(secs / 60)
+/** Format seconds as MM:SS */
+function formatTime(sec) {
+  const m = Math.floor(sec / 60)
     .toString()
     .padStart(2, "0");
-  const s = (secs % 60).toString().padStart(2, "0");
+  const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
-};
-const QuizDetail = ({ quiz }) => {
-  console.log("QuizDetail component rendered with quiz:", quiz);
-  // Get quizId from URL parameters
+}
+
+export default function QuizDetail({ quiz }) {
   const { id: quizId } = useParams();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  // Redux state
-  const { userDetails, isUserLoading } = useSelector((state) => state.auth);
+  const { userDetails, isUserLoading } = useSelector((s) => s.auth);
   const user = userDetails?.data?.data;
 
-  // Local state
-  const [quizData, setQuizData] = useState(null); // The entire quiz object
-  const [questions, setQuestions] = useState([]); // Final, shuffled+reduced question objects
+  // State
+  const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState([]); // { questionId, selected: [...] }
-  const [selectedOptionIds, setSelectedOptionIds] = useState([]); // For current question
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [answers, setAnswers] = useState([]); // { questionId, selected: [] }[]
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [remainingTime, setRemainingTime] = useState(DEFAULT_TIME_LIMIT_SEC);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Timer state
-  const [remainingTime, setRemainingTime] = useState(DEFAULT_TIME_LIMIT);
+  // Refs for intervals & latest progress
   const timerRef = useRef(null);
+  const progressRef = useRef({
+    questionIds: [],
+    currentIndex: 0,
+    remainingTimeSec: 0,
+    answersMap: {},
+  });
 
-  // Where desiredQuestions is the number to keep (if present)
-  const desiredQuestions = quiz?.desiredQuestions || 0;
-
-  // Storage keys
-  const storageKey = `quiz-${quizId}-user-${user?.id}`;
-  const questionsKey = `quiz-${quizId}-questions-${user?.id}`;
-
-  /**
-   * Redirect to sign-in if user is not logged in.
-   * Include current URL (with query) as redirect param.
-   */
+  // ——————————————————————————————
+  // 1) Redirect unauthenticated users
+  // ——————————————————————————————
   useEffect(() => {
     if (!user && !isUserLoading) {
-      const currentUrl =
-        pathname +
-        (searchParams?.toString() ? `?${searchParams.toString()}` : "");
-      toast.error("You must be logged in to take a quiz.");
-      router.replace(`/signin?redirect=${encodeURIComponent(currentUrl)}`);
+      const redirectTo =
+        pathname + (searchParams?.toString() ? `?${searchParams}` : "");
+      toast.error("Please sign in to take the quiz.");
+      router.replace(`/signin?redirect=${encodeURIComponent(redirectTo)}`);
     }
   }, [user, isUserLoading, pathname, searchParams, router]);
 
-  /**
-   * On mount (and whenever quiz or user changes):
-   * 1) Initialize quizData
-   * 2) Determine final question set:
-   *    - If we've stored question IDs previously, restore that specific order+subset
-   *    - Otherwise: shuffle all quiz.questions, slice off `decreaseCount` items, store that array of IDs
-   * 3) Restore saved answers and index if available
-   */
+  // ——————————————————————————————
+  // 2) Initialize or fetch progress
+  // ——————————————————————————————
   useEffect(() => {
     if (!quiz || !user) return;
 
-    setQuizData(quiz);
-    // Initialize remaining time from quiz or default
-    setRemainingTime(quiz.timeLimit || DEFAULT_TIME_LIMIT);
-    // Try to restore question IDs array from localStorage
-    const savedQuestionIdsRaw = localStorage.getItem(questionsKey);
-    let finalQuestionIds = null;
+    async function initProgress() {
+      const baseLimit = quiz.timeLimit ?? DEFAULT_TIME_LIMIT_SEC;
+      const resp = await fetchQuizProgress({ userId: user.id, quizId });
+      const prog = resp?.data;
 
-    if (savedQuestionIdsRaw) {
-      try {
-        finalQuestionIds = JSON.parse(savedQuestionIdsRaw);
-      } catch {
-        finalQuestionIds = null;
-      }
-    }
-
-    if (finalQuestionIds && Array.isArray(finalQuestionIds)) {
-      // Reconstruct question objects in the saved order
-      const restoredQuestions = finalQuestionIds
-        .map((qid) => quiz?.questions?.find((q) => q?.id === qid))
-        // Filter out any missing ones (just in case)
-        .filter(Boolean);
-      setQuestions(restoredQuestions);
-    } else {
-      // No saved question IDs → shuffle & slice
-      const allShuffled = shuffleArray(quiz.questions || quiz?.questionsIdQ);
-      const totalCount =
-        quiz?.questions?.length || quiz?.questionsIdQ.length || 0;
-      const numToTake =
-        desiredQuestions > 0
-          ? Math.min(desiredQuestions, totalCount)
-          : totalCount;
-      const sliced = allShuffled.slice(0, numToTake);
-      setQuestions(sliced);
-
-      // Store the final question IDs for future restores
-      const slicedIds = sliced.map((q) => q.id);
-      localStorage.setItem(questionsKey, JSON.stringify(slicedIds));
-    }
-
-    // Next, restore answers & index from localStorage if present
-    const savedRaw = localStorage.getItem(storageKey);
-    if (savedRaw) {
-      try {
-        const { answers, index } = JSON.parse(savedRaw);
-        setUserAnswers(answers);
-        setCurrentIndex(index);
-
-        // Restore selected options for the resumed question
-        const resumedAnswer = answers.find(
-          (a) => a.questionId === questions[index]?.id
+      if (prog) {
+        // Restore from backend
+        const restored = prog.questionIds
+          .map((qid) => quiz.questions.find((q) => q.id === qid))
+          .filter(Boolean);
+        setQuestions(restored);
+        setCurrentIndex(prog.currentIndex);
+        setRemainingTime(prog.remainingTimeSec);
+        setAnswers(
+          Object.entries(prog.answersMap).map(([id, sel]) => ({
+            questionId: id,
+            selected: sel,
+          }))
         );
-        setSelectedOptionIds(resumedAnswer?.selected || []);
-      } catch {
-        // If parsing fails, start fresh
-        setUserAnswers([]);
-        setCurrentIndex(0);
-        setSelectedOptionIds([]);
+        setSelectedIds(prog.answersMap[restored[prog.currentIndex]?.id] ?? []);
+      } else {
+        // First-time: shuffle & slice
+        const allQs = shuffle(quiz.questions);
+        const count = quiz.desiredQuestions
+          ? Math.min(quiz.desiredQuestions, allQs.length)
+          : allQs.length;
+        const sliced = allQs.slice(0, count);
+
+        setQuestions(sliced);
+        setRemainingTime(baseLimit);
+
+        await createQuizProgress({
+          userId: user.id,
+          quizId,
+          questionIds: sliced.map((q) => q.id),
+          currentIndex: 0,
+          remainingTimeSec: baseLimit,
+          answersMap: {},
+          startedAt: new Date().toISOString(),
+          lastUpdatedAt: new Date().toISOString(),
+        });
       }
-    }
-  }, [quiz, user]);
 
-  /**
-   * Persist answers and current question index to localStorage on any change
-   */
+      setIsLoading(false);
+    }
+
+    initProgress();
+  }, [quiz, user, quizId]);
+
+  // ——————————————————————————————
+  // 3) Keep a ref of latest progress
+  // ——————————————————————————————
   useEffect(() => {
-    if (quizData) {
-      const payload = { answers: userAnswers, index: currentIndex };
-      localStorage.setItem(storageKey, JSON.stringify(payload));
-    }
-  }, [userAnswers, currentIndex, quizData]);
+    progressRef.current = {
+      questionIds: questions.map((q) => q.id),
+      currentIndex,
+      remainingTimeSec: remainingTime,
+      answersMap: answers.reduce((m, a) => {
+        m[a.questionId] = a.selected;
+        return m;
+      }, {}),
+    };
+  }, [questions, currentIndex, remainingTime, answers]);
 
-  // Current question
-  const question = questions[currentIndex];
-  const isMultiple = question?.isMultipleAnswer;
-  const maxSelect = question?.correctCount;
-  /**
-   * Save the current question's answer into userAnswers
-   */
-  const saveAnswer = () => {
-    const updated = userAnswers.filter((a) => a.questionId !== question.id);
-    updated.push({ questionId: question?.id, selected: selectedOptionIds });
-    setUserAnswers(updated);
-    return updated;
-  };
+  // ——————————————————————————————
+  // 4) Auto-save every 2 minutes + on unmount
+  // ——————————————————————————————
+  useEffect(() => {
+    if (isLoading) return;
 
-  /**
-   * Navigate to the next question or submit if on last
-   */
-  const goNext = () => {
-    const updatedAnswers = saveAnswer();
-
-    if (currentIndex < questions.length - 1) {
-      const nextIdx = currentIndex + 1;
-      setCurrentIndex(nextIdx);
-
-      // Restore any previously saved selection for that question
-      const nextSaved = updatedAnswers.find(
-        (a) => a.questionId === questions[nextIdx].id
-      );
-      setSelectedOptionIds(nextSaved?.selected || []);
-    } else {
-      submitQuiz(updatedAnswers);
-    }
-  };
-
-  /**
-   * Navigate to the previous question, saving current answer first
-   */
-  const goPrevious = () => {
-    if (currentIndex > 0) {
-      const updatedAnswers = saveAnswer();
-      const prevIdx = currentIndex - 1;
-      setCurrentIndex(prevIdx);
-
-      // Restore selection for the previous question
-      const prevSaved = updatedAnswers.find(
-        (a) => a.questionId === questions[prevIdx].id
-      );
-      setSelectedOptionIds(prevSaved?.selected || []);
-    }
-  };
-
-  /**
-   * Submit the quiz
-   */
-  const submitQuiz = async (updatedAnswersArg) => {
-    setSubmitLoading(true);
-    const finalAnswers = updatedAnswersArg || saveAnswer();
-
-    const payload = {
-      quizId,
-      userId: user?.id,
-      answers: finalAnswers?.map(({ questionId, selected }) => ({
-        questionId,
-        selectedOptionIds: selected,
-      })),
+    const saveNow = () => {
+      updateQuizProgress({
+        userId: user.id,
+        quizId,
+        ...progressRef.current,
+        lastUpdatedAt: new Date().toISOString(),
+      });
     };
 
-    try {
-      const response = await createQuizSubmission(payload);
-      if (response?.data) {
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(questionsKey);
-        toast.success("Quiz completed! Redirecting to results…");
-        router.replace(`/quizzes/result/${response.data.submissionId}`);
-      }
-    } catch (err) {
-      toast.error(err.message || "Failed to submit quiz. Please try again.");
-      setSubmitLoading(false);
-    }
-  };
-  const handleTimeout = () => {
-    toast.info("Time is up! Submitting quiz...");
-    saveAnswer();
-    submitQuiz(userAnswers);
-  };
+    const id = setInterval(saveNow, 2 * 60 * 1000);
+    return () => {
+      clearInterval(id);
+      saveNow();
+    };
+  }, [isLoading, user, quizId]);
 
-  // Timer effect
+  // ——————————————————————————————
+  // 5) Countdown timer
+  // ——————————————————————————————
   useEffect(() => {
-    // if (questions.length === 0) return;
+    if (isLoading) return;
 
-    if (timerRef.current) clearInterval(timerRef.current);
+    clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setRemainingTime((t) => {
         if (t <= 1) {
           clearInterval(timerRef.current);
-          handleTimeout();
+          toast.info("Time is up! Submitting...");
+          handleSubmit(answers);
           return 0;
         }
         return t - 1;
@@ -271,57 +197,110 @@ const QuizDetail = ({ quiz }) => {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, []);
-  // Show loader while initializing
-  if (!quizData || (isUserLoading && !user) || questions.length === 0) {
-    return (
-      <div className="h-screen">
-        <CommonLoader />
-      </div>
-    );
-  }
+  }, [isLoading, questions]);
 
-  /**
-   * Handle option selection click
-   */
-  const handleOptionChange = (id) => {
-    if (isMultiple) {
-      if (selectedOptionIds.includes(id)) {
-        setSelectedOptionIds((prev) => prev.filter((x) => x !== id));
-      } else if (selectedOptionIds.length < maxSelect) {
-        setSelectedOptionIds((prev) => [...prev, id]);
-      } else {
-        toast.info(
-          `You can select up to ${maxSelect} option${
-            maxSelect > 1 ? "s" : ""
-          } for this question.`
-        );
-      }
+  // ——————————————————————————————
+  // Handlers
+  // ——————————————————————————————
+  const handleSelect = useCallback(
+    (optionId) => {
+      const current = questions[currentIndex];
+      const isMulti = current.isMultipleAnswer;
+      const max = current.correctCount;
+
+      setSelectedIds((prev) => {
+        if (isMulti) {
+          if (prev.includes(optionId)) {
+            return prev.filter((x) => x !== optionId);
+          }
+          if (prev.length < max) {
+            return [...prev, optionId];
+          }
+          toast.info(`Up to ${max} selections allowed.`);
+          return prev;
+        }
+        return [optionId];
+      });
+    },
+    [questions, currentIndex]
+  );
+
+  const saveCurrentAnswer = () => {
+    setAnswers((prev) => {
+      const filtered = prev.filter(
+        (a) => a.questionId !== questions[currentIndex].id
+      );
+      return [
+        ...filtered,
+        { questionId: questions[currentIndex].id, selected: selectedIds },
+      ];
+    });
+  };
+
+  const goNext = () => {
+    saveCurrentAnswer();
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+      const nextId = questions[currentIndex + 1].id;
+      setSelectedIds(
+        answers.find((a) => a.questionId === nextId)?.selected || []
+      );
     } else {
-      setSelectedOptionIds([id]);
+      handleSubmit(answers);
     }
   };
 
-  // Progress indicator
-  const progressPercent = Math.round(
-    ((currentIndex + 1) / questions.length) * 100
-  );
+  const goPrev = () => {
+    if (currentIndex === 0) return;
+    saveCurrentAnswer();
+    setCurrentIndex((i) => i - 1);
+    const prevId = questions[currentIndex - 1].id;
+    setSelectedIds(
+      answers.find((a) => a.questionId === prevId)?.selected || []
+    );
+  };
+
+  const handleSubmit = async (answersArr) => {
+    setIsSubmitting(true);
+    const payload = {
+      quizId,
+      userId: user.id,
+      answers: answersArr.map(({ questionId, selected }) => ({
+        questionId,
+        selectedOptionIds: selected,
+      })),
+    };
+
+    try {
+      const { data } = await createQuizSubmission(payload);
+      toast.success("Completed! Redirecting to results…");
+      router.replace(`/quizzes/result/${data.submissionId}`);
+    } catch (err) {
+      toast.error(err.message || "Submission failed.");
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) return <CommonLoader />;
+
+  const question = questions[currentIndex];
+  const percent = Math.round(((currentIndex + 1) / questions.length) * 100);
 
   return (
     <div className="pt-8 min-h-screen">
       {/* Top navigation and progress bar */}
       <div className="flex items-center gap-1 justify-between container">
         <div
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center text-sm md:text-base md:gap-2 cursor-pointer"
           onClick={() => window.history.back()}
         >
           <ArrowLeftOutlined />
-          <p className="font-semibold">Back to menu</p>
+          <p className="font-semibold">Back</p>
         </div>
         <div className="w-[80%]">
           <Progress
             size={["100%", 10]}
-            percent={progressPercent}
+            percent={percent}
             showInfo={true}
             strokeColor="#FFC800"
             className="!w-full"
@@ -334,15 +313,20 @@ const QuizDetail = ({ quiz }) => {
       </div>
 
       {/* Remaining Timer section */}
-      <div className="container flex justify-end w-full">
-        <div className=" flex flex-col justify-center items-center mt-4">
+      <div className="container flex justify-between items-center w-full mt-12">
+        <p className="font-semibold text-lg">
+          {currentIndex + 1} of {questions?.length}{" "}
+        </p>
+        <div className=" flex flex-col justify-center items-center ">
           <ClockCircleOutlined className="text-4xl !text-primary" />
           Remaining Time: {formatTime(remainingTime)}
         </div>
       </div>
+
+
       {/* Question display section */}
-      <div className="container flex justify-center items-center min-h-[90vh] h-full overflow-auto py-6 flex-col">
-        <h1 className="text-3xl font-bold text-left pointer-events-none select-none">
+      <div className="container flex justify-center items-center min-h-[calc(90vh-150px)] h-full overflow-auto py-6 flex-col">
+        <h1 className="text-base md:text-2xl lg:text-3xl font-bold text-left pointer-events-none select-none">
           Q{currentIndex + 1}. {question.question}
         </h1>
 
@@ -354,24 +338,24 @@ const QuizDetail = ({ quiz }) => {
           />
         )}
 
-        {isMultiple && (
+        {question?.isMultipleAnswer && (
           <p className="text-primary font-semibold italic text-sm text-left mt-2 ">
-            <InfoCircleOutlined /> Select up to {maxSelect} answers
+            <InfoCircleOutlined /> Select up to {question.correctCount} answers
           </p>
         )}
 
-        <div className="flex flex-col items-center justify-center mt-8 max-w-[50%] w-full">
-          {question.options.map((option) => {
-            const isSelected = selectedOptionIds.includes(option.id);
+        <div className="flex flex-col items-center justify-center mt-4 md:mt-8  md:max-w-[50%] w-full">
+          {question?.options.map((option) => {
+            const isSelected = selectedIds.includes(option.id);
             return (
               <div
-                key={option.id}
-                className={`w-full p-4 rounded-md mt-4 flex items-center gap-2 cursor-pointer border ${
+                key={option?.id}
+                className={`w-full p-3 md:p-4 rounded-md mt-4 flex items-center gap-2 cursor-pointer border ${
                   isSelected ? "border-2 border-primary" : "border-transparent"
                 } bg-[#F4F5FF]`}
-                onClick={() => handleOptionChange(option.id)}
+                onClick={() => handleSelect(option?.id)}
               >
-                {isMultiple ? (
+                {question?.isMultipleAnswer ? (
                   <Checkbox checked={isSelected} className="!text-[#FFC800]" />
                 ) : (
                   <Radio
@@ -379,7 +363,7 @@ const QuizDetail = ({ quiz }) => {
                     className="!text-[#FFC800] !border-primary !bg-[#F4F5FF]"
                   />
                 )}
-                <p className="text-lg font-semibold">{option.text}</p>
+                <p className="text-sm md:text-lg font-semibold">{option?.text}</p>
               </div>
             );
           })}
@@ -387,34 +371,32 @@ const QuizDetail = ({ quiz }) => {
       </div>
 
       {/* Navigation buttons and info footer */}
-      <div className="sticky bottom-0 w-full bg-[#F4F5FF] h-[80px] flex items-center justify-center">
-        <div className="container flex justify-between items-center">
-          <div className="flex items-center gap-4">
+      <div className="sticky bottom-0 w-full bg-[#F4F5FF] h-[100px] md:h-[80px] flex items-center justify-center">
+        <div className="container flex justify-between items-center gap-3 md:gap-0 flex-wrap-reverse md:flex-nowrap">
+          <div className="flex items-center gap-4 w-full md:w-auto">
             <Button
-              onClick={goPrevious}
+              onClick={goPrev}
               disabled={currentIndex === 0}
-              className="rounded-md"
+              className="w-1/2 md:w-max rounded-md"
             >
               Previous
             </Button>
             <Button
               onClick={goNext}
               type="primary"
-              className="rounded-md"
-              disabled={selectedOptionIds.length === 0 || submitLoading}
-              loading={submitLoading}
+              className="w-1/2 md:w-max  rounded-md"
+              disabled={selectedIds.length === 0 || isSubmitting}
+              loading={isSubmitting}
             >
               {currentIndex < questions.length - 1 ? "Next" : "Submit"}
             </Button>
           </div>
-          <div className="flex items-center gap-1 font-semibold">
+          <div className="flex items-center md:text-base text-xs gap-1 font-semibold">
             <InfoCircleOutlined />
-            <p>Score minimum {quizData.passingPerc}% to get certification</p>
+            <p>Score minimum {quiz.passingPerc}% to get certification</p>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default QuizDetail;
+}

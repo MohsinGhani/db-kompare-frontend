@@ -4,10 +4,13 @@ import React from "react";
 import { Button, Layout } from "antd";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
+import { useSelector } from "react-redux";
 
 const { Content, Sider, Header } = Layout;
 
 const AdminLayout = ({ children }) => {
+    const userDetails = useSelector((state) => state.auth.userDetails);
+  const user = userDetails?.data?.data;
   return (
     <Layout className="admin-layout">
       <Layout>
@@ -20,12 +23,12 @@ const AdminLayout = ({ children }) => {
           className=" !bg-white"
           trigger={null}
         >
-          <AdminSidebar />
+          <AdminSidebar user={user} />
         </Sider>
 
         {/* Main Content */}
         <Layout className="!bg-white">
-          <AdminHeader />
+          <AdminHeader user={user} />
           <Content className="!p-6 content-box">{children}</Content>
         </Layout>
       </Layout>

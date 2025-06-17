@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { useSelector } from "react-redux";
 import { Image } from "antd";
@@ -8,7 +8,7 @@ import { handleFetchAuthSession } from "@/utils/authServices";
 import { isAdmin } from "@/utils/helper";
 
 const getHash = () =>
-  typeof window !== "undefined" ? window.location.hash : undefined;
+  typeof window !== "undefined" ? window.location.hash : "";
 
 const AuthFlowHandler = () => {
   const [loader, setLoader] = useState(false);
@@ -17,58 +17,60 @@ const AuthFlowHandler = () => {
   const { userDetails } = useSelector((state) => state.auth);
   const user = userDetails?.data?.data || null;
   const router = useRouter();
-  const routerRef = useRef("{}");
 
-  const has_auth_error = hash?.includes("error_description");
+  const hasAuthError = hash.includes("error_description");
 
-  const authFlowHandler = async () => {
-    if (!has_auth_error) {
+  // ensure we run only on the client
+  useEffect(() => {
+    setIsClient(true);
+    setHash(getHash());
+  }, []);
+
+  const performAuth = async () => {
+    if (!hasAuthError) {
       try {
         await handleFetchAuthSession();
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.error("Auth session fetch failed:", err);
       }
     }
   };
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    const customOAuthState = localStorage.getItem("customOAuthState");
-    if (customOAuthState) routerRef.current = customOAuthState;
-    return () => {
-      localStorage.removeItem("customOAuthState");
-    };
-  }, [router]);
-
-  useEffect(() => {
     setLoader(true);
-    if (!userDetails && !has_auth_error) {
-      authFlowHandler();
-    } else if (userDetails && !has_auth_error) {
-      if (isAdmin(userDetails?.data?.data?.role)) {
-        console.log("Admin user");
+
+    // 1) kick off the OAuth callback fetch if needed
+    if (!hasAuthError && !userDetails) {
+      performAuth();
+      return;
+    }
+
+    // 2) once we have a user (and no error), redirect:
+    if (!hasAuthError && userDetails) {
+      // pull out any saved post-login path
+      const customPath = localStorage.getItem("customOAuthState");
+      localStorage.removeItem("customOAuthState");
+
+      // first, by role:
+      if (isAdmin(userDetails.data.data.role)) {
         router.replace("/admin/quiz");
+        return;
       } else {
         router.replace("/");
       }
-    }
-  }, [userDetails, router]);
 
-  useEffect(() => {
-    if (user) {
-      const query = routerRef.current;
-      router.replace(`${query || "/"}`);
+      // then override if we had a specific target:
+      if (customPath) {
+        router.replace(customPath);
+      }
     }
-  }, [user]);
+  }, [userDetails, hasAuthError, router]);
 
   if (!isClient) return null;
 
   return (
     <div className="mx-auto flex h-screen w-full max-w-[800px] items-center justify-center">
-      {has_auth_error && (
+      {hasAuthError && (
         <div className="text-center font-[500]">
           There was an issue with your profile. Please email{" "}
           <span className="text-primary">dbkompare@gmail.com</span> with your
@@ -77,7 +79,7 @@ const AuthFlowHandler = () => {
         </div>
       )}
 
-      {loader && !has_auth_error && !userDetails && (
+      {loader && !hasAuthError && !userDetails && (
         <div className="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2">
           <Image
             src="/assets/icons/Animation-loader.gif"
