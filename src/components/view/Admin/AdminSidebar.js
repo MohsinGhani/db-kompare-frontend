@@ -75,7 +75,7 @@ const AdminSidebar = ({ user, setUser }) => {
             onClick={handleLogout}
             className=" absolute bottom-2 bg-red-700/65 text-white !border-none !outline-none hover:!text-white hover:!outline-none hover:!border-none hover:!bg-red-800/80 w-full  max-w-[80%]"
           >
-            Logout
+            <span className="hidden md:inline-flex">Logout</span>
           </Button>
         </div>
       )}
