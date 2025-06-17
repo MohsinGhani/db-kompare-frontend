@@ -9,7 +9,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { signOut } from "aws-amplify/auth";
 import { useSelector } from "react-redux";
 import { selectUserDetails } from "@/redux/slices/authSlice";
-import { RemoveAccessTokenFormCookies } from "@/utils/helper";
+import { handleLogout, RemoveAccessTokenFormCookies } from "@/utils/helper";
 import { getInitials } from "@/utils/getInitials";
 
 const CommonUserDropdown = () => {
@@ -23,10 +23,7 @@ const CommonUserDropdown = () => {
         router.push("/user-profile");
         break;
       case "2":
-        await signOut();
-        RemoveAccessTokenFormCookies();
-        localStorage.clear();
-        window.location.href = "/";
+        await handleLogout();
         break;
       default:
         break;

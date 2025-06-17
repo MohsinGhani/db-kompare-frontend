@@ -1,15 +1,25 @@
 // const X_API_KEY = "d41d8cd98f00b204e9800998ecf8427e";
+
+import { toast } from "react-toastify";
+
 // const API_BASE_URL = "http://localhost:4000/dev" ;
 const X_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL_1;
+
+const X_API_KEY_2 = process.env.NEXT_PUBLIC_X_API_KEY;
+const API_BASE_URL_2 = process.env.NEXT_PUBLIC_API_BASE_URL_2;
 
 // Generic fetch helper
 const fetchAPI = async (url, options = {}) => {
   const response = await fetch(url, options);
   if (!response.ok) {
-    throw new Error(
+    // throw new Error(
+    //   `Network response was not ok: ${response.status} ${response.statusText}`
+    // );
+   console.error(
       `Network response was not ok: ${response.status} ${response.statusText}`
     );
+    return null;
   }
   return response.json();
 };
@@ -29,16 +39,29 @@ export const createQuiz = async (quizData) => {
 
 // Create a new quiz question
 export const createQuizQuesions = async (quizData) => {
-  const url = `${API_BASE_URL}/create-quiz-questions`;
+  const url = `${API_BASE_URL_2}/create-quiz-progress`;
   return fetchAPI(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": X_API_KEY,
+      "x-api-key": X_API_KEY_2,
     },
     body: JSON.stringify(quizData),
   });
 };
+// Create a new quiz question
+export const createQuizProgress = async (quizData) => {
+  const url = `${API_BASE_URL_2}/create-quiz-progress`;
+  return fetchAPI(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY_2,
+    },
+    body: JSON.stringify(quizData),
+  });
+};
+
 // Create a new quiz submission
 export const createQuizSubmission = async (quizData) => {
   const url = `${API_BASE_URL}/create-quiz-submission`;
@@ -90,6 +113,16 @@ export const fetchQuizById = async (id) => {
   });
 };
 // Fetch a single quiz by ID
+export const fetchQuizProgress = async ({ userId, quizId }) => {
+  const url = `${API_BASE_URL_2}/get-quiz-progress?userId=${userId}&quizId=${quizId}`;
+  return fetchAPI(url, {
+    method: "GET",
+    headers: {
+      "x-api-key": X_API_KEY_2,
+    },
+  });
+};
+// Fetch a single quiz by ID
 export const fetchQuizSubmissionById = async (id) => {
   const url = `${API_BASE_URL}/quiz-submission/${id}`;
   return fetchAPI(url, {
@@ -108,6 +141,17 @@ export const updateQuiz = async (id, updateData) => {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": X_API_KEY,
+    },
+    body: JSON.stringify(updateData),
+  });
+};
+export const updateQuizProgress = async ( updateData) => {
+  const url = `${API_BASE_URL_2}/update-quiz-progress`;
+  return fetchAPI(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": X_API_KEY_2,
     },
     body: JSON.stringify(updateData),
   });

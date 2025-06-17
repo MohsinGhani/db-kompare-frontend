@@ -6,24 +6,16 @@ import {
   Input,
   Select,
   Button,
-  Upload,
-  Checkbox,
-  Space,
   message,
-  Spin,
-  Modal,
   DatePicker,
   Image,
 } from "antd";
 import {
-  InboxOutlined,
   PlusOutlined,
-  MinusCircleOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
 import AdminLayout from "../..";
 import { LESSON_CATEGORY } from "@/utils/const";
-import { ulid } from "ulid";
 import { _putFileToS3, _removeFileFromS3 } from "@/utils/s3Services";
 import { createQuiz, fetchQuizById, updateQuiz } from "@/utils/quizUtil";
 import { useParams, useRouter } from "next/navigation";
@@ -112,6 +104,7 @@ const ManageQuiz = () => {
         desiredQuestions: values.desiredQuestions || 0,
         questionIds: selectedRowKeys,
         totalQuestions: selectedRowKeys.length,
+        timeLimit: values.timeLimit || 1800,
       };
 
       if (id) {
@@ -157,6 +150,15 @@ const ManageQuiz = () => {
           layout="vertical"
           name="manage_quiz"
           onFinish={onFinish}
+          initialValues={{
+            timeLimit: 1800,
+            passingPerc: 50,
+            difficulty: LESSON_CATEGORY.BASIC,
+            validDateRange: [
+              dayjs().startOf("day"),
+              dayjs().add(2, "months").endOf("day"),
+            ]
+          }}
         >
           <div className="bg-white border rounded-lg p-6 mb-4">
             <Form.Item
@@ -165,6 +167,25 @@ const ManageQuiz = () => {
               rules={[{ required: true, message: "Please enter quiz name" }]}
             >
               <Input placeholder="Enter name here." />
+            </Form.Item>
+            <Form.Item
+              name="timeLimit"
+              label="Time Limit (in seconds)"
+              rules={[
+                { required: true, message: "Please enter time limit" },
+                {
+                  type: "number",
+                  min: 1800,
+                  message: "Time limit must be at least 1,900 seconds",
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                min={1800}
+                style={{ width: "100%" }}
+                placeholder="Enter time limit in seconds"
+              />
             </Form.Item>
             <Form.Item
               name="passingPerc"
@@ -272,12 +293,13 @@ const ManageQuiz = () => {
             <CommonS3ImagePicker
               visible={pickerVisible}
               onSelect={(items) => {
-            setSelectedImages(items)
+                setSelectedImages(items);
                 setPickerVisible(false);
               }}
               onClose={() => setPickerVisible(false)}
             />
           </div>
+ 
           {/* Questions */}
           <div className="bg-white border rounded-lg p-6 mb-4">
             <p className="text-lg font-semibold mb-3">

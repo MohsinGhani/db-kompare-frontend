@@ -141,6 +141,7 @@ export const SUPPORTED_RUNTIME = {
 export const DIFFICULTY = {
   EASY: "EASY",
   MEDIUM: "MEDIUM",
+  INTERMEDIATE: "INTERMEDIATE",
   HARD: "HARD",
 };
 
