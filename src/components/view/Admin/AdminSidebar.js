@@ -12,11 +12,9 @@ import {
   PictureFilled,
   QuestionCircleFilled,
 } from "@ant-design/icons";
-import { RemoveAccessTokenFormCookies } from "@/utils/helper";
-import { signOut } from "@aws-amplify/auth";
+import { handleLogout } from "@/utils/helper";
 
 const menuItems = [
-
   {
     key: "/admin/quiz",
     label: "Quizzes",
@@ -37,18 +35,11 @@ const menuItems = [
     label: "Categories",
     icon: <AppstoreFilled />,
   },
-
 ];
 
 const AdminSidebar = ({ user, setUser }) => {
   const pathname = usePathname();
   const router = useRouter();
-
-  const handleLogout = async () => {
-    await signOut();
-    RemoveAccessTokenFormCookies();
-    window.location.href = "/";
-  };
 
   const onMenuClick = ({ key }) => {
     if (pathname !== key) {
@@ -78,13 +69,15 @@ const AdminSidebar = ({ user, setUser }) => {
         onClick={onMenuClick}
       />
       {user && (
-        <Button
-          icon={<LogoutOutlined />}
-          onClick={handleLogout}
-          className=" absolute bottom-2 bg-red-700/65 text-white hover:!bg-red-700/80 w-full flex items-center justify-center"
-        >
-          Logout
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            className=" absolute bottom-2 bg-red-700/65 text-white !border-none !outline-none hover:!text-white hover:!outline-none hover:!border-none hover:!bg-red-800/80 w-full  max-w-[80%]"
+          >
+            <span className="hidden md:inline-flex">Logout</span>
+          </Button>
+        </div>
       )}
     </>
   );

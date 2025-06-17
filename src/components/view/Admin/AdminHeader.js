@@ -1,13 +1,9 @@
 import React from "react";
 import { Avatar, Layout } from "antd";
-import { useSelector } from "react-redux";
 
 const { Header } = Layout;
 
-const AdminHeader = () => {
-  const userDetails = useSelector((state) => state.auth.userDetails);
-  const user = userDetails?.data?.data;
-
+const AdminHeader = ({user}) => {
   return (
     <Header className="shadow-sm !bg-white leading-4 flex items-center justify-between">
       {user && (

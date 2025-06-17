@@ -120,7 +120,6 @@ const ManageQuestionModal = ({
     [question, form, onClose, onSuccess, selectedImages]
   );
 
-  console.log("question", question);
 
   return (
     <CommonModal
