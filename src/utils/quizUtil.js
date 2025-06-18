@@ -1,25 +1,32 @@
+// This File for ALL QUIZ RELATED API CALLS
+
+// ——————————————————————————————
+//  QUIZ RELATED API CALLS
+// ——————————————————————————————
+
+
+
+import Cookies from "js-cookie";
+
 // const X_API_KEY = "d41d8cd98f00b204e9800998ecf8427e";
-
-import { toast } from "react-toastify";
-
 // const API_BASE_URL = "http://localhost:4000/dev" ;
+
 const X_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
 const X_API_KEY_2 = process.env.NEXT_PUBLIC_X_API_KEY;
 const API_BASE_URL_2 = process.env.NEXT_PUBLIC_API_BASE_URL_2;
+ 
+const token = Cookies.get("accessToken");
 
 // Generic fetch helper
 const fetchAPI = async (url, options = {}) => {
   const response = await fetch(url, options);
   if (!response.ok) {
-    // throw new Error(
-    //   `Network response was not ok: ${response.status} ${response.statusText}`
-    // );
-   console.error(
+    throw new Error(
       `Network response was not ok: ${response.status} ${response.statusText}`
     );
-    return null;
+ 
   }
   return response.json();
 };
@@ -32,6 +39,7 @@ export const createQuiz = async (quizData) => {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
     body: JSON.stringify(quizData),
   });
@@ -39,12 +47,13 @@ export const createQuiz = async (quizData) => {
 
 // Create a new quiz question
 export const createQuizQuesions = async (quizData) => {
-  const url = `${API_BASE_URL_2}/create-quiz-progress`;
+  const url = `${API_BASE_URL}/create-quiz-questions`;
   return fetchAPI(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": X_API_KEY_2,
+      "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
     body: JSON.stringify(quizData),
   });
@@ -141,6 +150,7 @@ export const updateQuiz = async (id, updateData) => {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
     body: JSON.stringify(updateData),
   });
@@ -164,6 +174,7 @@ export const updateQuizQuestion = async (id, updateData) => {
     headers: {
       "Content-Type": "application/json",
       "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
     body: JSON.stringify(updateData),
   });
@@ -176,6 +187,7 @@ export const deleteQuiz = async (id) => {
     method: "DELETE",
     headers: {
       "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
   });
 };
@@ -186,11 +198,10 @@ export const deleteQuizQuestion = async (id) => {
     method: "DELETE",
     headers: {
       "x-api-key": X_API_KEY,
+      Authorization: `${token}`,
     },
   });
 };
-
-
 
 // Fetch a single certificate by ID
 export const fetchCertificateById = async (id) => {

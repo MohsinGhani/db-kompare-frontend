@@ -1,3 +1,11 @@
+// This File for ALL PRACTICE SQL QUERY RELATED API CALLS
+
+// ——————————————————————————————
+//  PRACTICE SQL QUERY RELATED API CALLS
+// ——————————————————————————————
+
+
+
 const X_API_KEY = process.env.NEXT_PUBLIC_Z_API_KEY;
 const API_BASE_URL_3 = process.env.NEXT_PUBLIC_API_BASE_URL_3;
 

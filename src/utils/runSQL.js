@@ -1,3 +1,11 @@
+// This File for ALL RUN SQL RELATED API CALLS
+
+// ——————————————————————————————
+//  RUN SQL RELATED API CALLS
+// ——————————————————————————————
+
+
+
 // const X_API_KEY = "d41d8cd98f00b204e9800998ecf8427e";
 // const API_BASE_URL_3 = "http://localhost:4000/dev";
 const X_API_KEY = process.env.NEXT_PUBLIC_Z_API_KEY;

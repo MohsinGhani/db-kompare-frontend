@@ -1,3 +1,16 @@
+// 1- This file is for uploading files to S3 using AWS Amplify.
+// 2- It allows users to select multiple files, shows upload progress, and handles cancellation.
+// 3- The component can be used in any part of the application where file upload to S3 is needed.
+// 4- It generates unique keys for each file based on the provided path and file name.
+
+
+
+// ——————————————————————————————
+//  COMMON FILE UPLOAD TO S3
+// ——————————————————————————————
+
+
+
 "use client";
 
 import React, { useState, useRef } from "react";
