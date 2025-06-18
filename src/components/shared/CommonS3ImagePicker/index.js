@@ -1,3 +1,14 @@
+// 1- This File for picking images from S3 bucket and this is reusable component. 
+// 2- It can select single or multiple images based on the `multiple` prop. By default, it allows single selection.
+// 3- It fetches folders and images from S3, displays them in a modal, and allows users to select images.
+
+
+
+// ——————————————————————————————
+//  COMMON S3 IMAGE PICKER FOR SELECTING IMAGES
+// ——————————————————————————————
+
+
 `use client`;
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
@@ -5,7 +16,6 @@ import { Modal, Row, Col, Card, Spin, Button } from "antd";
 import {
   FolderOpenOutlined,
   FolderOpenFilled,
-  CheckCircleOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
 import {

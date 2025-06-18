@@ -1,8 +1,15 @@
-// src/utils/categoriesUtils.js
+
+// This File for ALL ADMIN CATEGORIES RELATED API CALLS
+
+// ——————————————————————————————
+//  CATEGORIES RELATED API CALLS
+// ——————————————————————————————
+
+import Cookies from "js-cookie";
 
 const X_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 const API_BASE_URL_3 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
-
+const token = Cookies.get("accessToken");
 
 export async function createCategory(payload) {
   try {
@@ -13,6 +20,7 @@ export async function createCategory(payload) {
         headers: {
           "Content-Type": "application/json",
           "x-api-key": X_API_KEY,
+          Authorization: `${token}`, 
         },
         body: JSON.stringify(payload),
       }
@@ -70,6 +78,7 @@ export async function updateCategory(id, payload) {
         headers: {
           "Content-Type": "application/json",
           "x-api-key": X_API_KEY,
+          Authorization: `${token}`,
         },
         body: JSON.stringify(payload),
       }
@@ -131,6 +140,7 @@ export async function deleteCategory(id) {
         method: "DELETE",
         headers: {
           "x-api-key": X_API_KEY,
+          Authorization: `${token}`,
         },
       }
     );

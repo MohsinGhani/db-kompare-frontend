@@ -1,3 +1,13 @@
+// This File for gallery management in the admin panel
+
+// ——————————————————————————————
+//  GALLERY MANAGEMENT
+// ——————————————————————————————
+
+
+
+
+
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
