@@ -64,9 +64,9 @@ const ExperienceSection = () => {
   return (
     <div
       ref={sectionRef}
-      className="bg-primary shadow-md md:px-24 px-9 my-4 py-11 w-full"
+      className="bg-primary shadow-md md:px-24 px-9 my-4 py-8 md:py-11 w-full"
     >
-      <div className="flex md:flex-row flex-col justify-between items-center mt-8">
+      <div className="flex md:flex-row flex-col justify-between items-center ">
         {data.map((item, index) => (
           <div
             key={index}
@@ -75,14 +75,14 @@ const ExperienceSection = () => {
             }`}
           >
             {isVisible ? (
-              <div className="text-white text-6xl font-bold mb-2 flex items-center justify-center">
+              <div className="text-white text-4xl lg:text-6xl font-bold mb-2 flex items-center justify-center">
                 <CountUp start={1} end={item?.total_count} duration={3} />
                 <p>+</p>
               </div>
             ) : (
-              <span className="text-white text-6xl font-bold mb-2">0</span>
+              <span className="text-white text-3xl lg:text-6xl font-bold mb-2">0</span>
             )}
-            <p className="text-white text-2xl">{item.label}</p>
+            <p className="text-white text-sm md:text-2xl">{item.label}</p>
           </div>
         ))}
       </div>

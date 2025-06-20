@@ -52,7 +52,7 @@ const AuthFlowHandler = () => {
       localStorage.removeItem("customOAuthState");
 
       // first, by role:
-      if (isAdmin(userDetails.data.data.role)) {
+      if (isAdmin(userDetails?.data?.data?.role)) {
         router.replace("/admin/quiz");
         return;
       } else {
