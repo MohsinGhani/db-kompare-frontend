@@ -22,22 +22,20 @@ const Quizzes = () => {
   const [loading, setLoading] = useState(true);
 
   // 1) Load quizzes
-  useEffect(() => {
-    if (!user && isUserLoading) return;
-    setLoading(true);
-    const params = { status: "ACTIVE", ...(user ? { userId: user.id } : {}) };
+useEffect(() => {
+  // 1) on mount or 2) when user or loading flag changes…
+  if (!user && isUserLoading) return;   
+  setLoading(true);
 
-    fetchQuizzes(params)
-      .then((res) => {
-        setQuizzes(res.data || []);
-      })
-      .catch(() => {
-        toast.error("Failed to load quizzes");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [user]);
+  const params = {
+    status: "ACTIVE",
+    ...(user ? { userId: user.id } : {})
+  };
+  fetchQuizzes(params)
+    .then(res  => setQuizzes(res.data || []))
+    .catch(() => toast.error("Failed to load quizzes"))
+    .finally(() => setLoading(false));
+}, [user, isUserLoading]);
 
   // 2) Whenever quizzes change, pull in any new category names
   useEffect(() => {
