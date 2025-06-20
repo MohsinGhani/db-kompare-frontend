@@ -1,3 +1,11 @@
+// This File for ALL AUTENTICATION HELPER FUNCTIONS
+
+// ——————————————————————————————
+//  PRACTICE SQL QUERY RELATED API CALLS
+// ——————————————————————————————
+
+
+
 import {
   fetchUserAttributes,
   signInWithRedirect,

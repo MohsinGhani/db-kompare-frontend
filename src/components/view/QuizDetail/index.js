@@ -315,7 +315,7 @@ export default function QuizDetail({ quiz }) {
       {/* Remaining Timer section */}
       <div className="container flex justify-between items-center w-full mt-12">
         <p className="font-semibold text-lg">
-          {currentIndex + 1} of {questions?.length}{" "}
+          {currentIndex + 1} of {quiz?.desiredQuestions || questions?.length}{" "}
         </p>
         <div className=" flex flex-col justify-center items-center ">
           <ClockCircleOutlined className="text-4xl !text-primary" />
@@ -325,7 +325,7 @@ export default function QuizDetail({ quiz }) {
 
 
       {/* Question display section */}
-      <div className="container flex justify-center items-center min-h-[calc(90vh-150px)] h-full overflow-auto py-6 flex-col">
+      <div className="container flex justify-center items-center  min-h-[calc(90vh-170px)] md:min-h-[calc(90vh-150px)] h-full overflow-auto py-6 flex-col">
         <h1 className="text-base md:text-2xl lg:text-3xl font-bold text-left pointer-events-none select-none">
           Q{currentIndex + 1}. {question.question}
         </h1>
