@@ -103,7 +103,6 @@ export const rankingOptions = [
   { value: "Navigational DBMS", label: "Hierarchial DB" },
 ];
 
-
 export const RESOURCE_TYPE = {
   GITHUB: "GITHUB",
   STACKOVERFLOW: "STACKOVERFLOW",
@@ -143,6 +142,11 @@ export const DIFFICULTY = {
   MEDIUM: "MEDIUM",
   INTERMEDIATE: "INTERMEDIATE",
   HARD: "HARD",
+};
+
+export const USER_EVENT_TYPE = {
+  LOGIN: "LOGIN",
+  XP: "XP",
 };
 
 export const QUESTION_TYPE = {
