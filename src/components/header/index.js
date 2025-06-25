@@ -2,7 +2,12 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "../../../public/assets/icons/logo.gif";
-import { CloseOutlined, DownOutlined, MenuOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DownOutlined,
+  FireTwoTone,
+  MenuOutlined,
+} from "@ant-design/icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import CommonTypography from "../shared/Typography";
@@ -12,8 +17,8 @@ import CommonUserDropdown from "../shared/UserDropdown";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUserDetails, setUserDetails } from "@/redux/slices/authSlice";
-import { Button, Dropdown, Menu } from "antd";
-import { isAdminRoute } from "@/utils/helper";
+import { Button, Dropdown, Menu, Popover } from "antd";
+import { isAdmin, isAdminRoute } from "@/utils/helper";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -35,6 +40,7 @@ export default function Navbar() {
   ];
   const dispatch = useDispatch();
   const userDetails = useSelector(selectUserDetails);
+  const user = userDetails?.data?.data;
   const Y_API_KEY = process.env.NEXT_PUBLIC_Y_API_KEY;
 
   const handleLogin = async (userId) => {
@@ -105,6 +111,16 @@ export default function Navbar() {
   }, [isOpen]);
 
   const items = categoriesItems;
+  const userStreak = user?.metrics?.streak || 0;
+  const content = (
+    <p className="max-w-44">
+      Your current streak is{" "}
+      <span className="text-[#FF9600] font-semibold">{userStreak}</span> day!
+      Keep it up! it increase 1 after every 3 days of continuous usage.
+      <br />
+    </p>
+  );
+
   if (isAdminRoute(path) || isQuizDetailScreen) return null;
 
   return (
@@ -163,23 +179,28 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="flex flex-row items-center justify-center">
+        <div className="flex flex-row items-center gap-4 justify-center">
+          {user && !isAdmin(user) && (
+            <Popover content={content} title="Your Streak">
+              <div className="flex items-center mr-2 md:mr-4 gap-1 cursor-pointer">
+                <img
+                  src="/assets/icons/streak-icon.png"
+                  className="w-8 h-8 object-contain"
+                />
+                {userStreak > 0 && (
+                  <p className="text-[#FF9600] font-semibold">{userStreak}</p>
+                )}
+              </div>
+            </Popover>
+          )}
           <div className="sm:block hidden">
             <a href="https://ko-fi.com/P5P3193P0O" target="blank">
-              <button
-                className="mr-4 flex items-center justify-center bg-[#f1993c] w-48 rounded-lg text-white group !border-transparent hover:border-[#f1993c] hover:text-black "
-                style={{ height: "40px" }}
-              >
-                <img
-                  src="/assets/icons/buyMeCoffee.png"
-                  width={25}
-                  height={25}
-                  alt="icon"
-                />
-                <span className="ml-1 text-[15px] font-medium group-hover:text-black">
-                  Buy me a coffee
-                </span>
-              </button>
+              <img
+                src="/assets/icons/buyMeCoffee.png"
+                width={25}
+                height={25}
+                alt="icon"
+              />
             </a>
           </div>
           {!authRoutes.includes(path) && (
