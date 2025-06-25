@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 import { Image } from "antd";
 import { handleFetchAuthSession } from "@/utils/authServices";
 import { isAdmin } from "@/utils/helper";
+import { processUserAchievement } from "@/utils/userUtil";
+import { USER_EVENT_TYPE } from "@/utils/const";
 
 const getHash = () =>
   typeof window !== "undefined" ? window.location.hash : "";
@@ -49,10 +51,21 @@ const AuthFlowHandler = () => {
     if (!hasAuthError && userDetails) {
       // pull out any saved post-login path
       const customPath = localStorage.getItem("customOAuthState");
+      // Process user achievement for login event
+      const userAchievementPayload = {
+        userId: user?.id,
+        eventType: USER_EVENT_TYPE.LOGIN,
+      };
+
       localStorage.removeItem("customOAuthState");
 
+      // only process achievement if user exists and is not an admin
+      if (user && !isAdmin(user?.role)) {
+        processUserAchievement(userAchievementPayload);
+      }
+      
       // first, by role:
-      if (isAdmin(userDetails?.data?.data?.role)) {
+      if (isAdmin(user?.role)) {
         router.replace("/admin/quiz");
         return;
       } else {

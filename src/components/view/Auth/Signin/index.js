@@ -21,6 +21,8 @@ import {
 import { socialRegisteration } from "@/utils/authServices";
 import { toast } from "react-toastify";
 import { useSearchParams } from "next/navigation";
+import { USER_EVENT_TYPE } from "@/utils/const";
+import { processUserAchievement } from "@/utils/userUtil";
 
 const API_BASE_URL_1 = process.env.NEXT_PUBLIC_API_BASE_URL_1;
 
@@ -90,6 +92,14 @@ const SignIn = () => {
           ? decodeURIComponent(redirectParam)
           : "/";
         router.replace(redirectPath);
+
+        // Process user achievement for login event
+        const userAchievementPayload = {
+          userId: data?.data?.id,
+          eventType: USER_EVENT_TYPE.LOGIN,
+        };
+        await processUserAchievement(userAchievementPayload);
+        
       } else if (response.status === 404) {
         console.warn("User not found.");
       } else {
